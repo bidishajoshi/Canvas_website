@@ -4,6 +4,7 @@ import { HeroSection } from '@/components/home/HeroSection';
 import { AnnouncementBar } from '@/components/home/AnnouncementBar';
 import { CategoryGrid } from '@/components/home/CategoryGrid';
 import { CustomCanvasCta } from '@/components/home/CustomCanvasCta';
+import { CustomTShirtCta } from '@/components/home/CustomTShirtCta';
 import { PanelShowcase } from '@/components/home/PanelShowcase';
 import { BestSellers } from '@/components/home/BestSellers';
 import { WhyChooseUs } from '@/components/home/WhyChooseUs';
@@ -24,6 +25,7 @@ const SECTION_RENDERERS: Record<
   hero: (s) => <HeroSection key={s.id} section={s} />,
   shop_by_category: (s) => <CategoryGrid key={s.id} section={s} />,
   custom_canvas_cta: (s) => <CustomCanvasCta key={s.id} section={s} />,
+  custom_tshirt_cta: (s) => <CustomTShirtCta key={s.id} section={s} />,
   panel_showcase: (s) => <PanelShowcase key={s.id} section={s} />,
   best_sellers: (s) => <BestSellers key={s.id} section={s} />,
   why_choose_us: (s) => <WhyChooseUs key={s.id} section={s} />,
@@ -44,9 +46,10 @@ export default async function HomePage() {
 
   return (
     <>
-      {announcement?.enabled && (
-        <AnnouncementBar message={announcement.message} href={announcement.link_href} />
-      )}
+      <AnnouncementBar
+        message={announcement?.enabled ? announcement.message : '🇳🇵 Free Delivery Across Kathmandu Valley on Orders Over Rs. 2,000! Express Cash on Delivery Available.'}
+        href={announcement?.enabled ? announcement.link_href : '/custom-canvas'}
+      />
 
       {sections.map((section) => {
         const render = SECTION_RENDERERS[section.section_key];
@@ -55,3 +58,4 @@ export default async function HomePage() {
     </>
   );
 }
+

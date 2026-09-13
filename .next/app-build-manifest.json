@@ -1,9 +1,9 @@
 {
   "pages": {
-    "/(site)/custom-canvas/page": [
+    "/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/(site)/custom-canvas/page.js"
+      "static/chunks/app/page.js"
     ],
     "/layout": [
       "static/chunks/webpack.js",
@@ -11,20 +11,40 @@
       "static/css/app/layout.css",
       "static/chunks/app/layout.js"
     ],
-    "/page": [
+    "/(site)/shop/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/page.js"
+      "static/chunks/app/(site)/shop/page.js"
     ],
-    "/(site)/[slug]/page": [
+    "/(site)/custom-canvas/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/(site)/[slug]/page.js"
+      "static/chunks/app/(site)/custom-canvas/page.js"
     ],
-    "/(site)/track-order/page": [
+    "/(site)/search/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/(site)/track-order/page.js"
+      "static/chunks/app/(site)/search/page.js"
+    ],
+    "/(site)/account/wishlist/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(site)/account/wishlist/page.js"
+    ],
+    "/(site)/cart/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(site)/cart/page.js"
+    ],
+    "/(site)/account/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(site)/account/page.js"
+    ],
+    "/(site)/login/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(site)/login/page.js"
     ]
   }
 }

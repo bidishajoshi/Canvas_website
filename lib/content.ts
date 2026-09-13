@@ -53,8 +53,8 @@ const DEFAULT_MENU_ITEMS: MenuItem[] = [
   { id: '1', label: 'Home', href: '/', sort_order: 1 },
   { id: '2', label: 'Shop', href: '/shop', sort_order: 2 },
   { id: '3', label: 'Custom Canvas', href: '/custom-canvas', sort_order: 3 },
-  { id: '3b', label: 'Customize T-Shirt', href: '/customize-tshirt', sort_order: 4 },
-  { id: '4', label: 'How It Works', href: '/#how-it-works', sort_order: 5 },
+  { id: '3b', label: 'Customize T-Shirt', href: '/custom-t-shirt', sort_order: 4 },
+  { id: '4', label: 'How It Works', href: '/how-it-works', sort_order: 5 },
   { id: '5', label: 'About', href: '/about', sort_order: 6 },
   { id: '6', label: 'Track Order', href: '/track-order', sort_order: 7 },
   { id: '7', label: 'Contact', href: '/contact', sort_order: 8 },
@@ -72,6 +72,103 @@ export async function getMenuItems(menuGroup = 'main'): Promise<MenuItem[]> {
   return data && data.length > 0 ? data : DEFAULT_MENU_ITEMS;
 }
 
+const DEFAULT_HOMEPAGE_SECTIONS: HomepageSection[] = [
+  {
+    id: 'sec-hero',
+    section_key: 'hero',
+    title: 'Turn Your Memories Into Beautiful Canvas',
+    subtitle: 'Affordable canvas prints, wall décor and personalized products made for your space in Nepal.',
+    cta_label: 'Customize Canvas',
+    cta_href: '/custom-canvas',
+    secondary_cta_label: 'Customize T-Shirt',
+    secondary_cta_href: '/custom-t-shirt',
+    media: {
+      desktop_image: 'https://images.unsplash.com/photo-1579783902614-a3fb3927b675?auto=format&fit=crop&w=1200&q=80',
+      mobile_image: 'https://images.unsplash.com/photo-1579783902614-a3fb3927b675?auto=format&fit=crop&w=800&q=80',
+    },
+    enabled: true,
+    sort_order: 1,
+  },
+  {
+    id: 'sec-categories',
+    section_key: 'shop_by_category',
+    title: 'Explore Our Categories',
+    subtitle: 'Choose from canvas prints, multi-panel splits, custom portraits, and customized t-shirts.',
+    enabled: true,
+    sort_order: 2,
+  },
+  {
+    id: 'sec-best-sellers',
+    section_key: 'best_sellers',
+    title: 'Best Selling Wall Decor & Canvases',
+    subtitle: 'Top rated decor items loved by customers across Nepal.',
+    enabled: true,
+    sort_order: 3,
+  },
+  {
+    id: 'sec-canvas-cta',
+    section_key: 'custom_canvas_cta',
+    title: 'Custom Canvas Live Builder',
+    subtitle: 'Upload your photo, preview 1, 3, or 5 panel splits on actual wall backgrounds before ordering.',
+    cta_label: 'Start Canvas Builder',
+    cta_href: '/custom-canvas',
+    enabled: true,
+    sort_order: 4,
+  },
+  {
+    id: 'sec-tshirt-cta',
+    section_key: 'custom_tshirt_cta',
+    title: 'Design Your Own T-Shirt',
+    subtitle: 'Pick premium cotton t-shirts, select colors, add graphic art or upload your own design with custom text.',
+    cta_label: 'Customize T-Shirt Now',
+    cta_href: '/custom-t-shirt',
+    enabled: true,
+    sort_order: 5,
+  },
+  {
+    id: 'sec-panel-showcase',
+    section_key: 'panel_showcase',
+    title: 'Multi-Panel Canvas Layouts',
+    subtitle: 'Transform a single high-resolution image into dramatic 3-panel or 5-panel wall statements.',
+    enabled: true,
+    sort_order: 6,
+  },
+  {
+    id: 'sec-why-us',
+    section_key: 'why_choose_us',
+    title: 'Why Nepal Chooses Affordable Decoration',
+    subtitle: 'Unmatched quality, affordable pricing, and fast cash-on-delivery across Nepal.',
+    enabled: true,
+    sort_order: 7,
+  },
+  {
+    id: 'sec-how-it-works',
+    section_key: 'how_it_works',
+    title: 'How Easy It Works',
+    subtitle: 'Three simple steps to receive personalized decor at your doorstep.',
+    enabled: true,
+    sort_order: 8,
+  },
+  {
+    id: 'sec-reviews',
+    section_key: 'customer_reviews',
+    title: 'Loved by Homes & Offices Across Nepal',
+    subtitle: 'Real reviews and photos from our delighted customers.',
+    enabled: true,
+    sort_order: 9,
+  },
+  {
+    id: 'sec-whatsapp',
+    section_key: 'whatsapp_cta',
+    title: 'Need Custom Help or Instant Order?',
+    subtitle: 'Our design team is live on WhatsApp to help you choose the best frame or panel size for your photo.',
+    cta_label: 'Chat with Us on WhatsApp',
+    cta_href: 'https://wa.me/9779800000000',
+    enabled: true,
+    sort_order: 10,
+  },
+];
+
 export async function getHomepageSections(): Promise<HomepageSection[]> {
   const supabase = createClient();
   const { data } = await supabase
@@ -80,5 +177,6 @@ export async function getHomepageSections(): Promise<HomepageSection[]> {
     .eq('enabled', true)
     .order('sort_order', { ascending: true });
 
-  return (data as HomepageSection[]) ?? [];
+  return data && data.length > 0 ? (data as HomepageSection[]) : DEFAULT_HOMEPAGE_SECTIONS;
 }
+

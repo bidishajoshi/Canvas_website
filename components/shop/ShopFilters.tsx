@@ -1,5 +1,6 @@
 'use client';
 
+import { Suspense } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import type { Category } from '@/lib/types';
@@ -10,7 +11,7 @@ interface ShopFiltersProps {
   activeSort?: string;
 }
 
-export function ShopFilters({ categories, activeCategory, activeSort }: ShopFiltersProps) {
+function ShopFiltersContent({ categories, activeCategory, activeSort }: ShopFiltersProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -63,3 +64,12 @@ export function ShopFilters({ categories, activeCategory, activeSort }: ShopFilt
     </aside>
   );
 }
+
+export function ShopFilters(props: ShopFiltersProps) {
+  return (
+    <Suspense fallback={<div className="text-xs text-muted">Loading filters...</div>}>
+      <ShopFiltersContent {...props} />
+    </Suspense>
+  );
+}
+
