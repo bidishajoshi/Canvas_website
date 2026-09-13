@@ -1,0 +1,95 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,400&display=swap');
+
+:root {
+  --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  --font-display: 'Playfair Display', Georgia, serif;
+
+  /* LIGHT MODE — Warm white, ivory, soft beige, rich charcoal typography, gold accent */
+  --color-bg: #faf8f5;
+  --color-surface: #ffffff;
+  --color-surface-hover: #f3efe9;
+  --color-border: #e6dfd5;
+  --color-text: #1c1917;
+  --color-muted: #78716c;
+  --color-accent-yellow: #d97706;
+  --color-accent-yellow-contrast: #ffffff;
+  --color-accent-pink: #e11d48;
+  --color-accent-pink-contrast: #ffffff;
+  --color-card-shadow: 0 4px 20px -2px rgba(28, 25, 23, 0.05);
+}
+
+[data-theme='dark'] {
+  /* DARK MODE — Deep charcoal, near-black, warm golden accents, cinematic mood */
+  --color-bg: #0c0a09;
+  --color-surface: #1c1917;
+  --color-surface-hover: #292524;
+  --color-border: #292524;
+  --color-text: #f5f5f4;
+  --color-muted: #a8a29e;
+  --color-accent-yellow: #f59e0b;
+  --color-accent-yellow-contrast: #0c0a09;
+  --color-accent-pink: #f43f5e;
+  --color-accent-pink-contrast: #ffffff;
+  --color-card-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.5);
+}
+
+* {
+  border-color: var(--color-border);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-sans);
+  transition: background-color 0.3s ease, color 0.3s ease;
+  overflow-x: hidden;
+}
+
+.font-display {
+  font-family: var(--font-display);
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-bg);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-muted);
+}
+
+/* Utility Animations & Card Effects */
+@layer utilities {
+  .container-page {
+    @apply mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8;
+  }
+
+  .card-hover {
+    @apply transition-all duration-300 hover:-translate-y-1 hover:shadow-lg;
+    box-shadow: var(--color-card-shadow);
+  }
+
+  .glass-header {
+    background-color: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(12px);
+  }
+}
+
+[data-theme='dark'] .glass-header {
+  background-color: rgba(12, 10, 9, 0.85);
+}
