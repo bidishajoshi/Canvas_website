@@ -90,6 +90,7 @@ const GAP_OPTIONS = [
   { mm: 10, label: '1 cm (10 mm)', desc: 'Tight Gap' },
   { mm: 20, label: '2 cm (20 mm)', desc: 'Standard (Recommended)' },
   { mm: 30, label: '3 cm (30 mm)', desc: 'Medium Gap' },
+  { mm: 40, label: '4 cm (40 mm)', desc: 'Large Gap' },
   { mm: 50, label: '5 cm (50 mm)', desc: 'Wide Gap' },
 ];
 
@@ -99,7 +100,8 @@ const FALLBACK_PANELS: PanelType[] = [
   { id: 'panel-3', name: '3 Piece (Triptych)', panel_count: 3, description: null, status: 'published', sort_order: 3, is_active: true },
   { id: 'panel-4', name: '4 Piece (Quad)', panel_count: 4, description: null, status: 'published', sort_order: 4, is_active: true },
   { id: 'panel-5', name: '5 Piece (Pentaptych)', panel_count: 5, description: null, status: 'published', sort_order: 5, is_active: true },
-  { id: 'panel-7', name: '7 Piece (Panoramic)', panel_count: 7, description: null, status: 'published', sort_order: 6, is_active: true },
+  { id: 'panel-6', name: '6 Piece (Hexaptych)', panel_count: 6, description: null, status: 'published', sort_order: 6, is_active: true },
+  { id: 'panel-7', name: '7 Piece (Panoramic)', panel_count: 7, description: null, status: 'published', sort_order: 7, is_active: true },
 ];
 
 export function CanvasBuilderClient({
@@ -139,12 +141,14 @@ export function CanvasBuilderClient({
   const currentDemoObj = DEMO_ARTWORKS.find((d) => d.id === selectedDemoId) || DEMO_ARTWORKS[0];
   const currentPhotoUrl = uploadedPhoto?.url || (isUsingDemo ? currentDemoObj.url : defaultDemoUrl);
 
+  const selectedPanelType = activePanels.find((p) => p.id === panelTypeId) ?? activePanels[0] ?? null;
+
+  // Filter sizes strictly by the selected panel type
   const sizesForPanelType = useMemo(
-    () => (panelTypeId ? sizes.filter((s) => s.panel_type_id === panelTypeId) : sizes),
-    [sizes, panelTypeId]
+    () => (selectedPanelType ? sizes.filter((s) => s.panel_type_id === selectedPanelType.id) : sizes),
+    [sizes, selectedPanelType]
   );
 
-  const selectedPanelType = activePanels.find((p) => p.id === panelTypeId) ?? activePanels[0] ?? null;
   const selectedSize = sizesForPanelType.find((s) => s.id === sizeId) ?? sizesForPanelType[0] ?? sizes[0] ?? null;
   const selectedFrame = frames.find((f) => f.id === frameId) ?? null;
   const selectedFinish = finishes.find((f) => f.id === finishId) ?? null;
@@ -315,10 +319,10 @@ export function CanvasBuilderClient({
                 <span className="text-xl">🐎</span>
                 <div>
                   <h3 className="font-bold text-sm text-text">
-                    Pre-loaded Demo Art &amp; 7 Horses Preview
+                    Default 7 Running Horses Demo Art
                   </h3>
                   <p className="text-xs text-muted">
-                    Test live panel splitting on popular Vastu &amp; Abstract art, or upload your own.
+                    Test live panel splitting across 1 to 7 pieces, or upload your photo.
                   </p>
                 </div>
               </div>
@@ -328,7 +332,7 @@ export function CanvasBuilderClient({
                   onClick={() => setIsUsingDemo(true)}
                   className="px-3 py-1 rounded-lg text-xs font-semibold bg-pink-500/10 text-pink-600 border border-pink-500/20 hover:bg-pink-500/20 transition-all"
                 >
-                  ↺ Switch to Demo Artwork
+                  ↺ Try Demo Photo
                 </button>
               )}
             </div>
@@ -437,7 +441,7 @@ export function CanvasBuilderClient({
             )}
           </div>
 
-          {/* Step 3: Panel Type Cards (1, 2, 3, 4, 5, 7) */}
+          {/* Step 3: Panel Type Cards (1, 2, 3, 4, 5, 6, 7) */}
           <div className="rounded-xl border border-border p-5 bg-surface/50 space-y-6">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
@@ -456,9 +460,9 @@ export function CanvasBuilderClient({
             {/* Visual Panel Card Grid */}
             <div>
               <label className="text-xs font-semibold text-muted mb-2.5 block uppercase tracking-wider">
-                Panel Split Configuration
+                Panel Composition Slices
               </label>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 {activePanels.map((p) => {
                   const isSelected =
                     selectedPanelType?.id === p.id || selectedPanelType?.panel_count === p.panel_count;
@@ -481,19 +485,19 @@ export function CanvasBuilderClient({
                         {p.panel_count === 1 ? '1 Solid Canvas' : `${p.panel_count} Split Panels`}
                       </span>
 
-                      {/* Warm Yellow Badge */}
+                      {/* Warm Yellow Badges */}
                       {p.panel_count === 3 && (
-                        <span className="absolute -top-2 right-2 px-2 py-0.5 text-[9px] font-bold rounded-full bg-amber-500 text-white shadow">
-                          Most Popular
+                        <span className="absolute -top-2 right-1 px-1.5 py-0.5 text-[9px] font-bold rounded-full bg-amber-500 text-white shadow">
+                          Popular
                         </span>
                       )}
                       {p.panel_count === 5 && (
-                        <span className="absolute -top-2 right-2 px-2 py-0.5 text-[9px] font-bold rounded-full bg-amber-500 text-white shadow">
+                        <span className="absolute -top-2 right-1 px-1.5 py-0.5 text-[9px] font-bold rounded-full bg-amber-500 text-white shadow">
                           Grand View
                         </span>
                       )}
                       {p.panel_count === 7 && (
-                        <span className="absolute -top-2 right-2 px-2 py-0.5 text-[9px] font-bold rounded-full bg-pink-600 text-white shadow">
+                        <span className="absolute -top-2 right-1 px-1.5 py-0.5 text-[9px] font-bold rounded-full bg-pink-600 text-white shadow">
                           Panoramic
                         </span>
                       )}
@@ -503,14 +507,14 @@ export function CanvasBuilderClient({
               </div>
             </div>
 
-            {/* Gap Spacing Selector */}
+            {/* Panel Gap Spacing Selector */}
             {selectedPanelType && selectedPanelType.panel_count > 1 && (
               <div className="p-4 rounded-xl border border-border bg-surface/80 space-y-2">
                 <label className="text-xs font-bold text-text flex items-center justify-between">
                   <span>↔️ Panel Gap Spacing</span>
                   <span className="text-amber-600 font-mono text-xs">{panelGapMm / 10} cm ({panelGapMm} mm)</span>
                 </label>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
                   {GAP_OPTIONS.map((g) => (
                     <button
                       key={g.mm}
@@ -534,7 +538,7 @@ export function CanvasBuilderClient({
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <label className="text-xs font-semibold text-muted uppercase tracking-wider">
-                  Canvas Dimensions
+                  Available Sizes for {selectedPanelType?.name || 'Selected Layout'}
                 </label>
                 {selectedSize?.sizing_mode && (
                   <span className="text-[11px] font-semibold text-pink-600 bg-pink-500/10 px-2 py-0.5 rounded border border-pink-500/20">
@@ -637,7 +641,7 @@ export function CanvasBuilderClient({
           </div>
         </div>
 
-        {/* Right Column: Live Interactive Konva Preview & Order Summary */}
+        {/* Right Column: Live Interactive Konva Preview & Order Action */}
         <div className="space-y-6 lg:sticky lg:top-24 lg:self-start">
           <div className="rounded-xl border border-border p-5 bg-surface shadow-sm">
             <div className="flex items-center justify-between mb-3">
@@ -694,42 +698,16 @@ export function CanvasBuilderClient({
             )}
           </div>
 
-          {/* Step 7: Order Summary & Actions */}
+          {/* Direct Order Actions (Technical Configuration Summary hidden per customer request) */}
           <div className="rounded-xl border border-border p-5 bg-surface shadow-sm space-y-4">
             <div className="flex items-center justify-between border-b border-border pb-3">
-              <div className="flex items-center gap-2">
-                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-amber-600 text-white text-xs font-bold">7</span>
-                <h2 className="text-base font-semibold">Configuration Summary</h2>
+              <div>
+                <span className="text-xs text-muted uppercase tracking-wider font-semibold">Total Investment</span>
+                <p className="text-2xl font-extrabold text-amber-600">{formattedPriceRs}</p>
               </div>
-              <span className="text-xl font-extrabold text-amber-600">{formattedPriceRs}</span>
-            </div>
-
-            <div className="space-y-2 text-xs text-muted">
-              <div className="flex justify-between">
-                <span>Layout:</span>
+              <div className="text-right text-xs text-muted">
                 <span className="font-semibold text-text">{selectedPanelType?.name || '1 Panel'}</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Canvas Size:</span>
-                <span className="font-semibold text-text">{selectedSize?.name || 'Standard'}</span>
-              </div>
-              {selectedSize?.each_panel_size && (
-                <div className="flex justify-between">
-                  <span>Panel Size:</span>
-                  <span className="font-semibold text-pink-600">{selectedSize.each_panel_size}</span>
-                </div>
-              )}
-              <div className="flex justify-between">
-                <span>Panel Gap:</span>
-                <span className="font-semibold text-text">{panelGapMm / 10} cm ({panelGapMm} mm)</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Frame:</span>
-                <span className="font-semibold text-text">{selectedFrame?.name || 'Unframed'}</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Finish:</span>
-                <span className="font-semibold text-text">{selectedFinish?.name || 'Matte'}</span>
+                <p>{selectedSize?.name || 'Standard'}</p>
               </div>
             </div>
 
@@ -771,10 +749,22 @@ function RenderPanelDiagram({ count, isSelected }: { count: number; isSelected: 
   const barColor = isSelected ? 'bg-pink-500' : 'bg-muted/40';
 
   if (count === 5) {
-    // Chevron height pattern (70%, 85%, 100%, 85%, 70%)
+    // Chevron height pattern (75%, 87.5%, 100%, 87.5%, 75%)
     const heights = ['h-6', 'h-8', 'h-10', 'h-8', 'h-6'];
     return (
       <div className="flex items-end justify-center gap-1 h-10 w-full px-2">
+        {heights.map((h, i) => (
+          <div key={i} className={`flex-1 ${h} ${barColor} rounded-sm transition-all`} />
+        ))}
+      </div>
+    );
+  }
+
+  if (count === 7) {
+    // Stepped panoramic pattern (70%, 82%, 92%, 100%, 92%, 82%, 70%)
+    const heights = ['h-5', 'h-7', 'h-9', 'h-10', 'h-9', 'h-7', 'h-5'];
+    return (
+      <div className="flex items-end justify-center gap-0.5 h-10 w-full px-1">
         {heights.map((h, i) => (
           <div key={i} className={`flex-1 ${h} ${barColor} rounded-sm transition-all`} />
         ))}

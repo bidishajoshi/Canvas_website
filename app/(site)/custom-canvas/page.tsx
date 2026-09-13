@@ -7,7 +7,7 @@ import type { CanvasSize, Finish, Frame, PanelType } from '@/lib/types';
 export const metadata: Metadata = {
   title: 'Custom Canvas Builder — Affordable Decoration Nepal',
   description:
-    'Design and customize 1, 2, 3, 4, 5, and 7 panel canvas wall art for your home or office. Real-time live visual editor with Vastu 7 Running Horses demo art.',
+    'Design and customize 1, 2, 3, 4, 5, 6, and 7 panel canvas wall art for your home or office. Real-time live visual editor with Vastu 7 Running Horses demo art.',
 };
 
 const FALLBACK_PANELS: PanelType[] = [
@@ -16,7 +16,8 @@ const FALLBACK_PANELS: PanelType[] = [
   { id: 'panel-3', name: '3 Piece (Triptych)', panel_count: 3, description: null, status: 'published', sort_order: 3, is_active: true },
   { id: 'panel-4', name: '4 Piece (Quad)', panel_count: 4, description: null, status: 'published', sort_order: 4, is_active: true },
   { id: 'panel-5', name: '5 Piece (Pentaptych)', panel_count: 5, description: null, status: 'published', sort_order: 5, is_active: true },
-  { id: 'panel-7', name: '7 Piece (Panoramic)', panel_count: 7, description: null, status: 'published', sort_order: 6, is_active: true },
+  { id: 'panel-6', name: '6 Piece (Hexaptych)', panel_count: 6, description: null, status: 'published', sort_order: 6, is_active: true },
+  { id: 'panel-7', name: '7 Piece (Panoramic)', panel_count: 7, description: null, status: 'published', sort_order: 7, is_active: true },
 ];
 
 const FALLBACK_SIZES: CanvasSize[] = [
@@ -53,22 +54,6 @@ const FALLBACK_SIZES: CanvasSize[] = [
     each_panel_size: '1 Panel @ 24" × 36" (60 × 90 cm)',
     recommended_room: 'Bedrooms, Living Room Nook, Office Wall',
   },
-  {
-    id: 'size-1-lg',
-    panel_type_id: 'panel-1',
-    name: '30" × 45" Grand Single',
-    width: 30,
-    height: 45,
-    unit: 'inch',
-    price_adjustment_paisa: 550000,
-    price_paisa: 550000,
-    is_recommended: false,
-    sort_order: 3,
-    active: true,
-    sizing_mode: 'overall_combined',
-    each_panel_size: '1 Panel @ 30" × 45" (75 × 112 cm)',
-    recommended_room: 'Main Living Room, Feature Wall',
-  },
 
   // 2 Panel sizes
   {
@@ -86,22 +71,6 @@ const FALLBACK_SIZES: CanvasSize[] = [
     sizing_mode: 'overall_combined',
     each_panel_size: '2 Panels @ 18" × 24" (45 × 60 cm) each',
     recommended_room: 'Hallways, Sideboards, Desk Backdrops',
-  },
-  {
-    id: 'size-2-lg',
-    panel_type_id: 'panel-2',
-    name: '48" × 30" Large Diptych',
-    width: 48,
-    height: 30,
-    unit: 'inch',
-    price_adjustment_paisa: 580000,
-    price_paisa: 580000,
-    is_recommended: false,
-    sort_order: 2,
-    active: true,
-    sizing_mode: 'overall_combined',
-    each_panel_size: '2 Panels @ 24" × 30" (60 × 75 cm) each',
-    recommended_room: 'Dining Room Wall, Wide Bedrooms',
   },
 
   // 3 Panel sizes
@@ -155,22 +124,6 @@ const FALLBACK_SIZES: CanvasSize[] = [
     each_panel_size: '4 Panels @ 15" × 30" (37.5 × 75 cm) each',
     recommended_room: 'Wide Sofa Wall, Staircase Landing',
   },
-  {
-    id: 'size-4-lg',
-    panel_type_id: 'panel-4',
-    name: '72" × 36" Panoramic Quad',
-    width: 72,
-    height: 36,
-    unit: 'inch',
-    price_adjustment_paisa: 790000,
-    price_paisa: 790000,
-    is_recommended: false,
-    sort_order: 2,
-    active: true,
-    sizing_mode: 'overall_combined',
-    each_panel_size: '4 Panels @ 18" × 36" (45 × 90 cm) each',
-    recommended_room: 'Spacious Living Room, Office Reception',
-  },
 
   // 5 Panel sizes
   {
@@ -204,6 +157,24 @@ const FALLBACK_SIZES: CanvasSize[] = [
     sizing_mode: 'overall_combined',
     each_panel_size: 'Center 15"×40", Mid 15"×35", Outer 15"×30"',
     recommended_room: 'Extra Large Living Room, Double Height Hall',
+  },
+
+  // 6 Panel sizes
+  {
+    id: 'size-6-lg',
+    panel_type_id: 'panel-6',
+    name: '72" × 36" Hexaptych Panorama',
+    width: 72,
+    height: 36,
+    unit: 'inch',
+    price_adjustment_paisa: 890000,
+    price_paisa: 890000,
+    is_recommended: true,
+    sort_order: 1,
+    active: true,
+    sizing_mode: 'overall_combined',
+    each_panel_size: '6 Panels @ 12" × 36" (30 × 90 cm) each',
+    recommended_room: 'Executive Boardroom, Wide Living Wall',
   },
 
   // 7 Panel sizes
@@ -269,7 +240,7 @@ export default async function CustomCanvasPage() {
             Create Your Custom Wall Canvas
           </h1>
           <p className="mt-1 text-sm text-muted max-w-2xl">
-            Split your photo or pre-loaded Vastu artwork across 1, 2, 3, 4, 5, or 7 panels. Preview live on real room walls before ordering.
+            Split your photo or default 7 Running Horses artwork across 1 to 7 panels. See continuous photo flow on real room walls.
           </p>
         </div>
       </div>

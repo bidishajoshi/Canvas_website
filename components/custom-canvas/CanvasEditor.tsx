@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { Stage, Layer, Image as KonvaImage, Rect } from 'react-konva';
+import { Stage, Layer, Image as KonvaImage, Rect, Group } from 'react-konva';
 import useImage from 'use-image';
 import type Konva from 'konva';
 import { useCssVar } from '@/lib/useCssVar';
@@ -42,8 +42,27 @@ export function CanvasEditor({
 
   const stageWidth = PREVIEW_WIDTH;
   const stageHeight = Math.round(PREVIEW_WIDTH / Math.max(aspectRatio, 0.01));
-  const gapPx = panelCount > 1 ? Math.min(16, Math.max(6, panelGapMm / 2)) : 0;
+  const gapPx = panelCount > 1 ? Math.min(24, Math.max(6, Math.round((panelGapMm / 10) * 4))) : 0;
   const panelWidth = (stageWidth - gapPx * (panelCount - 1)) / panelCount;
+
+  // Staggered height ratios per panel count for realistic multi-piece composition
+  const heightRatios = useMemo(() => {
+    switch (panelCount) {
+      case 3:
+        return [0.85, 1.0, 0.85];
+      case 5:
+        // Classic Pentaptych Chevron (Outer: 75%, Mid: 87.5%, Center: 100%)
+        return [0.75, 0.875, 1.0, 0.875, 0.75];
+      case 6:
+        return [0.8, 0.92, 1.0, 1.0, 0.92, 0.8];
+      case 7:
+        // Panoramic stepped composition
+        return [0.7, 0.82, 0.92, 1.0, 0.92, 0.82, 0.7];
+      default:
+        // Uniform height for 1, 2, 4 panels
+        return Array(panelCount).fill(1.0);
+    }
+  }, [panelCount]);
 
   // Frame styling properties based on selected frame name
   const frameStyle = useMemo(() => {
@@ -51,16 +70,16 @@ export function CanvasEditor({
     const lower = frameName.toLowerCase();
 
     if (lower.includes('black')) {
-      return { stroke: '#18181b', strokeWidth: 12, outerMargin: 12 };
+      return { stroke: '#18181b', strokeWidth: 4, fill: undefined };
     }
     if (lower.includes('white')) {
-      return { stroke: '#f8fafc', strokeWidth: 12, outerMargin: 12, shadow: '#cbd5e1' };
+      return { stroke: '#e2e8f0', strokeWidth: 4, fill: undefined };
     }
     if (lower.includes('wood') || lower.includes('natural')) {
-      return { stroke: '#78350f', strokeWidth: 14, outerMargin: 14 };
+      return { stroke: '#78350f', strokeWidth: 5, fill: undefined };
     }
     if (lower.includes('gold') || lower.includes('golden')) {
-      return { stroke: '#d97706', strokeWidth: 14, outerMargin: 14 };
+      return { stroke: '#d97706', strokeWidth: 5, fill: undefined };
     }
     return null;
   }, [frameName]);
@@ -129,7 +148,7 @@ export function CanvasEditor({
   return (
     <div className="space-y-4">
       {/* Live Canvas Stage Container */}
-      <div className="relative mx-auto overflow-hidden rounded-xl border border-border bg-surface p-2 shadow-sm">
+      <div className="relative mx-auto overflow-hidden rounded-xl border border-border bg-surface p-3 shadow-sm">
         {mockupUrl && mockupImage ? (
           <div className="relative aspect-[16/9] w-full overflow-hidden rounded-lg">
             <img src={mockupUrl} alt="Room Mockup" className="absolute inset-0 w-full h-full object-cover" />
@@ -149,7 +168,7 @@ export function CanvasEditor({
       {/* Control Toolbar */}
       <div className="flex flex-wrap items-center justify-between gap-3 p-3 rounded-lg border border-border bg-surface/60 text-xs">
         <div className="flex items-center gap-2">
-          <span className="font-semibold text-muted">Zoom Control:</span>
+          <span className="font-semibold text-muted">Pan &amp; Zoom:</span>
           <button
             type="button"
             onClick={handleZoomOut}
@@ -183,52 +202,78 @@ export function CanvasEditor({
       </div>
 
       <p className="text-[11px] text-muted text-center italic">
-        💡 Tip: Drag your photo inside the frame to center subjects or pan across panels.
+        💡 Drag photo inside the frame to center key artwork subjects across panels.
       </p>
     </div>
   );
 
   function RenderKonvaStage() {
     return (
-      <div className="relative shadow-xl rounded-sm overflow-hidden" style={{ width: stageWidth, height: stageHeight }}>
+      <div
+        className="relative shadow-2xl rounded-sm overflow-hidden bg-surface-hover/20"
+        style={{ width: stageWidth, height: stageHeight }}
+      >
         <Stage width={stageWidth} height={stageHeight}>
           <Layer>
-            {/* Customer Photo */}
-            {image && (
-              <KonvaImage
-                image={image}
-                x={pos.x}
-                y={pos.y}
-                width={imageWidth}
-                height={imageHeight}
-                draggable
-                onDragMove={handleDragMove}
-              />
-            )}
+            {/* Background Wall Area */}
+            <Rect x={0} y={0} width={stageWidth} height={stageHeight} fill="transparent" />
 
-            {/* Multi-panel gap dividers */}
-            {Array.from({ length: Math.max(0, panelCount - 1) }).map((_, i) => (
-              <Rect
-                key={`gap-${i}`}
-                x={panelWidth * (i + 1) + gapPx * i}
-                y={0}
-                width={gapPx}
-                height={stageHeight}
-                fill={gapColor}
-              />
-            ))}
+            {/* Individual Panel Slices */}
+            {Array.from({ length: panelCount }).map((_, i) => {
+              const hRatio = heightRatios[i] || 1.0;
+              const pHeight = Math.round(stageHeight * hRatio);
+              const pY = Math.round((stageHeight - pHeight) / 2);
+              const pX = Math.round(i * (panelWidth + gapPx));
 
-            {/* Optional Outer Frame Overlay */}
-            {frameStyle && (
-              <Rect
-                x={0}
-                y={0}
-                width={stageWidth}
-                height={stageHeight}
-                stroke={frameStyle.stroke}
-                strokeWidth={frameStyle.strokeWidth * 2}
-              />
-            )}
+              return (
+                <Group
+                  key={`panel-${i}`}
+                  x={pX}
+                  y={pY}
+                  width={panelWidth}
+                  height={pHeight}
+                  clipX={0}
+                  clipY={0}
+                  clipWidth={panelWidth}
+                  clipHeight={pHeight}
+                >
+                  {/* Shared Continuous Image */}
+                  {image && (
+                    <KonvaImage
+                      image={image}
+                      x={pos.x - pX}
+                      y={pos.y - pY}
+                      width={imageWidth}
+                      height={imageHeight}
+                      draggable
+                      onDragMove={handleDragMove}
+                    />
+                  )}
+
+                  {/* Panel Edge Shadow Effect */}
+                  <Rect
+                    x={0}
+                    y={0}
+                    width={panelWidth}
+                    height={pHeight}
+                    stroke="rgba(0,0,0,0.15)"
+                    strokeWidth={1}
+                  />
+
+                  {/* Frame Border Accent around each panel */}
+                  {frameStyle && (
+                    <Rect
+                      x={0}
+                      y={0}
+                      width={panelWidth}
+                      height={pHeight}
+                      stroke={frameStyle.stroke}
+                      strokeWidth={frameStyle.strokeWidth * 2}
+                    />
+                  )}
+                </Group>
+              );
+            })}
           </Layer>
         </Stage>
       </div>

@@ -46,6 +46,13 @@ const DEFAULT_CHART: SizeChartItem[] = [
     description: 'Eye-catching 5-piece chevron height arrangement for maximum visual impact.',
   },
   {
+    panel_count: 6,
+    size_label: 'Hexaptych Panorama (72 x 36 in / 180 x 90 cm total)',
+    each_panel_size: '6 Panels @ 12 x 36 in (30 x 90 cm) each',
+    recommended_room: 'Wide Living Rooms, Conference Rooms, Executive Suites',
+    description: 'Seamless 6-piece layout for expansive wall coverage.',
+  },
+  {
     panel_count: 7,
     size_label: 'Panoramic Multi-Piece (84 x 36 in / 210 x 90 cm total)',
     each_panel_size: '7 Panels @ 12 x 36 in (30 x 90 cm) each',
@@ -97,7 +104,7 @@ export function SizeChartModal({ isOpen, onClose, sizeChartItems }: SizeChartMod
           >
             All Layouts
           </button>
-          {[1, 2, 3, 4, 5, 7].map((pc) => (
+          {[1, 2, 3, 4, 5, 6, 7].map((pc) => (
             <button
               key={pc}
               type="button"

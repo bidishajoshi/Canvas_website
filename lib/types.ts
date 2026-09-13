@@ -63,6 +63,32 @@ export interface Product {
   seo_description: string | null;
 }
 
+export interface CanvasProduct {
+  id: string;
+  name: string;
+  slug: string;
+  description?: string | null;
+  category_id?: string | null;
+  main_image_url: string;
+  gallery_images?: string[];
+  panel_count: number;
+  size_label: string;
+  frame_label?: string | null;
+  original_price_paisa: number;
+  discount_price_paisa?: number | null;
+  discount_percentage?: number | null;
+  stock?: number | null;
+  sku?: string | null;
+  is_featured?: boolean;
+  is_best_seller?: boolean;
+  is_new_arrival?: boolean;
+  is_trending?: boolean;
+  show_on_homepage?: boolean;
+  status: ContentStatus;
+  sort_order: number;
+  created_at?: string;
+}
+
 export interface ProductImage {
   id: string;
   product_id: string;
