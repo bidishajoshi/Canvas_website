@@ -3,24 +3,28 @@ import Link from 'next/link';
 import { formatPaisa } from '@/lib/utils';
 import type { Product } from '@/lib/types';
 
-export function ProductCard({ product }: { product: Product }) {
+export function ProductCard({ product }: { product: Partial<Product> & { title?: string; primary_image_url?: string } }) {
   const hasDiscount =
     product.discount_price_paisa != null &&
+    product.base_price_paisa != null &&
     product.discount_price_paisa < product.base_price_paisa;
+
+  const title = product.name || product.title || 'Custom Decor Product';
+  const imageUrl = product.main_image_url || product.primary_image_url;
 
   return (
     <Link
       href={`/product/${product.slug}`}
-      className="group block overflow-hidden rounded-xl border border-border bg-surface card-hover transition-all"
+      className="group block overflow-hidden rounded-2xl border border-border bg-surface card-hover transition-all"
     >
       <div className="relative aspect-[4/3] sm:aspect-square w-full overflow-hidden bg-surface-hover">
-        {product.main_image_url ? (
+        {imageUrl ? (
           <Image
-            src={product.main_image_url}
-            alt={product.name}
+            src={imageUrl}
+            alt={title}
             fill
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-            className="object-cover transition-transform duration-500 group-hover:scale-108"
+            className="object-cover transition-transform duration-500 group-hover:scale-105"
           />
         ) : (
           <div className="flex h-full w-full items-center justify-center text-3xl text-muted">
@@ -55,25 +59,27 @@ export function ProductCard({ product }: { product: Product }) {
           </p>
         )}
         <h3 className="line-clamp-1 text-sm sm:text-base font-semibold text-text group-hover:text-amber-600 transition-colors">
-          {product.name}
+          {title}
         </h3>
         <div className="mt-2 flex items-baseline gap-2">
           <span className="text-base font-bold text-amber-600">
-            {formatPaisa(hasDiscount ? product.discount_price_paisa! : product.base_price_paisa)}
+            {formatPaisa(hasDiscount ? product.discount_price_paisa! : product.base_price_paisa || 149900)}
           </span>
           {hasDiscount && (
             <span className="text-xs text-muted line-through">
-              {formatPaisa(product.base_price_paisa)}
+              {formatPaisa(product.base_price_paisa!)}
             </span>
           )}
         </div>
 
         <div className="mt-3 flex items-center justify-between border-t border-border/60 pt-2.5">
-          <span className="text-xs font-medium text-muted group-hover:text-text transition-colors">
-            Configure Sizes &amp; Frames →
+          <span className="text-xs font-semibold text-amber-600 group-hover:underline transition-all flex items-center gap-1">
+            <span>Configure Options</span>
+            <span>→</span>
           </span>
         </div>
       </div>
     </Link>
   );
 }
+

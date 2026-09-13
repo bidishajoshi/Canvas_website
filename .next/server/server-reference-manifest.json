@@ -1,14 +1,5 @@
 {
-  "node": {
-    "d9c53ed2236d4f8041ce9fc2c1ed98c5984c334f": {
-      "workers": {
-        "app/(site)/account/wishlist/page": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22C%3A%5C%5Caffordable-decoration%5C%5Capp%5C%5C(site)%5C%5Caccount%5C%5Cwishlist%5C%5Cactions.ts%22%2C%5B%22removeWishlistItem%22%5D%5D%5D&__client_imported__=!"
-      },
-      "layer": {
-        "app/(site)/account/wishlist/page": "rsc"
-      }
-    }
-  },
+  "node": {},
   "edge": {},
-  "encryptionKey": "QSj+xBFL3cTcsZf+Wg5B6ifpvm2xEa5Yb7obC22Cjfs="
+  "encryptionKey": "/1Twso5hh2GfKxrcM2bU/Qtg+5KFj+bGoGiZG7zsV/Y="
 }

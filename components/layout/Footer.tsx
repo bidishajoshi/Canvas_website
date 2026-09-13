@@ -9,10 +9,11 @@ export async function Footer() {
   ]);
 
   const defaultQuickLinks = [
-    { id: 'q1', label: 'Shop Canvas', href: '/shop' },
+    { id: 'q1', label: 'Shop Canvas & Decor', href: '/shop' },
     { id: 'q2', label: 'Custom Photo Canvas', href: '/custom-canvas' },
-    { id: 'q3', label: 'Track Order', href: '/track-order' },
-    { id: 'q4', label: 'How It Works', href: '/#how-it-works' },
+    { id: 'q2b', label: 'Customize T-Shirt', href: '/custom-t-shirt' },
+    { id: 'q3', label: 'Track Order Progress', href: '/track-order' },
+    { id: 'q4', label: 'How It Works', href: '/how-it-works' },
     { id: 'q5', label: 'Contact Us', href: '/contact' },
   ];
 
