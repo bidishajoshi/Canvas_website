@@ -89,6 +89,20 @@ export interface CanvasProduct {
   created_at?: string;
 }
 
+export interface CouponCode {
+  id: string;
+  code: string;
+  discount_type: 'percentage' | 'fixed';
+  discount_value: number; // 20 for 20%, 500 for Rs. 500
+  min_order_paisa: number;
+  max_discount_paisa?: number | null;
+  expiry_date?: string | null;
+  usage_limit?: number | null;
+  used_count: number;
+  active: boolean;
+  created_at?: string;
+}
+
 export interface ProductImage {
   id: string;
   product_id: string;

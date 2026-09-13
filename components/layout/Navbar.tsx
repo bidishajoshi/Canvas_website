@@ -3,6 +3,8 @@ import Link from 'next/link';
 import { getMenuItems, getSettings } from '@/lib/content';
 import { ThemeToggle } from './ThemeToggle';
 import { NavbarMobileMenu } from './NavbarMobileMenu';
+import { NavLinks } from './NavLinks';
+import { CartBadge } from './CartBadge';
 
 export async function Navbar() {
   const [settings, menuItems] = await Promise.all([
@@ -40,18 +42,8 @@ export async function Navbar() {
           )}
         </Link>
 
-        {/* Center Nav Links (Spacious & Clean) */}
-        <nav className="hidden lg:flex items-center gap-7">
-          {menuItems.map((item) => (
-            <Link
-              key={item.id}
-              href={item.href}
-              className="text-sm font-medium text-text/80 transition-all hover:text-amber-600 relative py-1 after:absolute after:bottom-0 after:left-0 after:right-0 after:h-[2px] after:bg-amber-600 after:scale-x-0 hover:after:scale-x-100 after:transition-transform"
-            >
-              {item.label}
-            </Link>
-          ))}
-        </nav>
+        {/* Center Nav Links (Simplified: Home | Shop | Canvas | T-Shirts | Categories | Offers | More ▾) */}
+        <NavLinks menuItems={menuItems} />
 
         {/* Right Action Controls */}
         <div className="flex items-center gap-2.5 sm:gap-3">
@@ -77,6 +69,7 @@ export async function Navbar() {
             className="flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-full border border-border bg-surface text-text transition-all hover:border-amber-600 hover:text-amber-600 shadow-sm relative"
           >
             <CartIcon className="h-4 w-4" />
+            <CartBadge />
           </Link>
 
           <ThemeToggle />

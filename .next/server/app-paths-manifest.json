@@ -1,4 +1,1 @@
-{
-  "/(site)/custom-canvas/page": "app/(site)/custom-canvas/page.js",
-  "/page": "app/page.js"
-}
+{}
