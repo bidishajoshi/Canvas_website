@@ -19,6 +19,7 @@ export async function createPanelType(formData: FormData) {
     status: 'published',
   });
   revalidatePath('/admin/canvas-builder');
+  revalidatePath('/custom-canvas');
 }
 
 export async function deletePanelType(id: string) {
@@ -26,6 +27,7 @@ export async function deletePanelType(id: string) {
   const supabase = createAdminClient();
   await supabase.from('panel_types').delete().eq('id', id);
   revalidatePath('/admin/canvas-builder');
+  revalidatePath('/custom-canvas');
 }
 
 export async function createCanvasSize(formData: FormData) {
@@ -38,9 +40,13 @@ export async function createCanvasSize(formData: FormData) {
     unit: String(formData.get('unit') ?? 'inch'),
     panel_type_id: String(formData.get('panel_type_id')),
     price_adjustment_paisa: toPaisa(formData.get('price')),
+    sizing_mode: String(formData.get('sizing_mode') ?? 'overall_combined'),
+    each_panel_size: String(formData.get('each_panel_size') ?? '') || null,
+    recommended_room: String(formData.get('recommended_room') ?? '') || null,
     active: true,
   });
   revalidatePath('/admin/canvas-builder');
+  revalidatePath('/custom-canvas');
 }
 
 export async function deleteCanvasSize(id: string) {
@@ -48,6 +54,7 @@ export async function deleteCanvasSize(id: string) {
   const supabase = createAdminClient();
   await supabase.from('canvas_sizes').delete().eq('id', id);
   revalidatePath('/admin/canvas-builder');
+  revalidatePath('/custom-canvas');
 }
 
 export async function createFrame(formData: FormData) {
@@ -59,6 +66,7 @@ export async function createFrame(formData: FormData) {
     status: 'published',
   });
   revalidatePath('/admin/canvas-builder');
+  revalidatePath('/custom-canvas');
 }
 
 export async function deleteFrame(id: string) {
@@ -66,6 +74,7 @@ export async function deleteFrame(id: string) {
   const supabase = createAdminClient();
   await supabase.from('frames').delete().eq('id', id);
   revalidatePath('/admin/canvas-builder');
+  revalidatePath('/custom-canvas');
 }
 
 export async function createFinish(formData: FormData) {
@@ -77,6 +86,7 @@ export async function createFinish(formData: FormData) {
     status: 'published',
   });
   revalidatePath('/admin/canvas-builder');
+  revalidatePath('/custom-canvas');
 }
 
 export async function deleteFinish(id: string) {
@@ -84,4 +94,5 @@ export async function deleteFinish(id: string) {
   const supabase = createAdminClient();
   await supabase.from('finishes').delete().eq('id', id);
   revalidatePath('/admin/canvas-builder');
+  revalidatePath('/custom-canvas');
 }

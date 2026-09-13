@@ -1,6 +1,5 @@
 {
   "/page": "app/page.js",
   "/(site)/custom-canvas/page": "app/(site)/custom-canvas/page.js",
-  "/(site)/[slug]/page": "app/(site)/[slug]/page.js",
   "/api/canvas/upload/route": "app/api/canvas/upload/route.js"
 }

@@ -6,6 +6,7 @@ import { PhotoUpload, type UploadedPhoto } from './PhotoUpload';
 import { OptionSelector } from './OptionSelector';
 import { PriceSummary } from './PriceSummary';
 import { InquiryForm, type InquiryFormValues } from './InquiryForm';
+import { SizeChartModal } from './SizeChartModal';
 import { calculatePrice, estimateImageQuality } from '@/lib/pricing';
 import { buildWhatsAppLink } from '@/lib/whatsapp';
 import { addToCart } from '@/lib/cart';
@@ -16,6 +17,7 @@ import type {
   PanelCropData,
   PanelType,
   Settings,
+  SizeChartItem,
 } from '@/lib/types';
 
 const CanvasEditor = dynamic(
@@ -29,17 +31,45 @@ interface CanvasBuilderClientProps {
   frames: Frame[];
   finishes: Finish[];
   settings: Settings;
+  sizeChartItems?: SizeChartItem[];
 }
 
 const CANVAS_TYPES = [
+  { id: 'vastu_horses', name: '7 Running Horses (Vastu)', icon: '🐎' },
+  { id: 'buddha', name: 'Buddha & Spiritual', icon: '🪷' },
   { id: 'portrait', name: 'Personal Portrait', icon: '👤' },
   { id: 'family', name: 'Family & Memories', icon: '👨‍👩‍👧‍👦' },
   { id: 'couple', name: 'Couple & Romance', icon: '❤️' },
-  { id: 'pet', name: 'Pet Portrait', icon: '🐾' },
-  { id: 'wedding', name: 'Wedding & Anniversary', icon: '💍' },
-  { id: 'memorial', name: 'Tribute & Memorial', icon: '🕊️' },
-  { id: 'landscape', name: 'Landscape & Art', icon: '🏞️' },
-  { id: 'other', name: 'Other Custom Design', icon: '✨' },
+  { id: 'landscape', name: 'Landscape & Nature', icon: '🏞️' },
+  { id: 'abstract', name: 'Modern Abstract', icon: '🎨' },
+  { id: 'other', name: 'Custom Design', icon: '✨' },
+];
+
+const DEMO_ARTWORKS = [
+  {
+    id: 'horses-7',
+    name: '7 Running Horses (Vastu / Feng Shui)',
+    url: 'https://images.unsplash.com/photo-1553284965-83fd3e82fa5a?auto=format&fit=crop&w=1200&q=80',
+    badge: '🔥 7 Horses Demo',
+  },
+  {
+    id: 'abstract-gold',
+    name: 'Golden Fluid Abstract',
+    url: 'https://images.unsplash.com/photo-1579783902614-a3fb3927b675?auto=format&fit=crop&w=1200&q=80',
+    badge: 'Popular',
+  },
+  {
+    id: 'buddha-lotus',
+    name: 'Serene Temple Lotus',
+    url: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80',
+    badge: 'Spiritual',
+  },
+  {
+    id: 'himalayan-nature',
+    name: 'Mountain Sunrise Panorama',
+    url: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1200&q=80',
+    badge: 'Nature',
+  },
 ];
 
 const ROOM_MOCKUPS = [
@@ -51,9 +81,25 @@ const ROOM_MOCKUPS = [
   },
   {
     id: 'office',
-    name: 'Modern Office',
+    name: 'Modern Executive Office',
     url: 'https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=1200&q=80',
   },
+];
+
+const GAP_OPTIONS = [
+  { mm: 10, label: '1 cm (10 mm)', desc: 'Tight Gap' },
+  { mm: 20, label: '2 cm (20 mm)', desc: 'Standard (Recommended)' },
+  { mm: 30, label: '3 cm (30 mm)', desc: 'Medium Gap' },
+  { mm: 50, label: '5 cm (50 mm)', desc: 'Wide Gap' },
+];
+
+const FALLBACK_PANELS: PanelType[] = [
+  { id: 'panel-1', name: '1 Piece (Single)', panel_count: 1, description: null, status: 'published', sort_order: 1, is_active: true },
+  { id: 'panel-2', name: '2 Piece (Diptych)', panel_count: 2, description: null, status: 'published', sort_order: 2, is_active: true },
+  { id: 'panel-3', name: '3 Piece (Triptych)', panel_count: 3, description: null, status: 'published', sort_order: 3, is_active: true },
+  { id: 'panel-4', name: '4 Piece (Quad)', panel_count: 4, description: null, status: 'published', sort_order: 4, is_active: true },
+  { id: 'panel-5', name: '5 Piece (Pentaptych)', panel_count: 5, description: null, status: 'published', sort_order: 5, is_active: true },
+  { id: 'panel-7', name: '7 Piece (Panoramic)', panel_count: 7, description: null, status: 'published', sort_order: 6, is_active: true },
 ];
 
 export function CanvasBuilderClient({
@@ -62,18 +108,20 @@ export function CanvasBuilderClient({
   frames,
   finishes,
   settings,
+  sizeChartItems,
 }: CanvasBuilderClientProps) {
-  const defaultDemoUrl =
-    settings.demo_photo_url ||
-    'https://images.unsplash.com/photo-1579783902614-a3fb3927b675?auto=format&fit=crop&w=1200&q=80';
+  const activePanels = panelTypes.length > 0 ? panelTypes : FALLBACK_PANELS;
 
-  const [selectedCanvasType, setSelectedCanvasType] = useState('portrait');
+  const defaultDemoUrl =
+    settings.demo_photo_url || DEMO_ARTWORKS[0].url;
+
+  const [selectedCanvasType, setSelectedCanvasType] = useState('vastu_horses');
+  const [selectedDemoId, setSelectedDemoId] = useState('horses-7');
   const [uploadedPhoto, setUploadedPhoto] = useState<UploadedPhoto | null>(null);
   const [isUsingDemo, setIsUsingDemo] = useState(true);
 
-  const [panelTypeId, setPanelTypeId] = useState<string | null>(
-    panelTypes[0]?.id ?? null
-  );
+  const [panelTypeId, setPanelTypeId] = useState<string | null>(activePanels[0]?.id ?? null);
+  const [panelGapMm, setPanelGapMm] = useState<number>(settings.default_panel_gap_mm || 20);
   const [sizeId, setSizeId] = useState<string | null>(null);
   const [frameId, setFrameId] = useState<string | null>(null);
   const [finishId, setFinishId] = useState<string | null>(null);
@@ -82,19 +130,21 @@ export function CanvasBuilderClient({
   const [customText, setCustomText] = useState('');
   const [quantity, setQuantity] = useState(1);
   const [cropData, setCropData] = useState<PanelCropData[]>([]);
+  const [isSizeChartOpen, setIsSizeChartOpen] = useState(false);
   const [showInquiryForm, setShowInquiryForm] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
 
-  // Initialize photo state with Demo Photo
-  const currentPhotoUrl = uploadedPhoto?.url || (isUsingDemo ? defaultDemoUrl : '');
+  // Active Photo URL logic
+  const currentDemoObj = DEMO_ARTWORKS.find((d) => d.id === selectedDemoId) || DEMO_ARTWORKS[0];
+  const currentPhotoUrl = uploadedPhoto?.url || (isUsingDemo ? currentDemoObj.url : defaultDemoUrl);
 
   const sizesForPanelType = useMemo(
     () => (panelTypeId ? sizes.filter((s) => s.panel_type_id === panelTypeId) : sizes),
     [sizes, panelTypeId]
   );
 
-  const selectedPanelType = panelTypes.find((p) => p.id === panelTypeId) ?? panelTypes[0] ?? null;
+  const selectedPanelType = activePanels.find((p) => p.id === panelTypeId) ?? activePanels[0] ?? null;
   const selectedSize = sizesForPanelType.find((s) => s.id === sizeId) ?? sizesForPanelType[0] ?? sizes[0] ?? null;
   const selectedFrame = frames.find((f) => f.id === frameId) ?? null;
   const selectedFinish = finishes.find((f) => f.id === finishId) ?? null;
@@ -125,7 +175,7 @@ export function CanvasBuilderClient({
   }, [selectedSize, selectedFrame, selectedFinish, quantity]);
 
   const disabledReason = !currentPhotoUrl
-    ? 'Upload a photo or use demo photo to preview.'
+    ? 'Upload a photo or choose sample artwork to preview.'
     : !selectedSize
     ? 'Select a canvas size to continue.'
     : null;
@@ -151,7 +201,8 @@ export function CanvasBuilderClient({
     }
   }
 
-  function handleRestoreDemoPhoto() {
+  function handleSelectDemoArtwork(demoId: string) {
+    setSelectedDemoId(demoId);
     setUploadedPhoto(null);
     setIsUsingDemo(true);
   }
@@ -177,7 +228,7 @@ export function CanvasBuilderClient({
         canvasSizeId: selectedSize.id,
         frameId: selectedFrame?.id ?? null,
         finishId: selectedFinish?.id ?? null,
-        panelGapMm: settings.default_panel_gap_mm,
+        panelGapMm,
         cropData,
         quantity,
       }),
@@ -247,336 +298,495 @@ export function CanvasBuilderClient({
   }
 
   return (
-    <div className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr]">
-      {/* Left Column: Interactive Guided Options */}
-      <div className="space-y-8">
-        {/* Notice for Demo Photo */}
-        {isUsingDemo && (
-          <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-4 text-xs sm:text-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-            <div className="flex items-center gap-2">
-              <span className="text-xl">🎨</span>
-              <div>
-                <p className="font-bold text-amber-700 dark:text-amber-300">
-                  Testing with Sample Demo Photo
-                </p>
-                <p className="text-xs text-muted">
-                  Test 1, 3, or 5 Panel splits, sizes &amp; frame borders below. Upload your photo when ready!
-                </p>
+    <>
+      <SizeChartModal
+        isOpen={isSizeChartOpen}
+        onClose={() => setIsSizeChartOpen(false)}
+        sizeChartItems={sizeChartItems}
+      />
+
+      <div className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr]">
+        {/* Left Column: Guided Builder Controls */}
+        <div className="space-y-8">
+          {/* Demo Art Photo Switcher Bar */}
+          <div className="rounded-xl border border-pink-500/30 bg-surface/80 p-4 shadow-sm space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="text-xl">🐎</span>
+                <div>
+                  <h3 className="font-bold text-sm text-text">
+                    Pre-loaded Demo Art &amp; 7 Horses Preview
+                  </h3>
+                  <p className="text-xs text-muted">
+                    Test live panel splitting on popular Vastu &amp; Abstract art, or upload your own.
+                  </p>
+                </div>
               </div>
+              {!isUsingDemo && (
+                <button
+                  type="button"
+                  onClick={() => setIsUsingDemo(true)}
+                  className="px-3 py-1 rounded-lg text-xs font-semibold bg-pink-500/10 text-pink-600 border border-pink-500/20 hover:bg-pink-500/20 transition-all"
+                >
+                  ↺ Switch to Demo Artwork
+                </button>
+              )}
             </div>
-          </div>
-        )}
 
-        {/* Step 1: Canvas Type */}
-        <div className="rounded-xl border border-border p-5 bg-surface/50">
-          <div className="flex items-center gap-2 mb-3">
-            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-amber-600 text-white text-xs font-bold">1</span>
-            <h2 className="text-base font-semibold">Choose Canvas Category</h2>
-          </div>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-            {CANVAS_TYPES.map((type) => (
-              <button
-                key={type.id}
-                type="button"
-                onClick={() => setSelectedCanvasType(type.id)}
-                className={`flex flex-col items-center justify-center gap-1.5 p-3 rounded-lg border text-xs font-medium transition-all ${
-                  selectedCanvasType === type.id
-                    ? 'border-amber-600 bg-amber-500/10 text-amber-600 font-semibold shadow-sm'
-                    : 'border-border bg-surface hover:border-text/30'
-                }`}
-              >
-                <span className="text-xl">{type.icon}</span>
-                <span className="text-center">{type.name}</span>
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Step 2: Upload Photo & Demo Toggle */}
-        <div className="rounded-xl border border-border p-5 bg-surface/50 space-y-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-amber-600 text-white text-xs font-bold">2</span>
-              <h2 className="text-base font-semibold">Upload Your Photo</h2>
-            </div>
-            {!isUsingDemo && (
-              <button
-                type="button"
-                onClick={handleRestoreDemoPhoto}
-                className="text-xs text-amber-600 hover:underline font-semibold"
-              >
-                ↺ Try Sample Demo Photo
-              </button>
-            )}
-          </div>
-
-          <PhotoUpload
-            onUploaded={handlePhotoUpload}
-            maxUploadSizeMb={settings.max_upload_size_mb}
-          />
-
-          {qualityRating && (
-            <div
-              className={`p-3 rounded-lg border text-xs flex items-center gap-2.5 ${
-                qualityRating === 'excellent'
-                  ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300'
-                  : qualityRating === 'good'
-                  ? 'border-blue-500/30 bg-blue-500/10 text-blue-700 dark:text-blue-300'
-                  : 'border-amber-500/40 bg-amber-500/10 text-amber-800 dark:text-amber-300'
-              }`}
-            >
-              <span className="text-base">
-                {qualityRating === 'excellent' ? '🌟' : qualityRating === 'good' ? '👍' : '⚠️'}
-              </span>
-              <div>
-                <p className="font-semibold uppercase tracking-wider text-[11px]">
-                  Quality Indicator: {qualityRating.replace('_', ' ')}
-                </p>
-                <p className="text-[12px] opacity-90">
-                  {qualityRating === 'excellent' && 'Your photo has high resolution and will print sharply on canvas.'}
-                  {qualityRating === 'good' && 'Your image resolution is good for this canvas size.'}
-                  {qualityRating === 'low_resolution' &&
-                    'Your photo may appear less detailed at this size. We recommend higher resolution if available.'}
-                </p>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Step 3: Select 1, 3, or 5 Panels & Size */}
-        <div className="rounded-xl border border-border p-5 bg-surface/50 space-y-5">
-          <div className="flex items-center gap-2">
-            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-amber-600 text-white text-xs font-bold">3</span>
-            <h2 className="text-base font-semibold">Select Panel Layout &amp; Size</h2>
-          </div>
-
-          {/* Panel Selector (1, 3, 5 Panels) */}
-          <div>
-            <label className="text-xs font-semibold text-muted mb-2 block uppercase tracking-wider">
-              Canvas Panel Split Layout
-            </label>
-            <div className="grid grid-cols-3 gap-3">
-              {(panelTypes.length > 0
-                ? panelTypes
-                : [
-                    { id: 'p1', name: '1 Panel (Single)', panel_count: 1 },
-                    { id: 'p3', name: '3 Panels (Triptych)', panel_count: 3 },
-                    { id: 'p5', name: '5 Panels (Polyptych)', panel_count: 5 },
-                  ]
-              ).map((p) => {
-                const isSelected = selectedPanelType?.id === p.id || selectedPanelType?.panel_count === p.panel_count;
-                return (
+            {isUsingDemo && (
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                {DEMO_ARTWORKS.map((art) => (
                   <button
-                    key={p.id}
+                    key={art.id}
                     type="button"
-                    onClick={() => {
-                      setPanelTypeId(p.id);
-                    }}
-                    className={`flex flex-col items-center justify-center p-3 rounded-lg border text-center transition-all ${
-                      isSelected
-                        ? 'border-amber-600 bg-amber-500/10 text-amber-600 font-bold shadow-sm'
-                        : 'border-border bg-surface hover:border-text/30 hover:-translate-y-0.5'
+                    onClick={() => handleSelectDemoArtwork(art.id)}
+                    className={`relative flex flex-col items-center p-2 rounded-lg border text-left transition-all overflow-hidden ${
+                      selectedDemoId === art.id && isUsingDemo
+                        ? 'border-pink-500 ring-2 ring-pink-500/30 bg-pink-500/5 font-semibold'
+                        : 'border-border bg-bg hover:border-text/30'
                     }`}
                   >
-                    <span className="text-xs font-semibold">{p.name}</span>
-                    <span className="text-[10px] text-muted mt-0.5">
-                      {p.panel_count === 1 ? '1 Solid Canvas' : `${p.panel_count} Split Panels`}
+                    <img
+                      src={art.url}
+                      alt={art.name}
+                      className="w-full h-16 object-cover rounded-md mb-1.5"
+                    />
+                    <span className="text-[11px] font-medium text-text line-clamp-1 w-full text-center">
+                      {art.name}
                     </span>
+                    {art.badge && (
+                      <span className="absolute top-1 right-1 px-1.5 py-0.5 text-[9px] font-bold rounded bg-amber-500 text-white shadow-sm">
+                        {art.badge}
+                      </span>
+                    )}
                   </button>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Size Selector */}
-          <OptionSelector
-            label="Canvas Size (Inches)"
-            options={sizesForPanelType.map((s) => ({
-              id: s.id,
-              label: `${s.name} ${s.is_recommended ? '⭐ Recommended' : ''}`,
-            }))}
-            selectedId={selectedSize?.id ?? null}
-            onSelect={setSizeId}
-            emptyMessage="Choose a size for your canvas."
-          />
-        </div>
-
-        {/* Step 4: Frame & Finish Selection */}
-        <div className="rounded-xl border border-border p-5 bg-surface/50 space-y-4">
-          <div className="flex items-center gap-2">
-            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-amber-600 text-white text-xs font-bold">4</span>
-            <h2 className="text-base font-semibold">Frame &amp; Canvas Finish</h2>
-          </div>
-
-          <OptionSelector
-            label="Frame Option (Visual Border)"
-            options={
-              frames.length > 0
-                ? frames.map((f) => ({
-                    id: f.id,
-                    label: `${f.name} ${f.price_paisa > 0 ? `(+Rs. ${f.price_paisa / 100})` : ''}`,
-                  }))
-                : [
-                    { id: 'f0', label: 'Unframed (Wrapped Edge Canvas)' },
-                    { id: 'f1', label: 'Black Floating Frame (+Rs. 500)' },
-                    { id: 'f2', label: 'White Floating Frame (+Rs. 500)' },
-                    { id: 'f3', label: 'Natural Wood Frame (+Rs. 700)' },
-                    { id: 'f4', label: 'Luxury Gold Frame (+Rs. 900)' },
-                  ]
-            }
-            selectedId={frameId}
-            onSelect={(id) => setFrameId(id === frameId ? null : id)}
-          />
-
-          <OptionSelector
-            label="Finish Style"
-            options={
-              finishes.length > 0
-                ? finishes.map((fn) => ({ id: fn.id, label: fn.name }))
-                : [
-                    { id: 'fn1', label: 'Matte Finish (Non-reflective)' },
-                    { id: 'fn2', label: 'Satin Gloss Finish (Vibrant)' },
-                  ]
-            }
-            selectedId={finishId}
-            onSelect={(id) => setFinishId(id === finishId ? null : id)}
-          />
-        </div>
-
-        {/* Step 5: Custom Text Overlay */}
-        <div className="rounded-xl border border-border p-5 bg-surface/50">
-          <div className="flex items-center gap-2 mb-2">
-            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-amber-600 text-white text-xs font-bold">5</span>
-            <h2 className="text-base font-semibold">Custom Text Overlay (Optional)</h2>
-          </div>
-          <p className="text-xs text-muted mb-3">
-            Add a personal title, date, or message to print on your canvas.
-          </p>
-          <input
-            type="text"
-            value={customText}
-            onChange={(e) => setCustomText(e.target.value)}
-            placeholder="e.g., 'The Shrestha Family - 2026' or 'Happy Anniversary My Love'"
-            className="w-full px-3 py-2 text-sm rounded-lg border border-border bg-bg text-text focus:outline-none focus:ring-2 focus:ring-amber-600"
-          />
-        </div>
-      </div>
-
-      {/* Right Column: Live Interactive Konva Preview & Room Mockup */}
-      <div className="space-y-6 lg:sticky lg:top-24 lg:self-start">
-        <div className="rounded-xl border border-border p-5 bg-surface shadow-sm">
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-2">
-              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-amber-600 text-white text-xs font-bold">6</span>
-              <h2 className="text-base font-semibold">Live Real-Time Preview</h2>
-            </div>
-            {selectedSize && (
-              <span className="text-xs font-medium px-2 py-0.5 rounded bg-amber-500/10 text-amber-600 border border-amber-500/20">
-                {selectedSize.name}
-              </span>
+                ))}
+              </div>
             )}
           </div>
 
-          {/* Room Mockup Selector Bar */}
-          <div className="flex items-center gap-2 mb-3 overflow-x-auto pb-1 text-xs">
-            <span className="text-muted font-semibold shrink-0">View:</span>
-            {ROOM_MOCKUPS.map((m) => (
-              <button
-                key={m.id}
-                type="button"
-                onClick={() => setSelectedMockupId(m.id)}
-                className={`px-2.5 py-1 rounded-md border text-xs font-medium transition-colors shrink-0 ${
-                  selectedMockupId === m.id
-                    ? 'border-amber-600 bg-amber-500/10 text-amber-600 font-semibold'
-                    : 'border-border bg-bg hover:border-text/30'
+          {/* Step 1: Canvas Category */}
+          <div className="rounded-xl border border-border p-5 bg-surface/50">
+            <div className="flex items-center gap-2 mb-3">
+              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-amber-600 text-white text-xs font-bold">1</span>
+              <h2 className="text-base font-semibold">Choose Canvas Category</h2>
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+              {CANVAS_TYPES.map((type) => (
+                <button
+                  key={type.id}
+                  type="button"
+                  onClick={() => setSelectedCanvasType(type.id)}
+                  className={`flex flex-col items-center justify-center gap-1.5 p-3 rounded-lg border text-xs font-medium transition-all ${
+                    selectedCanvasType === type.id
+                      ? 'border-pink-500 bg-pink-500/10 text-pink-600 font-semibold shadow-sm'
+                      : 'border-border bg-surface hover:border-text/30'
+                  }`}
+                >
+                  <span className="text-xl">{type.icon}</span>
+                  <span className="text-center">{type.name}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Step 2: Upload Photo */}
+          <div className="rounded-xl border border-border p-5 bg-surface/50 space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-amber-600 text-white text-xs font-bold">2</span>
+                <h2 className="text-base font-semibold">Upload Your Photo</h2>
+              </div>
+              {uploadedPhoto && (
+                <span className="text-xs text-emerald-600 font-semibold flex items-center gap-1">
+                  ✓ Custom Image Uploaded
+                </span>
+              )}
+            </div>
+
+            <PhotoUpload
+              onUploaded={handlePhotoUpload}
+              maxUploadSizeMb={settings.max_upload_size_mb}
+            />
+
+            {qualityRating && (
+              <div
+                className={`p-3 rounded-lg border text-xs flex items-center gap-2.5 ${
+                  qualityRating === 'excellent'
+                    ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300'
+                    : qualityRating === 'good'
+                    ? 'border-blue-500/30 bg-blue-500/10 text-blue-700 dark:text-blue-300'
+                    : 'border-amber-500/40 bg-amber-500/10 text-amber-800 dark:text-amber-300'
                 }`}
               >
-                {m.name}
-              </button>
-            ))}
+                <span className="text-base">
+                  {qualityRating === 'excellent' ? '🌟' : qualityRating === 'good' ? '👍' : '⚠️'}
+                </span>
+                <div>
+                  <p className="font-semibold uppercase tracking-wider text-[11px]">
+                    Quality Indicator: {qualityRating.replace('_', ' ')}
+                  </p>
+                  <p className="text-[12px] opacity-90">
+                    {qualityRating === 'excellent' && 'Your photo has high resolution and will print sharply on canvas.'}
+                    {qualityRating === 'good' && 'Your image resolution is good for this canvas size.'}
+                    {qualityRating === 'low_resolution' &&
+                      'Your photo may appear less detailed at this size. We recommend higher resolution if available.'}
+                  </p>
+                </div>
+              </div>
+            )}
           </div>
 
-          {/* Konva Stage Editor Component */}
-          {currentPhotoUrl ? (
-            <CanvasEditor
-              imageUrl={currentPhotoUrl}
-              panelCount={selectedPanelType?.panel_count ?? 1}
-              aspectRatio={aspectRatio}
-              panelGapMm={settings.default_panel_gap_mm}
-              frameName={selectedFrame?.name}
-              mockupUrl={selectedMockup}
-              onChange={setCropData}
-            />
-          ) : (
-            <PreviewPlaceholder />
-          )}
-
-          {customText && (
-            <div className="mt-3 p-2.5 rounded border border-border bg-surface-hover text-center">
-              <p className="text-[11px] text-muted uppercase tracking-wider font-semibold">Text Overlay Preview</p>
-              <p className="text-sm font-display italic text-amber-600 mt-0.5">"{customText}"</p>
+          {/* Step 3: Panel Type Cards (1, 2, 3, 4, 5, 7) */}
+          <div className="rounded-xl border border-border p-5 bg-surface/50 space-y-6">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-amber-600 text-white text-xs font-bold">3</span>
+                <h2 className="text-base font-semibold">Select Panel Layout (1 to 7 Pieces)</h2>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsSizeChartOpen(true)}
+                className="px-3 py-1.5 rounded-lg bg-amber-500 text-white font-bold text-xs shadow hover:bg-amber-600 transition-all flex items-center gap-1.5"
+              >
+                <span>📏</span> View Size Chart
+              </button>
             </div>
-          )}
+
+            {/* Visual Panel Card Grid */}
+            <div>
+              <label className="text-xs font-semibold text-muted mb-2.5 block uppercase tracking-wider">
+                Panel Split Configuration
+              </label>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                {activePanels.map((p) => {
+                  const isSelected =
+                    selectedPanelType?.id === p.id || selectedPanelType?.panel_count === p.panel_count;
+                  return (
+                    <button
+                      key={p.id}
+                      type="button"
+                      onClick={() => setPanelTypeId(p.id)}
+                      className={`relative flex flex-col items-center p-3.5 rounded-xl border text-center transition-all ${
+                        isSelected
+                          ? 'border-pink-500 ring-2 ring-pink-500/30 bg-pink-500/10 text-pink-600 font-bold shadow-md'
+                          : 'border-border bg-surface hover:border-pink-500/50 hover:-translate-y-0.5'
+                      }`}
+                    >
+                      {/* Visual Panel Icon Diagram */}
+                      <RenderPanelDiagram count={p.panel_count} isSelected={isSelected} />
+
+                      <span className="text-xs font-bold text-text mt-2">{p.name}</span>
+                      <span className="text-[10px] text-muted font-medium mt-0.5">
+                        {p.panel_count === 1 ? '1 Solid Canvas' : `${p.panel_count} Split Panels`}
+                      </span>
+
+                      {/* Warm Yellow Badge */}
+                      {p.panel_count === 3 && (
+                        <span className="absolute -top-2 right-2 px-2 py-0.5 text-[9px] font-bold rounded-full bg-amber-500 text-white shadow">
+                          Most Popular
+                        </span>
+                      )}
+                      {p.panel_count === 5 && (
+                        <span className="absolute -top-2 right-2 px-2 py-0.5 text-[9px] font-bold rounded-full bg-amber-500 text-white shadow">
+                          Grand View
+                        </span>
+                      )}
+                      {p.panel_count === 7 && (
+                        <span className="absolute -top-2 right-2 px-2 py-0.5 text-[9px] font-bold rounded-full bg-pink-600 text-white shadow">
+                          Panoramic
+                        </span>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Gap Spacing Selector */}
+            {selectedPanelType && selectedPanelType.panel_count > 1 && (
+              <div className="p-4 rounded-xl border border-border bg-surface/80 space-y-2">
+                <label className="text-xs font-bold text-text flex items-center justify-between">
+                  <span>↔️ Panel Gap Spacing</span>
+                  <span className="text-amber-600 font-mono text-xs">{panelGapMm / 10} cm ({panelGapMm} mm)</span>
+                </label>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                  {GAP_OPTIONS.map((g) => (
+                    <button
+                      key={g.mm}
+                      type="button"
+                      onClick={() => setPanelGapMm(g.mm)}
+                      className={`p-2 rounded-lg border text-center transition-all text-xs ${
+                        panelGapMm === g.mm
+                          ? 'border-amber-500 bg-amber-500/10 text-amber-700 font-bold'
+                          : 'border-border bg-bg text-muted hover:text-text'
+                      }`}
+                    >
+                      <div className="font-semibold">{g.label}</div>
+                      <div className="text-[10px] text-muted">{g.desc}</div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Size Options & Breakdown */}
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <label className="text-xs font-semibold text-muted uppercase tracking-wider">
+                  Canvas Dimensions
+                </label>
+                {selectedSize?.sizing_mode && (
+                  <span className="text-[11px] font-semibold text-pink-600 bg-pink-500/10 px-2 py-0.5 rounded border border-pink-500/20">
+                    Mode: {selectedSize.sizing_mode.replace('_', ' ').toUpperCase()}
+                  </span>
+                )}
+              </div>
+
+              <OptionSelector
+                label=""
+                options={sizesForPanelType.map((s) => ({
+                  id: s.id,
+                  label: `${s.name} ${s.is_recommended ? '⭐ Recommended' : ''}`,
+                }))}
+                selectedId={selectedSize?.id ?? null}
+                onSelect={setSizeId}
+                emptyMessage="Choose a size for your canvas."
+              />
+
+              {/* Dynamic Size Breakdown Banner */}
+              {selectedSize && (
+                <div className="p-4 rounded-xl border border-amber-500/30 bg-amber-500/5 text-xs space-y-2">
+                  <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-1 font-bold text-amber-700 dark:text-amber-300">
+                    <span>📏 TOTAL ARTWORK SIZE: {selectedSize.width}" × {selectedSize.height}" ({Math.round(selectedSize.width * 2.54)}cm × {Math.round(selectedSize.height * 2.54)}cm)</span>
+                  </div>
+                  {selectedSize.each_panel_size && (
+                    <div className="text-muted font-medium flex items-center gap-1">
+                      <span>🖼️ Individual Panel Size:</span>
+                      <span className="font-mono text-text font-semibold">{selectedSize.each_panel_size}</span>
+                    </div>
+                  )}
+                  {selectedSize.recommended_room && (
+                    <div className="text-emerald-600 dark:text-emerald-400 font-medium">
+                      ✨ Recommended For: {selectedSize.recommended_room}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Step 4: Frame & Finish Selection */}
+          <div className="rounded-xl border border-border p-5 bg-surface/50 space-y-4">
+            <div className="flex items-center gap-2">
+              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-amber-600 text-white text-xs font-bold">4</span>
+              <h2 className="text-base font-semibold">Frame &amp; Canvas Finish</h2>
+            </div>
+
+            <OptionSelector
+              label="Outer Frame Accent"
+              options={
+                frames.length > 0
+                  ? frames.map((f) => ({
+                      id: f.id,
+                      label: `${f.name} ${f.price_paisa > 0 ? `(+Rs. ${f.price_paisa / 100})` : ''}`,
+                    }))
+                  : [
+                      { id: 'f0', label: 'Unframed (Wrapped Edge Canvas)' },
+                      { id: 'f1', label: 'Black Floating Frame (+Rs. 500)' },
+                      { id: 'f2', label: 'White Floating Frame (+Rs. 500)' },
+                      { id: 'f3', label: 'Natural Wood Frame (+Rs. 700)' },
+                      { id: 'f4', label: 'Luxury Gold Frame (+Rs. 900)' },
+                    ]
+              }
+              selectedId={frameId}
+              onSelect={(id) => setFrameId(id === frameId ? null : id)}
+            />
+
+            <OptionSelector
+              label="Canvas Finish"
+              options={
+                finishes.length > 0
+                  ? finishes.map((fn) => ({ id: fn.id, label: fn.name }))
+                  : [
+                      { id: 'fn1', label: 'Matte Finish (Non-reflective Premium)' },
+                      { id: 'fn2', label: 'Satin Gloss Finish (Vibrant Color Pop)' },
+                    ]
+              }
+              selectedId={finishId}
+              onSelect={(id) => setFinishId(id === finishId ? null : id)}
+            />
+          </div>
+
+          {/* Step 5: Custom Text Overlay */}
+          <div className="rounded-xl border border-border p-5 bg-surface/50">
+            <div className="flex items-center gap-2 mb-2">
+              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-amber-600 text-white text-xs font-bold">5</span>
+              <h2 className="text-base font-semibold">Custom Text Overlay (Optional)</h2>
+            </div>
+            <p className="text-xs text-muted mb-3">
+              Add a personal family name, date, or Vastu quote to print on your canvas.
+            </p>
+            <input
+              type="text"
+              value={customText}
+              onChange={(e) => setCustomText(e.target.value)}
+              placeholder="e.g., 'Shrestha Family Heritage' or 'Om Namah Shivaya'"
+              className="w-full px-3.5 py-2.5 text-sm rounded-lg border border-border bg-bg text-text focus:outline-none focus:ring-2 focus:ring-amber-600"
+            />
+          </div>
         </div>
 
-        {/* Step 7: Order Summary & Actions */}
-        <div className="rounded-xl border border-border p-5 bg-surface shadow-sm space-y-4">
-          <div className="flex items-center justify-between border-b border-border pb-3">
-            <div className="flex items-center gap-2">
-              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-amber-600 text-white text-xs font-bold">7</span>
-              <h2 className="text-base font-semibold">Configuration Summary</h2>
+        {/* Right Column: Live Interactive Konva Preview & Order Summary */}
+        <div className="space-y-6 lg:sticky lg:top-24 lg:self-start">
+          <div className="rounded-xl border border-border p-5 bg-surface shadow-sm">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-amber-600 text-white text-xs font-bold">6</span>
+                <h2 className="text-base font-semibold">Live Stage &amp; Split Preview</h2>
+              </div>
+              {selectedSize && (
+                <span className="text-xs font-medium px-2 py-0.5 rounded bg-amber-500/10 text-amber-600 border border-amber-500/20">
+                  {selectedSize.name}
+                </span>
+              )}
             </div>
-            <span className="text-lg font-bold text-amber-600">{formattedPriceRs}</span>
+
+            {/* Room Mockup Selector Bar */}
+            <div className="flex items-center gap-2 mb-3 overflow-x-auto pb-1 text-xs">
+              <span className="text-muted font-semibold shrink-0">Room Context:</span>
+              {ROOM_MOCKUPS.map((m) => (
+                <button
+                  key={m.id}
+                  type="button"
+                  onClick={() => setSelectedMockupId(m.id)}
+                  className={`px-2.5 py-1 rounded-md border text-xs font-medium transition-colors shrink-0 ${
+                    selectedMockupId === m.id
+                      ? 'border-amber-600 bg-amber-500/10 text-amber-600 font-semibold'
+                      : 'border-border bg-bg hover:border-text/30'
+                  }`}
+                >
+                  {m.name}
+                </button>
+              ))}
+            </div>
+
+            {/* Konva Stage Editor Component */}
+            {currentPhotoUrl ? (
+              <CanvasEditor
+                imageUrl={currentPhotoUrl}
+                panelCount={selectedPanelType?.panel_count ?? 1}
+                aspectRatio={aspectRatio}
+                panelGapMm={panelGapMm}
+                frameName={selectedFrame?.name}
+                mockupUrl={selectedMockup}
+                onChange={setCropData}
+              />
+            ) : (
+              <PreviewPlaceholder />
+            )}
+
+            {customText && (
+              <div className="mt-3 p-2.5 rounded border border-border bg-surface-hover text-center">
+                <p className="text-[11px] text-muted uppercase tracking-wider font-semibold">Text Overlay Preview</p>
+                <p className="text-sm font-display italic text-amber-600 mt-0.5">"{customText}"</p>
+              </div>
+            )}
           </div>
 
-          <div className="space-y-2 text-xs text-muted">
-            <div className="flex justify-between">
-              <span>Layout:</span>
-              <span className="font-semibold text-text">{selectedPanelType?.name || '1 Panel'}</span>
+          {/* Step 7: Order Summary & Actions */}
+          <div className="rounded-xl border border-border p-5 bg-surface shadow-sm space-y-4">
+            <div className="flex items-center justify-between border-b border-border pb-3">
+              <div className="flex items-center gap-2">
+                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-amber-600 text-white text-xs font-bold">7</span>
+                <h2 className="text-base font-semibold">Configuration Summary</h2>
+              </div>
+              <span className="text-xl font-extrabold text-amber-600">{formattedPriceRs}</span>
             </div>
-            <div className="flex justify-between">
-              <span>Canvas Size:</span>
-              <span className="font-semibold text-text">{selectedSize?.name || '16 × 24'}</span>
-            </div>
-            <div className="flex justify-between">
-              <span>Frame:</span>
-              <span className="font-semibold text-text">{selectedFrame?.name || 'Unframed'}</span>
-            </div>
-            <div className="flex justify-between">
-              <span>Finish:</span>
-              <span className="font-semibold text-text">{selectedFinish?.name || 'Matte'}</span>
-            </div>
-          </div>
 
-          <PriceSummary
-            pricePaisa={price}
-            quantity={quantity}
-            onQuantityChange={setQuantity}
-            onAddToCart={handleAddToCart}
-            onSendInquiry={() => setShowInquiryForm(true)}
-            whatsappHref={customWhatsappQuery}
-            disabledReason={disabledReason}
-            submitting={submitting}
-          />
-
-          {feedback && (
-            <div
-              role="status"
-              className="p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-700 dark:text-emerald-300 text-sm font-medium"
-            >
-              {feedback}
+            <div className="space-y-2 text-xs text-muted">
+              <div className="flex justify-between">
+                <span>Layout:</span>
+                <span className="font-semibold text-text">{selectedPanelType?.name || '1 Panel'}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Canvas Size:</span>
+                <span className="font-semibold text-text">{selectedSize?.name || 'Standard'}</span>
+              </div>
+              {selectedSize?.each_panel_size && (
+                <div className="flex justify-between">
+                  <span>Panel Size:</span>
+                  <span className="font-semibold text-pink-600">{selectedSize.each_panel_size}</span>
+                </div>
+              )}
+              <div className="flex justify-between">
+                <span>Panel Gap:</span>
+                <span className="font-semibold text-text">{panelGapMm / 10} cm ({panelGapMm} mm)</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Frame:</span>
+                <span className="font-semibold text-text">{selectedFrame?.name || 'Unframed'}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Finish:</span>
+                <span className="font-semibold text-text">{selectedFinish?.name || 'Matte'}</span>
+              </div>
             </div>
-          )}
 
-          {showInquiryForm && (
-            <InquiryForm
-              onSubmit={handleInquirySubmit}
-              onCancel={() => setShowInquiryForm(false)}
+            <PriceSummary
+              pricePaisa={price}
+              quantity={quantity}
+              onQuantityChange={setQuantity}
+              onAddToCart={handleAddToCart}
+              onSendInquiry={() => setShowInquiryForm(true)}
+              whatsappHref={customWhatsappQuery}
+              disabledReason={disabledReason}
               submitting={submitting}
             />
-          )}
+
+            {feedback && (
+              <div
+                role="status"
+                className="p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-700 dark:text-emerald-300 text-sm font-medium"
+              >
+                {feedback}
+              </div>
+            )}
+
+            {showInquiryForm && (
+              <InquiryForm
+                onSubmit={handleInquirySubmit}
+                onCancel={() => setShowInquiryForm(false)}
+                submitting={submitting}
+              />
+            )}
+          </div>
         </div>
       </div>
+    </>
+  );
+}
+
+function RenderPanelDiagram({ count, isSelected }: { count: number; isSelected: boolean }) {
+  const barColor = isSelected ? 'bg-pink-500' : 'bg-muted/40';
+
+  if (count === 5) {
+    // Chevron height pattern (70%, 85%, 100%, 85%, 70%)
+    const heights = ['h-6', 'h-8', 'h-10', 'h-8', 'h-6'];
+    return (
+      <div className="flex items-end justify-center gap-1 h-10 w-full px-2">
+        {heights.map((h, i) => (
+          <div key={i} className={`flex-1 ${h} ${barColor} rounded-sm transition-all`} />
+        ))}
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex items-center justify-center gap-1 h-10 w-full px-2">
+      {Array.from({ length: Math.min(count, 7) }).map((_, i) => (
+        <div key={i} className={`flex-1 h-8 ${barColor} rounded-sm transition-all`} />
+      ))}
     </div>
   );
 }

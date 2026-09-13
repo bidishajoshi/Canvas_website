@@ -76,9 +76,10 @@ export interface PanelType {
   panel_count: number;
   name: string;
   description: string | null;
-  preview_image_url: string | null;
+  preview_image_url?: string | null;
   status: ContentStatus;
   sort_order: number;
+  is_active?: boolean;
 }
 
 export interface CanvasSize {
@@ -89,7 +90,40 @@ export interface CanvasSize {
   unit: 'inch' | 'cm';
   panel_type_id: string | null;
   price_adjustment_paisa: number;
+  price_paisa?: number;
   is_recommended: boolean;
+  active: boolean;
+  sort_order: number;
+  sizing_mode?: 'total_artwork' | 'per_panel' | 'overall_combined';
+  each_panel_size?: string | null;
+  recommended_room?: string | null;
+  example_image_url?: string | null;
+}
+
+export interface SizeChartItem {
+  id?: string;
+  size_name?: string;
+  size_label?: string;
+  width?: number;
+  height?: number;
+  unit?: 'inch' | 'cm';
+  panel_count?: number | null;
+  each_panel_size?: string | null;
+  recommended_room: string;
+  description?: string | null;
+  starting_price_paisa?: number;
+  example_image_url?: string | null;
+  sort_order?: number;
+  active?: boolean;
+}
+
+export interface DemoArtwork {
+  id: string;
+  name: string;
+  category: string;
+  image_url: string;
+  description?: string | null;
+  is_default?: boolean;
   active: boolean;
   sort_order: number;
 }
@@ -97,8 +131,8 @@ export interface CanvasSize {
 export interface Frame {
   id: string;
   name: string;
-  image_url: string | null;
-  description: string | null;
+  image_url?: string | null;
+  description?: string | null;
   price_paisa: number;
   status: ContentStatus;
   sort_order: number;
@@ -109,8 +143,8 @@ export interface Frame {
 export interface Finish {
   id: string;
   name: string;
-  description: string | null;
-  price_paisa: number;
+  description?: string | null;
+  price_paisa?: number;
   status: ContentStatus;
   sort_order: number;
 }
