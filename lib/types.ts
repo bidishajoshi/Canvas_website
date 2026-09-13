@@ -231,3 +231,75 @@ export interface Settings {
   chatbot_greeting: string | null;
   demo_photo_url: string | null;
 }
+
+export interface TShirtType {
+  id: string;
+  name: string;
+  description: string | null;
+  base_price_paisa: number;
+  mockup_template_url: string | null;
+  status: ContentStatus;
+  sort_order: number;
+}
+
+export interface TShirtColor {
+  id: string;
+  name: string;
+  color_hex: string;
+  image_url?: string | null;
+  additional_price_paisa: number;
+  active: boolean;
+  sort_order: number;
+}
+
+export interface TShirtSize {
+  id: string;
+  name: string;
+  code: string;
+  price_adjustment_paisa: number;
+  active: boolean;
+  sort_order: number;
+}
+
+export interface PrintLocation {
+  id: string;
+  name: string;
+  code: string;
+  additional_price_paisa: number;
+  active: boolean;
+  sort_order: number;
+}
+
+export interface TShirtDesign {
+  id: string;
+  name: string;
+  theme: string;
+  image_url: string;
+  price_paisa: number;
+  tags?: string[];
+  is_featured?: boolean;
+  is_popular?: boolean;
+  active: boolean;
+  sort_order: number;
+}
+
+export interface TShirtConfiguration {
+  id?: string;
+  customer_id?: string | null;
+  session_id?: string | null;
+  tshirt_type_id: string;
+  tshirt_color_id: string;
+  tshirt_size_id: string;
+  print_location_id: string;
+  design_id?: string | null;
+  uploaded_design_url?: string | null;
+  custom_text?: string | null;
+  text_font?: string | null;
+  text_color?: string | null;
+  position_x: number;
+  position_y: number;
+  scale: number;
+  rotation: number;
+  calculated_price_paisa: number;
+  quantity: number;
+}

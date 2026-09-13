@@ -1,15 +1,19 @@
 export interface CartItem {
   id: string; // local line-item id (uuid)
-  type: 'product' | 'custom_canvas';
+  type: 'product' | 'custom_canvas' | 'custom_tshirt';
   name: string;
   imageUrl?: string;
   sizeLabel?: string;
   frameLabel?: string;
   finishLabel?: string;
+  colorLabel?: string;
+  printLocationLabel?: string;
+  designLabel?: string;
   quantity: number;
   unitPricePaisa: number;
   productId?: string;
   canvasConfigurationId?: string;
+  tshirtConfigurationId?: string;
 }
 
 const CART_KEY = 'affordable-decoration-cart';

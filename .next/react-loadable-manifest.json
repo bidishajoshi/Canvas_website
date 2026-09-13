@@ -2,8 +2,15 @@
   "components\\custom-canvas\\CanvasBuilderClient.tsx -> ./CanvasEditor": {
     "id": 3013,
     "files": [
-      "static/chunks/3798.9d16cde6be360340.js",
+      "static/chunks/3798.3c4f375947f9d19d.js",
       "static/chunks/3013.42e8953db93b3ed1.js"
+    ]
+  },
+  "components\\tshirt\\TShirtBuilderClient.tsx -> ./TShirtEditor": {
+    "id": 775,
+    "files": [
+      "static/chunks/3798.3c4f375947f9d19d.js",
+      "static/chunks/775.0415bb40d75819be.js"
     ]
   }
 }

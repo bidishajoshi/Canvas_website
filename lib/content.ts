@@ -53,10 +53,11 @@ const DEFAULT_MENU_ITEMS: MenuItem[] = [
   { id: '1', label: 'Home', href: '/', sort_order: 1 },
   { id: '2', label: 'Shop', href: '/shop', sort_order: 2 },
   { id: '3', label: 'Custom Canvas', href: '/custom-canvas', sort_order: 3 },
-  { id: '4', label: 'How It Works', href: '/#how-it-works', sort_order: 4 },
-  { id: '5', label: 'About', href: '/about', sort_order: 5 },
-  { id: '6', label: 'Track Order', href: '/track-order', sort_order: 6 },
-  { id: '7', label: 'Contact', href: '/contact', sort_order: 7 },
+  { id: '3b', label: 'Customize T-Shirt', href: '/customize-tshirt', sort_order: 4 },
+  { id: '4', label: 'How It Works', href: '/#how-it-works', sort_order: 5 },
+  { id: '5', label: 'About', href: '/about', sort_order: 6 },
+  { id: '6', label: 'Track Order', href: '/track-order', sort_order: 7 },
+  { id: '7', label: 'Contact', href: '/contact', sort_order: 8 },
 ];
 
 export async function getMenuItems(menuGroup = 'main'): Promise<MenuItem[]> {
