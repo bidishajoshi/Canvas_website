@@ -1,1 +1,1 @@
-self.__REACT_LOADABLE_MANIFEST="{}"
+self.__REACT_LOADABLE_MANIFEST='{"components\\\\custom-canvas\\\\CanvasBuilderClient.tsx -> ./CanvasEditor":{"id":3013,"files":["static/chunks/3798.9d16cde6be360340.js","static/chunks/3013.42e8953db93b3ed1.js"]}}';

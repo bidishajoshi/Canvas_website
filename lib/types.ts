@@ -102,6 +102,8 @@ export interface Frame {
   price_paisa: number;
   status: ContentStatus;
   sort_order: number;
+  color_hex?: string | null;
+  border_style?: 'solid' | 'wood' | 'gold' | 'floating' | null;
 }
 
 export interface Finish {
@@ -120,6 +122,15 @@ export interface PanelCropData {
   zoom: number; // 1 = fit, >1 = zoomed in
 }
 
+export interface MockupBackground {
+  id: string;
+  name: string;
+  image_url: string;
+  wall_area?: { x: number; y: number; width: number; height: number };
+  active: boolean;
+  sort_order: number;
+}
+
 export interface CanvasConfiguration {
   id?: string;
   customer_id?: string | null;
@@ -130,6 +141,8 @@ export interface CanvasConfiguration {
     height: number;
     size_bytes: number;
     quality_rating: 'excellent' | 'good' | 'low_resolution';
+    canvas_type?: string;
+    custom_text?: string;
   };
   panel_type_id: string;
   canvas_size_id: string;
@@ -153,6 +166,8 @@ export interface CanvasInquiry {
   customer_email?: string | null;
   message?: string | null;
   status?: InquiryStatus;
+  created_at?: string;
+  canvas_configurations?: CanvasConfiguration;
 }
 
 export interface Faq {
@@ -214,4 +229,5 @@ export interface Settings {
   default_panel_gap_mm: number;
   chatbot_enabled: boolean;
   chatbot_greeting: string | null;
+  demo_photo_url: string | null;
 }

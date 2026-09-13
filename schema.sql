@@ -89,7 +89,8 @@ create table settings (
   min_recommended_dpi int not null default 150,
   default_panel_gap_mm int not null default 20,
   chatbot_enabled boolean not null default true,
-  chatbot_greeting text default 'Hi! I can help you with canvas sizes, prices, panel options, framing, delivery and ordering.',
+  chatbot_greeting text default 'Namaste! Welcome to Affordable Decoration. I can help you with custom photo canvas, wall decor sizes, framing, prices, delivery in Nepal, and order tracking.',
+  demo_photo_url text default 'https://images.unsplash.com/photo-1579783902614-a3fb3927b675?auto=format&fit=crop&w=1200&q=80',
   updated_at timestamptz not null default now()
 );
 

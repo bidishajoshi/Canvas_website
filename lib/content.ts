@@ -32,6 +32,8 @@ const FALLBACK_SETTINGS: Settings = {
   chatbot_enabled: true,
   chatbot_greeting:
     'Namaste! Welcome to Affordable Decoration. I can help you with custom photo canvas, wall decor sizes, framing, prices, delivery in Nepal, and order tracking.',
+  demo_photo_url:
+    'https://images.unsplash.com/photo-1579783902614-a3fb3927b675?auto=format&fit=crop&w=1200&q=80',
 };
 
 export async function getSettings(): Promise<Settings> {

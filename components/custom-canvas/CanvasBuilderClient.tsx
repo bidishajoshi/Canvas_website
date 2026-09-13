@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import dynamic from 'next/dynamic';
 import { PhotoUpload, type UploadedPhoto } from './PhotoUpload';
 import { OptionSelector } from './OptionSelector';
@@ -42,6 +42,20 @@ const CANVAS_TYPES = [
   { id: 'other', name: 'Other Custom Design', icon: '✨' },
 ];
 
+const ROOM_MOCKUPS = [
+  { id: 'none', name: 'Canvas Only', url: null },
+  {
+    id: 'living',
+    name: 'Living Room Wall',
+    url: 'https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&w=1200&q=80',
+  },
+  {
+    id: 'office',
+    name: 'Modern Office',
+    url: 'https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=1200&q=80',
+  },
+];
+
 export function CanvasBuilderClient({
   panelTypes,
   sizes,
@@ -49,14 +63,22 @@ export function CanvasBuilderClient({
   finishes,
   settings,
 }: CanvasBuilderClientProps) {
+  const defaultDemoUrl =
+    settings.demo_photo_url ||
+    'https://images.unsplash.com/photo-1579783902614-a3fb3927b675?auto=format&fit=crop&w=1200&q=80';
+
   const [selectedCanvasType, setSelectedCanvasType] = useState('portrait');
   const [uploadedPhoto, setUploadedPhoto] = useState<UploadedPhoto | null>(null);
+  const [isUsingDemo, setIsUsingDemo] = useState(true);
+
   const [panelTypeId, setPanelTypeId] = useState<string | null>(
     panelTypes[0]?.id ?? null
   );
   const [sizeId, setSizeId] = useState<string | null>(null);
   const [frameId, setFrameId] = useState<string | null>(null);
   const [finishId, setFinishId] = useState<string | null>(null);
+  const [selectedMockupId, setSelectedMockupId] = useState('none');
+
   const [customText, setCustomText] = useState('');
   const [quantity, setQuantity] = useState(1);
   const [cropData, setCropData] = useState<PanelCropData[]>([]);
@@ -64,15 +86,19 @@ export function CanvasBuilderClient({
   const [submitting, setSubmitting] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
 
+  // Initialize photo state with Demo Photo
+  const currentPhotoUrl = uploadedPhoto?.url || (isUsingDemo ? defaultDemoUrl : '');
+
   const sizesForPanelType = useMemo(
     () => (panelTypeId ? sizes.filter((s) => s.panel_type_id === panelTypeId) : sizes),
     [sizes, panelTypeId]
   );
 
-  const selectedPanelType = panelTypes.find((p) => p.id === panelTypeId) ?? null;
-  const selectedSize = sizesForPanelType.find((s) => s.id === sizeId) ?? sizes[0] ?? null;
+  const selectedPanelType = panelTypes.find((p) => p.id === panelTypeId) ?? panelTypes[0] ?? null;
+  const selectedSize = sizesForPanelType.find((s) => s.id === sizeId) ?? sizesForPanelType[0] ?? sizes[0] ?? null;
   const selectedFrame = frames.find((f) => f.id === frameId) ?? null;
   const selectedFinish = finishes.find((f) => f.id === finishId) ?? null;
+  const selectedMockup = ROOM_MOCKUPS.find((m) => m.id === selectedMockupId)?.url || null;
 
   const aspectRatio = selectedSize ? selectedSize.width / selectedSize.height : 4 / 3;
 
@@ -98,13 +124,15 @@ export function CanvasBuilderClient({
     });
   }, [selectedSize, selectedFrame, selectedFinish, quantity]);
 
-  const disabledReason = !uploadedPhoto
-    ? 'Upload a photo to preview & order your canvas.'
+  const disabledReason = !currentPhotoUrl
+    ? 'Upload a photo or use demo photo to preview.'
     : !selectedSize
     ? 'Select a canvas size to continue.'
     : null;
 
-  const whatsappHref =
+  const formattedPriceRs = price != null ? `Rs. ${Math.round(price / 100).toLocaleString()}` : '';
+
+  const customWhatsappQuery =
     settings.whatsapp_number && selectedSize && price != null
       ? buildWhatsAppLink(settings.whatsapp_number, {
           panelTypeName: selectedPanelType?.name || 'Custom Canvas',
@@ -116,21 +144,34 @@ export function CanvasBuilderClient({
         })
       : null;
 
+  function handlePhotoUpload(photo: UploadedPhoto | null) {
+    if (photo) {
+      setUploadedPhoto(photo);
+      setIsUsingDemo(false);
+    }
+  }
+
+  function handleRestoreDemoPhoto() {
+    setUploadedPhoto(null);
+    setIsUsingDemo(true);
+  }
+
   async function saveConfiguration(): Promise<string | null> {
-    if (!uploadedPhoto || !selectedSize) return null;
+    if (!currentPhotoUrl || !selectedSize) return null;
 
     const res = await fetch('/api/canvas/configure', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        uploadedImageUrl: uploadedPhoto.url,
+        uploadedImageUrl: currentPhotoUrl,
         uploadedImageMeta: {
-          width: uploadedPhoto.width,
-          height: uploadedPhoto.height,
-          size_bytes: uploadedPhoto.sizeBytes,
-          quality_rating: qualityRating,
+          width: uploadedPhoto?.width || 1200,
+          height: uploadedPhoto?.height || 800,
+          size_bytes: uploadedPhoto?.sizeBytes || 500000,
+          quality_rating: qualityRating || 'good',
           canvas_type: selectedCanvasType,
           custom_text: customText,
+          is_demo_photo: isUsingDemo,
         },
         panelTypeId: selectedPanelType?.id ?? null,
         canvasSizeId: selectedSize.id,
@@ -159,7 +200,7 @@ export function CanvasBuilderClient({
       addToCart({
         type: 'custom_canvas',
         name: `Custom Canvas — ${selectedSize.name}`,
-        imageUrl: uploadedPhoto?.url,
+        imageUrl: currentPhotoUrl,
         sizeLabel: selectedSize.name,
         frameLabel: selectedFrame?.name || 'Unframed',
         finishLabel: selectedFinish?.name || 'Standard Finish',
@@ -207,13 +248,30 @@ export function CanvasBuilderClient({
 
   return (
     <div className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr]">
-      {/* Left Column: 7-Step Controls */}
+      {/* Left Column: Interactive Guided Options */}
       <div className="space-y-8">
+        {/* Notice for Demo Photo */}
+        {isUsingDemo && (
+          <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-4 text-xs sm:text-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+            <div className="flex items-center gap-2">
+              <span className="text-xl">🎨</span>
+              <div>
+                <p className="font-bold text-amber-700 dark:text-amber-300">
+                  Testing with Sample Demo Photo
+                </p>
+                <p className="text-xs text-muted">
+                  Test 1, 3, or 5 Panel splits, sizes &amp; frame borders below. Upload your photo when ready!
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Step 1: Canvas Type */}
         <div className="rounded-xl border border-border p-5 bg-surface/50">
           <div className="flex items-center gap-2 mb-3">
             <span className="flex h-6 w-6 items-center justify-center rounded-full bg-amber-600 text-white text-xs font-bold">1</span>
-            <h2 className="text-base font-semibold">Choose Canvas Type</h2>
+            <h2 className="text-base font-semibold">Choose Canvas Category</h2>
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
             {CANVAS_TYPES.map((type) => (
@@ -234,20 +292,32 @@ export function CanvasBuilderClient({
           </div>
         </div>
 
-        {/* Step 2: Upload Photo */}
-        <div className="rounded-xl border border-border p-5 bg-surface/50">
-          <div className="flex items-center gap-2 mb-3">
-            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-amber-600 text-white text-xs font-bold">2</span>
-            <h2 className="text-base font-semibold">Upload Your Photo</h2>
+        {/* Step 2: Upload Photo & Demo Toggle */}
+        <div className="rounded-xl border border-border p-5 bg-surface/50 space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-amber-600 text-white text-xs font-bold">2</span>
+              <h2 className="text-base font-semibold">Upload Your Photo</h2>
+            </div>
+            {!isUsingDemo && (
+              <button
+                type="button"
+                onClick={handleRestoreDemoPhoto}
+                className="text-xs text-amber-600 hover:underline font-semibold"
+              >
+                ↺ Try Sample Demo Photo
+              </button>
+            )}
           </div>
+
           <PhotoUpload
-            onUploaded={setUploadedPhoto}
+            onUploaded={handlePhotoUpload}
             maxUploadSizeMb={settings.max_upload_size_mb}
           />
 
           {qualityRating && (
             <div
-              className={`mt-3 p-3 rounded-lg border text-xs flex items-center gap-2.5 ${
+              className={`p-3 rounded-lg border text-xs flex items-center gap-2.5 ${
                 qualityRating === 'excellent'
                   ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300'
                   : qualityRating === 'good'
@@ -273,24 +343,52 @@ export function CanvasBuilderClient({
           )}
         </div>
 
-        {/* Step 3: Panel & Canvas Size */}
-        <div className="rounded-xl border border-border p-5 bg-surface/50 space-y-4">
+        {/* Step 3: Select 1, 3, or 5 Panels & Size */}
+        <div className="rounded-xl border border-border p-5 bg-surface/50 space-y-5">
           <div className="flex items-center gap-2">
             <span className="flex h-6 w-6 items-center justify-center rounded-full bg-amber-600 text-white text-xs font-bold">3</span>
             <h2 className="text-base font-semibold">Select Panel Layout &amp; Size</h2>
           </div>
 
-          {panelTypes.length > 0 && (
-            <OptionSelector
-              label="Layout Style"
-              options={panelTypes.map((p) => ({ id: p.id, label: p.name }))}
-              selectedId={panelTypeId}
-              onSelect={(id) => {
-                setPanelTypeId(id);
-              }}
-            />
-          )}
+          {/* Panel Selector (1, 3, 5 Panels) */}
+          <div>
+            <label className="text-xs font-semibold text-muted mb-2 block uppercase tracking-wider">
+              Canvas Panel Split Layout
+            </label>
+            <div className="grid grid-cols-3 gap-3">
+              {(panelTypes.length > 0
+                ? panelTypes
+                : [
+                    { id: 'p1', name: '1 Panel (Single)', panel_count: 1 },
+                    { id: 'p3', name: '3 Panels (Triptych)', panel_count: 3 },
+                    { id: 'p5', name: '5 Panels (Polyptych)', panel_count: 5 },
+                  ]
+              ).map((p) => {
+                const isSelected = selectedPanelType?.id === p.id || selectedPanelType?.panel_count === p.panel_count;
+                return (
+                  <button
+                    key={p.id}
+                    type="button"
+                    onClick={() => {
+                      setPanelTypeId(p.id);
+                    }}
+                    className={`flex flex-col items-center justify-center p-3 rounded-lg border text-center transition-all ${
+                      isSelected
+                        ? 'border-amber-600 bg-amber-500/10 text-amber-600 font-bold shadow-sm'
+                        : 'border-border bg-surface hover:border-text/30 hover:-translate-y-0.5'
+                    }`}
+                  >
+                    <span className="text-xs font-semibold">{p.name}</span>
+                    <span className="text-[10px] text-muted mt-0.5">
+                      {p.panel_count === 1 ? '1 Solid Canvas' : `${p.panel_count} Split Panels`}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
 
+          {/* Size Selector */}
           <OptionSelector
             label="Canvas Size (Inches)"
             options={sizesForPanelType.map((s) => ({
@@ -303,7 +401,7 @@ export function CanvasBuilderClient({
           />
         </div>
 
-        {/* Step 4: Frame & Finish Options */}
+        {/* Step 4: Frame & Finish Selection */}
         <div className="rounded-xl border border-border p-5 bg-surface/50 space-y-4">
           <div className="flex items-center gap-2">
             <span className="flex h-6 w-6 items-center justify-center rounded-full bg-amber-600 text-white text-xs font-bold">4</span>
@@ -311,7 +409,7 @@ export function CanvasBuilderClient({
           </div>
 
           <OptionSelector
-            label="Frame Option"
+            label="Frame Option (Visual Border)"
             options={
               frames.length > 0
                 ? frames.map((f) => ({
@@ -319,10 +417,11 @@ export function CanvasBuilderClient({
                     label: `${f.name} ${f.price_paisa > 0 ? `(+Rs. ${f.price_paisa / 100})` : ''}`,
                   }))
                 : [
-                    { id: 'f0', label: 'Unframed (Wrapped Canvas)' },
+                    { id: 'f0', label: 'Unframed (Wrapped Edge Canvas)' },
                     { id: 'f1', label: 'Black Floating Frame (+Rs. 500)' },
                     { id: 'f2', label: 'White Floating Frame (+Rs. 500)' },
                     { id: 'f3', label: 'Natural Wood Frame (+Rs. 700)' },
+                    { id: 'f4', label: 'Luxury Gold Frame (+Rs. 900)' },
                   ]
             }
             selectedId={frameId}
@@ -344,14 +443,14 @@ export function CanvasBuilderClient({
           />
         </div>
 
-        {/* Step 5: Custom Text Overlay (Optional) */}
+        {/* Step 5: Custom Text Overlay */}
         <div className="rounded-xl border border-border p-5 bg-surface/50">
           <div className="flex items-center gap-2 mb-2">
             <span className="flex h-6 w-6 items-center justify-center rounded-full bg-amber-600 text-white text-xs font-bold">5</span>
             <h2 className="text-base font-semibold">Custom Text Overlay (Optional)</h2>
           </div>
           <p className="text-xs text-muted mb-3">
-            Add a personal title, date, or heartfelt message to print on your canvas margin or front.
+            Add a personal title, date, or message to print on your canvas.
           </p>
           <input
             type="text"
@@ -363,13 +462,13 @@ export function CanvasBuilderClient({
         </div>
       </div>
 
-      {/* Right Column: Live Interactive Konva Preview & Step 6-7 Summary */}
+      {/* Right Column: Live Interactive Konva Preview & Room Mockup */}
       <div className="space-y-6 lg:sticky lg:top-24 lg:self-start">
         <div className="rounded-xl border border-border p-5 bg-surface shadow-sm">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
               <span className="flex h-6 w-6 items-center justify-center rounded-full bg-amber-600 text-white text-xs font-bold">6</span>
-              <h2 className="text-base font-semibold">Interactive Live Preview</h2>
+              <h2 className="text-base font-semibold">Live Real-Time Preview</h2>
             </div>
             {selectedSize && (
               <span className="text-xs font-medium px-2 py-0.5 rounded bg-amber-500/10 text-amber-600 border border-amber-500/20">
@@ -378,12 +477,34 @@ export function CanvasBuilderClient({
             )}
           </div>
 
-          {uploadedPhoto ? (
+          {/* Room Mockup Selector Bar */}
+          <div className="flex items-center gap-2 mb-3 overflow-x-auto pb-1 text-xs">
+            <span className="text-muted font-semibold shrink-0">View:</span>
+            {ROOM_MOCKUPS.map((m) => (
+              <button
+                key={m.id}
+                type="button"
+                onClick={() => setSelectedMockupId(m.id)}
+                className={`px-2.5 py-1 rounded-md border text-xs font-medium transition-colors shrink-0 ${
+                  selectedMockupId === m.id
+                    ? 'border-amber-600 bg-amber-500/10 text-amber-600 font-semibold'
+                    : 'border-border bg-bg hover:border-text/30'
+                }`}
+              >
+                {m.name}
+              </button>
+            ))}
+          </div>
+
+          {/* Konva Stage Editor Component */}
+          {currentPhotoUrl ? (
             <CanvasEditor
-              imageUrl={uploadedPhoto.url}
+              imageUrl={currentPhotoUrl}
               panelCount={selectedPanelType?.panel_count ?? 1}
               aspectRatio={aspectRatio}
               panelGapMm={settings.default_panel_gap_mm}
+              frameName={selectedFrame?.name}
+              mockupUrl={selectedMockup}
               onChange={setCropData}
             />
           ) : (
@@ -398,11 +519,33 @@ export function CanvasBuilderClient({
           )}
         </div>
 
-        {/* Step 7: Summary & Actions */}
+        {/* Step 7: Order Summary & Actions */}
         <div className="rounded-xl border border-border p-5 bg-surface shadow-sm space-y-4">
-          <div className="flex items-center gap-2">
-            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-amber-600 text-white text-xs font-bold">7</span>
-            <h2 className="text-base font-semibold">Order Summary &amp; Instant Action</h2>
+          <div className="flex items-center justify-between border-b border-border pb-3">
+            <div className="flex items-center gap-2">
+              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-amber-600 text-white text-xs font-bold">7</span>
+              <h2 className="text-base font-semibold">Configuration Summary</h2>
+            </div>
+            <span className="text-lg font-bold text-amber-600">{formattedPriceRs}</span>
+          </div>
+
+          <div className="space-y-2 text-xs text-muted">
+            <div className="flex justify-between">
+              <span>Layout:</span>
+              <span className="font-semibold text-text">{selectedPanelType?.name || '1 Panel'}</span>
+            </div>
+            <div className="flex justify-between">
+              <span>Canvas Size:</span>
+              <span className="font-semibold text-text">{selectedSize?.name || '16 × 24'}</span>
+            </div>
+            <div className="flex justify-between">
+              <span>Frame:</span>
+              <span className="font-semibold text-text">{selectedFrame?.name || 'Unframed'}</span>
+            </div>
+            <div className="flex justify-between">
+              <span>Finish:</span>
+              <span className="font-semibold text-text">{selectedFinish?.name || 'Matte'}</span>
+            </div>
           </div>
 
           <PriceSummary
@@ -411,7 +554,7 @@ export function CanvasBuilderClient({
             onQuantityChange={setQuantity}
             onAddToCart={handleAddToCart}
             onSendInquiry={() => setShowInquiryForm(true)}
-            whatsappHref={whatsappHref}
+            whatsappHref={customWhatsappQuery}
             disabledReason={disabledReason}
             submitting={submitting}
           />
@@ -444,7 +587,7 @@ function PreviewPlaceholder() {
       <span className="text-3xl mb-2">🖼️</span>
       <p className="text-sm font-medium text-text">Live Canvas Preview</p>
       <p className="text-xs text-muted mt-1">
-        Upload your photo in Step 2 to see instant live preview &amp; split panel alignment.
+        Select your photo or use our demo sample to preview panel splits.
       </p>
     </div>
   );
