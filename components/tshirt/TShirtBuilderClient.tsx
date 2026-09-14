@@ -166,7 +166,7 @@ export function TShirtBuilderClient({
       ? uploadedDesign?.url
       : selectedDesign?.image_url || DEFAULT_DEMO_DESIGN.image_url;
 
-  // Internal price calculation without exposing raw breakdown details
+  // Internal price calculation
   const unitPricePaisa = useMemo(() => {
     const base = selectedType.base_price_paisa || 0;
     const colorAdd = selectedColor.additional_price_paisa || 0;
@@ -212,55 +212,55 @@ export function TShirtBuilderClient({
   }
 
   return (
-    <div className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr]">
+    <div className="grid gap-6 sm:gap-8 lg:grid-cols-[1.1fr_0.9fr] items-start">
       {/* Left Guided Customization Controls */}
-      <div className="space-y-6">
+      <div className="space-y-5 sm:space-y-6 w-full min-w-0">
         {/* Step 1: Model & Color Palette */}
-        <div className="rounded-2xl border border-border p-5 bg-surface/50 space-y-4">
-          <div className="flex items-center justify-between">
+        <div className="rounded-2xl border border-border p-4 sm:p-5 bg-surface/50 space-y-4">
+          <div className="flex items-center justify-between flex-wrap gap-2">
             <div className="flex items-center gap-2">
-              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-amber-600 text-white text-xs font-bold">1</span>
-              <h2 className="text-base font-semibold">T-Shirt Model &amp; Color</h2>
+              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-amber-600 text-white text-xs font-bold shrink-0">1</span>
+              <h2 className="text-sm sm:text-base font-semibold">T-Shirt Model &amp; Color</h2>
             </div>
             {customBasePhoto && useCustomBase && (
-              <span className="text-xs font-bold text-emerald-600">✓ Own Base Photo Loaded</span>
+              <span className="text-[11px] font-bold text-emerald-600">✓ Own Base Photo Loaded</span>
             )}
           </div>
 
           {/* Model Selection Tabs: Store Model vs Upload Own T-Shirt Base */}
-          <div className="flex rounded-xl border border-border bg-bg p-1 text-xs font-semibold">
+          <div className="flex rounded-xl border border-border bg-bg p-1 text-xs font-semibold gap-1">
             <button
               type="button"
               onClick={() => setUseCustomBase(false)}
-              className={`flex-1 py-2 rounded-lg transition-colors ${
+              className={`flex-1 py-2 px-2 rounded-lg transition-all text-center truncate ${
                 !useCustomBase
-                  ? 'bg-amber-600 text-white shadow-sm'
+                  ? 'bg-amber-600 text-white shadow-sm font-bold'
                   : 'text-muted hover:text-text'
               }`}
             >
-              👕 Store Mockup Models
+              👕 Store Models
             </button>
             <button
               type="button"
               onClick={() => setUseCustomBase(true)}
-              className={`flex-1 py-2 rounded-lg transition-colors ${
+              className={`flex-1 py-2 px-2 rounded-lg transition-all text-center truncate ${
                 useCustomBase
-                  ? 'bg-amber-600 text-white shadow-sm'
+                  ? 'bg-amber-600 text-white shadow-sm font-bold'
                   : 'text-muted hover:text-text'
               }`}
             >
-              📤 Upload My Own T-Shirt Base
+              📤 My Base Photo
             </button>
           </div>
 
           {useCustomBase ? (
-            <div className="space-y-3 p-4 rounded-xl border border-amber-500/30 bg-amber-500/5 text-xs">
+            <div className="space-y-3 p-3.5 sm:p-4 rounded-xl border border-amber-500/30 bg-amber-500/5 text-xs">
               <div>
-                <h3 className="font-bold text-amber-700 dark:text-amber-300 mb-1">
+                <h3 className="font-bold text-amber-700 dark:text-amber-300 mb-1 text-xs sm:text-sm">
                   Upload Photo of Your Own T-Shirt / Hoodie / Apparel
                 </h3>
                 <p className="text-muted text-[11px]">
-                  Upload a front photo of your own T-shirt, hoodie, jersey, or polo shirt to visualize your print design right on your own garment!
+                  Upload a front photo of your own T-shirt, hoodie, jersey, or polo shirt to visualize your print design right on your garment!
                 </p>
               </div>
 
@@ -292,7 +292,7 @@ export function TShirtBuilderClient({
                 onClick={() => setUseCustomColor((v) => !v)}
                 className="text-[11px] font-bold text-amber-600 hover:underline"
               >
-                {useCustomColor ? '← Standard Palette' : '🎨 Pick Custom Color Hex'}
+                {useCustomColor ? '← Standard Swatches' : '🎨 Custom Color Hex'}
               </button>
             </div>
 
@@ -302,10 +302,10 @@ export function TShirtBuilderClient({
                   type="color"
                   value={customColorHex}
                   onChange={(e) => setCustomColorHex(e.target.value)}
-                  className="h-9 w-9 rounded-lg border-0 cursor-pointer bg-transparent"
+                  className="h-9 w-9 rounded-lg border-0 cursor-pointer bg-transparent shrink-0"
                 />
-                <div className="flex-1">
-                  <label className="text-[10px] font-bold uppercase text-muted block">Custom Color Hex</label>
+                <div className="flex-1 min-w-0">
+                  <label className="text-[10px] font-bold uppercase text-muted block">Custom Hex Code</label>
                   <input
                     type="text"
                     value={customColorHex}
@@ -315,7 +315,7 @@ export function TShirtBuilderClient({
                 </div>
               </div>
             ) : (
-              <div className="flex flex-wrap gap-2.5">
+              <div className="flex flex-wrap gap-2">
                 {activeColors.map((c) => {
                   const isSelected = selectedColorId === c.id;
                   return (
@@ -333,7 +333,7 @@ export function TShirtBuilderClient({
                       }`}
                     >
                       <span
-                        className="h-4 w-4 rounded-full border border-black/20 shadow-inner"
+                        className="h-4 w-4 rounded-full border border-black/20 shadow-inner shrink-0"
                         style={{ backgroundColor: c.color_hex }}
                       />
                       <span>{c.name}</span>
@@ -346,10 +346,10 @@ export function TShirtBuilderClient({
         </div>
 
         {/* Step 2: Size & Printable Area Selection */}
-        <div className="rounded-2xl border border-border p-5 bg-surface/50 space-y-4">
+        <div className="rounded-2xl border border-border p-4 sm:p-5 bg-surface/50 space-y-4">
           <div className="flex items-center gap-2">
-            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-amber-600 text-white text-xs font-bold">2</span>
-            <h2 className="text-base font-semibold">Size &amp; Printable Area</h2>
+            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-amber-600 text-white text-xs font-bold shrink-0">2</span>
+            <h2 className="text-sm sm:text-base font-semibold">Size &amp; Printable Area</h2>
           </div>
 
           <OptionSelector
@@ -387,7 +387,7 @@ export function TShirtBuilderClient({
               <button
                 type="button"
                 onClick={() => setViewSide('front')}
-                className={`py-2 rounded-xl text-xs font-semibold transition-all ${
+                className={`py-2 px-1 rounded-xl text-xs font-semibold text-center transition-all truncate ${
                   viewSide === 'front'
                     ? 'bg-amber-600 text-white shadow-sm'
                     : 'bg-surface border border-border text-muted hover:text-text'
@@ -398,7 +398,7 @@ export function TShirtBuilderClient({
               <button
                 type="button"
                 onClick={() => setViewSide('back')}
-                className={`py-2 rounded-xl text-xs font-semibold transition-all ${
+                className={`py-2 px-1 rounded-xl text-xs font-semibold text-center transition-all truncate ${
                   viewSide === 'back'
                     ? 'bg-amber-600 text-white shadow-sm'
                     : 'bg-surface border border-border text-muted hover:text-text'
@@ -409,7 +409,7 @@ export function TShirtBuilderClient({
               <button
                 type="button"
                 onClick={() => setViewSide('sleeve')}
-                className={`py-2 rounded-xl text-xs font-semibold transition-all ${
+                className={`py-2 px-1 rounded-xl text-xs font-semibold text-center transition-all truncate ${
                   viewSide === 'sleeve'
                     ? 'bg-amber-600 text-white shadow-sm'
                     : 'bg-surface border border-border text-muted hover:text-text'
@@ -422,34 +422,34 @@ export function TShirtBuilderClient({
         </div>
 
         {/* Step 3: Choose Ready-Made Graphic OR Upload Custom Photo */}
-        <div className="rounded-2xl border border-border p-5 bg-surface/50 space-y-4">
+        <div className="rounded-2xl border border-border p-4 sm:p-5 bg-surface/50 space-y-4">
           <div className="flex items-center gap-2">
-            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-amber-600 text-white text-xs font-bold">3</span>
-            <h2 className="text-base font-semibold">Choose Graphic Art OR Upload</h2>
+            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-amber-600 text-white text-xs font-bold shrink-0">3</span>
+            <h2 className="text-sm sm:text-base font-semibold">Choose Graphic Art OR Upload</h2>
           </div>
 
-          <div className="flex rounded-xl border border-border bg-bg p-1 text-xs">
+          <div className="flex rounded-xl border border-border bg-bg p-1 text-xs gap-1">
             <button
               type="button"
               onClick={() => setDesignMode('catalog')}
-              className={`flex-1 py-2 rounded-lg font-semibold transition-colors ${
+              className={`flex-1 py-2 px-2 rounded-lg font-semibold transition-colors text-center truncate ${
                 designMode === 'catalog'
                   ? 'bg-amber-600 text-white shadow-sm'
                   : 'text-muted hover:text-text'
               }`}
             >
-              🎨 Ready-Made Designs
+              🎨 Graphic Library
             </button>
             <button
               type="button"
               onClick={() => setDesignMode('upload')}
-              className={`flex-1 py-2 rounded-lg font-semibold transition-colors ${
+              className={`flex-1 py-2 px-2 rounded-lg font-semibold transition-colors text-center truncate ${
                 designMode === 'upload'
                   ? 'bg-amber-600 text-white shadow-sm'
                   : 'text-muted hover:text-text'
               }`}
             >
-              📤 Upload Custom Photo
+              📤 Upload Artwork
             </button>
           </div>
 
@@ -468,10 +468,10 @@ export function TShirtBuilderClient({
         </div>
 
         {/* Step 4: Custom Text Line Overlay (Optional) */}
-        <div className="rounded-2xl border border-border p-5 bg-surface/50 space-y-4">
+        <div className="rounded-2xl border border-border p-4 sm:p-5 bg-surface/50 space-y-4">
           <div className="flex items-center gap-2">
-            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-amber-600 text-white text-xs font-bold">4</span>
-            <h2 className="text-base font-semibold">Custom Text Line (Optional)</h2>
+            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-amber-600 text-white text-xs font-bold shrink-0">4</span>
+            <h2 className="text-sm sm:text-base font-semibold">Custom Text Line (Optional)</h2>
           </div>
 
           <div>
@@ -486,7 +486,7 @@ export function TShirtBuilderClient({
           </div>
 
           {customText && (
-            <div className="grid grid-cols-2 gap-3 pt-1">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
               <div>
                 <label className="text-xs text-muted mb-1 block">Font Style</label>
                 <select
@@ -504,7 +504,7 @@ export function TShirtBuilderClient({
 
               <div>
                 <label className="text-xs text-muted mb-1 block">Text Color</label>
-                <div className="flex items-center gap-2 pt-1">
+                <div className="flex items-center gap-2 pt-1 flex-wrap">
                   {TEXT_COLORS.map((tc) => (
                     <button
                       key={tc.name}
@@ -525,14 +525,14 @@ export function TShirtBuilderClient({
       </div>
 
       {/* Right Column: Live Mockup Preview & Clean E-Commerce Order Summary */}
-      <div className="space-y-6 lg:sticky lg:top-24 lg:self-start">
-        <div className="rounded-2xl border border-border p-5 bg-surface shadow-sm">
-          <div className="flex items-center justify-between mb-3">
-            <h2 className="text-base font-bold text-text flex items-center gap-2">
-              <span>👕</span> Realistic Product Mockup
+      <div className="space-y-5 sm:space-y-6 lg:sticky lg:top-24 lg:self-start w-full min-w-0">
+        <div className="rounded-2xl border border-border p-4 sm:p-5 bg-surface shadow-sm">
+          <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
+            <h2 className="text-sm sm:text-base font-bold text-text flex items-center gap-2">
+              <span>👕</span> Live Mockup Preview
             </h2>
-            <span className="text-xs font-bold text-amber-600 px-2.5 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/20">
-              {useCustomBase ? 'Custom Base Photo' : activeColorName} • {viewSide.toUpperCase()}
+            <span className="text-[10px] sm:text-xs font-bold text-amber-600 px-2.5 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/20 truncate">
+              {useCustomBase ? 'Custom Base' : activeColorName} • {viewSide.toUpperCase()}
             </span>
           </div>
 
@@ -549,33 +549,33 @@ export function TShirtBuilderClient({
           />
         </div>
 
-        {/* Clean E-Commerce Summary (No Complicated Pricing Details) */}
-        <div className="rounded-2xl border border-border p-5 bg-surface shadow-md space-y-4">
-          <div className="flex items-center justify-between border-b border-border pb-3">
-            <h3 className="text-base font-bold text-text">Order Summary</h3>
-            <span className="text-2xl font-extrabold text-amber-600">{formatPaisa(totalPricePaisa)}</span>
+        {/* Clean E-Commerce Summary */}
+        <div className="rounded-2xl border border-border p-4 sm:p-5 bg-surface shadow-md space-y-4">
+          <div className="flex items-center justify-between border-b border-border pb-3 flex-wrap gap-2">
+            <h3 className="text-sm sm:text-base font-bold text-text">Order Summary</h3>
+            <span className="text-xl sm:text-2xl font-extrabold text-amber-600">{formatPaisa(totalPricePaisa)}</span>
           </div>
 
           <div className="space-y-2 text-xs text-muted">
-            <div className="flex justify-between">
+            <div className="flex justify-between gap-2">
               <span>Apparel Model:</span>
-              <span className="font-bold text-text">{selectedType.name}</span>
+              <span className="font-bold text-text text-right truncate">{selectedType.name}</span>
             </div>
-            <div className="flex justify-between">
+            <div className="flex justify-between gap-2">
               <span>Selected Size:</span>
-              <span className="font-bold text-text">{selectedSize.name}</span>
+              <span className="font-bold text-text text-right">{selectedSize.name}</span>
             </div>
-            <div className="flex justify-between">
+            <div className="flex justify-between gap-2">
               <span>Selected Color:</span>
-              <span className="font-bold text-text">{selectedColor.name}</span>
+              <span className="font-bold text-text text-right">{selectedColor.name}</span>
             </div>
-            <div className="flex justify-between">
+            <div className="flex justify-between gap-2">
               <span>Print Location:</span>
-              <span className="font-bold text-text">{selectedLocation.name}</span>
+              <span className="font-bold text-text text-right">{selectedLocation.name}</span>
             </div>
-            <div className="flex justify-between">
+            <div className="flex justify-between gap-2">
               <span>Artwork / Design:</span>
-              <span className="font-bold text-text">
+              <span className="font-bold text-text text-right truncate">
                 {designMode === 'catalog' ? selectedDesign?.name || 'Standard Graphic' : 'Custom Upload'}
               </span>
             </div>

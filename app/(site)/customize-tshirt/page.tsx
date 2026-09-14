@@ -41,15 +41,15 @@ export default async function CustomizeTShirtPage() {
   }
 
   return (
-    <div className="container-page py-10">
-      <div className="text-center space-y-3 mb-10 max-w-2xl mx-auto">
-        <span className="text-xs uppercase font-bold tracking-wider text-amber-600 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20">
+    <div className="container-page py-6 sm:py-10">
+      <div className="text-center space-y-2 sm:space-y-3 mb-6 sm:mb-10 max-w-2xl mx-auto px-2">
+        <span className="text-[10px] sm:text-xs uppercase font-bold tracking-wider text-amber-600 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20">
           Interactive T-Shirt Customizer
         </span>
-        <h1 className="font-display text-3xl sm:text-4xl font-bold tracking-tight text-text">
+        <h1 className="font-display text-2xl sm:text-4xl font-bold tracking-tight text-text">
           Design Your Custom T-Shirt
         </h1>
-        <p className="text-sm text-muted">
+        <p className="text-xs sm:text-sm text-muted">
           Choose a T-shirt style &amp; color, select from our curated artwork library or upload your own design, add custom text, and preview your creation live before ordering!
         </p>
       </div>

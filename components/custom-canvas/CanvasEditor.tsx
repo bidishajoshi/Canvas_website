@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Stage, Layer, Image as KonvaImage, Rect, Group } from 'react-konva';
 import useImage from 'use-image';
 import type Konva from 'konva';
@@ -35,6 +35,9 @@ export function CanvasEditor({
   const [image] = useImage(imageUrl, 'anonymous');
   const [mockupImage] = useImage(mockupUrl || '', 'anonymous');
 
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [stageScale, setStageScale] = useState(1);
+
   const [zoom, setZoom] = useState(1);
   const [pos, setPos] = useState({ x: 0, y: 0 });
 
@@ -42,6 +45,23 @@ export function CanvasEditor({
   const stageHeight = Math.round(PREVIEW_WIDTH / Math.max(aspectRatio, 0.01));
   const gapPx = panelCount > 1 ? Math.min(24, Math.max(6, Math.round((panelGapMm / 10) * 4))) : 0;
   const panelWidth = (stageWidth - gapPx * (panelCount - 1)) / panelCount;
+
+  // Responsive stage scaling on mobile screen widths
+  useEffect(() => {
+    function updateScale() {
+      if (containerRef.current) {
+        const availableWidth = containerRef.current.clientWidth - 16;
+        if (availableWidth < stageWidth) {
+          setStageScale(Math.max(0.4, availableWidth / stageWidth));
+        } else {
+          setStageScale(1);
+        }
+      }
+    }
+    updateScale();
+    window.addEventListener('resize', updateScale);
+    return () => window.removeEventListener('resize', updateScale);
+  }, [stageWidth]);
 
   // Staggered height ratios per panel count for realistic multi-piece composition
   const heightRatios = useMemo(() => {
@@ -157,34 +177,54 @@ export function CanvasEditor({
 
   return (
     <div className="space-y-4">
-      {/* Live Clean Canvas Stage Container (NO Price Overlays Inside Preview) */}
-      <div className="relative mx-auto overflow-hidden rounded-2xl border border-border bg-surface p-3 shadow-md flex justify-center items-center">
+      {/* Live Clean Canvas Stage Container with Mobile Responsive Scaling */}
+      <div
+        ref={containerRef}
+        className="relative mx-auto w-full overflow-hidden rounded-2xl border border-border bg-surface p-2 sm:p-4 shadow-md flex justify-center items-center"
+      >
         {mockupUrl && mockupImage ? (
           <div className="relative aspect-[16/9] w-full overflow-hidden rounded-xl">
             <img src={mockupUrl} alt="Room Mockup" className="absolute inset-0 w-full h-full object-cover" />
-            <div className="absolute inset-0 flex items-center justify-center p-6">
+            <div className="absolute inset-0 flex items-center justify-center p-3 sm:p-6">
               <div className="scale-75 sm:scale-90 shadow-2xl transition-transform">
                 <RenderKonvaStage />
               </div>
             </div>
           </div>
         ) : (
-          <div className="flex justify-center items-center py-2 overflow-x-auto">
-            <RenderKonvaStage />
+          <div className="flex justify-center items-center py-2 w-full overflow-hidden">
+            <div
+              className="origin-center transition-all flex items-center justify-center"
+              style={{
+                width: Math.round(stageWidth * stageScale),
+                height: Math.round(stageHeight * stageScale),
+              }}
+            >
+              <div
+                style={{
+                  width: stageWidth,
+                  height: stageHeight,
+                  transform: `scale(${stageScale})`,
+                  transformOrigin: 'top left',
+                }}
+              >
+                <RenderKonvaStage />
+              </div>
+            </div>
           </div>
         )}
       </div>
 
       {/* Fine 5mm Positioning & Zoom Control Panel */}
-      <div className="rounded-2xl border border-border bg-surface p-4 space-y-4 text-xs">
+      <div className="rounded-2xl border border-border bg-surface p-3 sm:p-4 space-y-4 text-xs">
         <div className="flex items-center justify-between border-b border-border pb-2">
-          <span className="font-bold text-text flex items-center gap-1.5">
+          <span className="font-bold text-text flex items-center gap-1.5 text-xs sm:text-sm">
             <span>📐</span> Fine 5mm Positioning &amp; Image Adjustment
           </span>
           <button
             type="button"
             onClick={handleResetTransform}
-            className="px-3 py-1 rounded-lg bg-surface-hover border border-border hover:border-amber-600 font-bold transition-all active:scale-95"
+            className="px-2.5 py-1 rounded-lg bg-surface-hover border border-border hover:border-amber-600 font-bold text-xs transition-all active:scale-95"
           >
             ↺ Center Reset
           </button>
@@ -201,7 +241,7 @@ export function CanvasEditor({
               <button
                 type="button"
                 onClick={() => nudge5mm(0, -18)}
-                className="p-2 rounded-lg border border-border bg-bg hover:border-amber-600 font-bold text-center active:scale-95 shadow-sm"
+                className="h-9 w-9 rounded-lg border border-border bg-bg hover:border-amber-600 font-bold text-center active:scale-95 shadow-sm flex items-center justify-center text-sm"
                 title="Nudge Up 5mm"
               >
                 ▲
@@ -210,7 +250,7 @@ export function CanvasEditor({
               <button
                 type="button"
                 onClick={() => nudge5mm(-18, 0)}
-                className="p-2 rounded-lg border border-border bg-bg hover:border-amber-600 font-bold text-center active:scale-95 shadow-sm"
+                className="h-9 w-9 rounded-lg border border-border bg-bg hover:border-amber-600 font-bold text-center active:scale-95 shadow-sm flex items-center justify-center text-sm"
                 title="Nudge Left 5mm"
               >
                 ◀
@@ -218,7 +258,7 @@ export function CanvasEditor({
               <button
                 type="button"
                 onClick={handleResetTransform}
-                className="p-2 rounded-lg border border-border bg-amber-500/10 text-amber-600 font-bold text-center active:scale-95 text-[10px]"
+                className="h-9 w-9 rounded-lg border border-border bg-amber-500/10 text-amber-600 font-bold text-center active:scale-95 text-[10px] flex items-center justify-center"
                 title="Center"
               >
                 ⏺
@@ -226,7 +266,7 @@ export function CanvasEditor({
               <button
                 type="button"
                 onClick={() => nudge5mm(18, 0)}
-                className="p-2 rounded-lg border border-border bg-bg hover:border-amber-600 font-bold text-center active:scale-95 shadow-sm"
+                className="h-9 w-9 rounded-lg border border-border bg-bg hover:border-amber-600 font-bold text-center active:scale-95 shadow-sm flex items-center justify-center text-sm"
                 title="Nudge Right 5mm"
               >
                 ▶
@@ -235,7 +275,7 @@ export function CanvasEditor({
               <button
                 type="button"
                 onClick={() => nudge5mm(0, 18)}
-                className="p-2 rounded-lg border border-border bg-bg hover:border-amber-600 font-bold text-center active:scale-95 shadow-sm"
+                className="h-9 w-9 rounded-lg border border-border bg-bg hover:border-amber-600 font-bold text-center active:scale-95 shadow-sm flex items-center justify-center text-sm"
                 title="Nudge Down 5mm"
               >
                 ▼
@@ -247,7 +287,7 @@ export function CanvasEditor({
           {/* Zoom Slider & Numeric Inputs */}
           <div className="space-y-3">
             <div>
-              <div className="flex items-center justify-between font-semibold text-muted mb-1">
+              <div className="flex items-center justify-between font-semibold text-muted mb-1 text-xs">
                 <span>Zoom Scale</span>
                 <span className="text-amber-600 font-mono font-bold">{Math.round(zoom * 100)}%</span>
               </div>
@@ -266,7 +306,7 @@ export function CanvasEditor({
                   step={0.05}
                   value={zoom}
                   onChange={(e) => setZoom(parseFloat(e.target.value))}
-                  className="flex-1 accent-amber-600"
+                  className="flex-1 accent-amber-600 h-2 rounded-lg cursor-pointer"
                 />
                 <button
                   type="button"

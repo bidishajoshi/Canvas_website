@@ -1,7 +1,7 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
-import { Stage, Layer, Image as KonvaImage, Text as KonvaText, Rect, Group, Circle, Path } from 'react-konva';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { Stage, Layer, Image as KonvaImage, Text as KonvaText, Rect, Group, Path } from 'react-konva';
 import useImage from 'use-image';
 import type Konva from 'konva';
 
@@ -13,7 +13,7 @@ export interface TShirtEditorProps {
   customText?: string;
   textFont?: string;
   textColor?: string;
-  printAreaCode?: string; // 'front', 'back', 'chest', 'sleeve_left', 'sleeve_right', 'upper_front', 'lower_front', etc.
+  printAreaCode?: string; // 'front', 'back', 'left_chest', 'sleeve_left', etc.
   viewSide?: 'front' | 'back' | 'sleeve';
   onChange?: (transform: { positionX: number; positionY: number; scale: number; rotation: number }) => void;
 }
@@ -37,9 +37,60 @@ export function TShirtEditor({
   const [customBaseImage] = useImage(customTShirtBaseUrl || '', 'anonymous');
   const [defaultMockupImage] = useImage('/images/tshirt_default_mockup.png', 'anonymous');
 
+  // Fabric Color Tint Canvas state
+  const [tintedMockupCanvas, setTintedMockupCanvas] = useState<HTMLCanvasElement | null>(null);
+
+  // Responsive stage scaling state for mobile phone screens
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [stageScale, setStageScale] = useState(1);
+
   const [position, setPosition] = useState({ x: 260, y: 270 });
   const [scale, setScale] = useState(0.85);
   const [rotation, setRotation] = useState(0);
+
+  // Measure container and scale Konva stage dynamically for small screen widths (< 520px)
+  useEffect(() => {
+    function updateScale() {
+      if (containerRef.current) {
+        const availableWidth = containerRef.current.clientWidth - 16;
+        if (availableWidth < STAGE_WIDTH) {
+          setStageScale(Math.max(0.5, availableWidth / STAGE_WIDTH));
+        } else {
+          setStageScale(1);
+        }
+      }
+    }
+    updateScale();
+    window.addEventListener('resize', updateScale);
+    return () => window.removeEventListener('resize', updateScale);
+  }, []);
+
+  // Photorealistic Fabric Color Tinting via Multiply Canvas Filter
+  useEffect(() => {
+    if (!defaultMockupImage) return;
+    if (!colorHex || colorHex.toLowerCase() === '#ffffff') {
+      setTintedMockupCanvas(null);
+      return;
+    }
+
+    try {
+      const canvas = document.createElement('canvas');
+      canvas.width = defaultMockupImage.width;
+      canvas.height = defaultMockupImage.height;
+      const ctx = canvas.getContext('2d');
+      if (ctx) {
+        ctx.drawImage(defaultMockupImage, 0, 0);
+        ctx.globalCompositeOperation = 'multiply';
+        ctx.fillStyle = colorHex;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.globalCompositeOperation = 'destination-in';
+        ctx.drawImage(defaultMockupImage, 0, 0);
+        setTintedMockupCanvas(canvas);
+      }
+    } catch {
+      setTintedMockupCanvas(null);
+    }
+  }, [defaultMockupImage, colorHex]);
 
   // Print Bounding Area based on view and print location selection
   const printBounds = useMemo(() => {
@@ -106,207 +157,222 @@ export function TShirtEditor({
 
   return (
     <div className="space-y-4">
-      {/* Interactive Realistic T-Shirt Customization Stage Container */}
-      <div className="relative mx-auto overflow-hidden rounded-2xl border border-border bg-surface p-3 shadow-md flex flex-col items-center justify-center">
+      {/* Interactive Mobile-Responsive T-Shirt Customization Stage Container */}
+      <div
+        ref={containerRef}
+        className="relative mx-auto w-full overflow-hidden rounded-2xl border border-border bg-surface p-2 sm:p-4 shadow-md flex flex-col items-center justify-center"
+      >
         <div
-          className="relative shadow-2xl rounded-xl overflow-hidden bg-neutral-100 dark:bg-neutral-900"
-          style={{ width: STAGE_WIDTH, height: STAGE_HEIGHT }}
+          className="relative shadow-2xl rounded-xl overflow-hidden bg-neutral-100 dark:bg-neutral-900 transition-all origin-top flex items-center justify-center"
+          style={{
+            width: Math.round(STAGE_WIDTH * stageScale),
+            height: Math.round(STAGE_HEIGHT * stageScale),
+          }}
         >
-          <Stage width={STAGE_WIDTH} height={STAGE_HEIGHT}>
-            <Layer>
-              {/* Customer Uploaded Base Image OR Photorealistic White T-Shirt Photo OR Vector Fallback */}
-              {customBaseImage ? (
-                <KonvaImage
-                  image={customBaseImage}
-                  x={40}
-                  y={40}
-                  width={440}
-                  height={500}
-                />
-              ) : defaultMockupImage ? (
-                <KonvaImage
-                  image={defaultMockupImage}
-                  x={30}
-                  y={10}
-                  width={460}
-                  height={560}
-                />
-              ) : (
-                <Group>
-                  {/* Outer Shadow Drop */}
-                  <Rect
-                    x={110}
-                    y={100}
-                    width={300}
-                    height={430}
-                    cornerRadius={24}
-                    fill="#000000"
-                    opacity={0.08}
-                    shadowBlur={20}
-                    shadowOffsetY={10}
+          <div
+            style={{
+              width: STAGE_WIDTH,
+              height: STAGE_HEIGHT,
+              transform: `scale(${stageScale})`,
+              transformOrigin: 'top left',
+            }}
+          >
+            <Stage width={STAGE_WIDTH} height={STAGE_HEIGHT}>
+              <Layer>
+                {/* Customer Uploaded Base Image OR Photorealistic Color-Tinted T-Shirt Photo OR Vector Fallback */}
+                {customBaseImage ? (
+                  <KonvaImage
+                    image={customBaseImage}
+                    x={40}
+                    y={40}
+                    width={440}
+                    height={500}
                   />
-
-                  {/* Main Torso Fabric */}
-                  <Rect
-                    x={125}
-                    y={110}
-                    width={270}
-                    height={420}
-                    cornerRadius={[24, 24, 16, 16]}
-                    fill={colorHex}
-                    stroke="#27272a"
-                    strokeWidth={1.5}
+                ) : defaultMockupImage ? (
+                  <KonvaImage
+                    image={tintedMockupCanvas || defaultMockupImage}
+                    x={30}
+                    y={10}
+                    width={460}
+                    height={560}
                   />
-
-                  {/* Left Sleeve Body */}
-                  <Rect
-                    x={45}
-                    y={120}
-                    width={100}
-                    height={145}
-                    cornerRadius={14}
-                    fill={colorHex}
-                    stroke="#27272a"
-                    strokeWidth={1.5}
-                    rotation={-28}
-                  />
-
-                  {/* Right Sleeve Body */}
-                  <Rect
-                    x={375}
-                    y={73}
-                    width={100}
-                    height={145}
-                    cornerRadius={14}
-                    fill={colorHex}
-                    stroke="#27272a"
-                    strokeWidth={1.5}
-                    rotation={28}
-                  />
-
-                  {/* Collar Ribbing Seam (Front Crew Neck vs Back Collar) */}
-                  {viewSide === 'back' ? (
-                    <Path
-                      data="M 210 110 Q 260 120 310 110"
-                      stroke="#27272a"
-                      strokeWidth={2.5}
-                      fill="transparent"
+                ) : (
+                  <Group>
+                    {/* Outer Shadow Drop */}
+                    <Rect
+                      x={110}
+                      y={100}
+                      width={300}
+                      height={430}
+                      cornerRadius={24}
+                      fill="#000000"
+                      opacity={0.08}
+                      shadowBlur={20}
+                      shadowOffsetY={10}
                     />
-                  ) : (
-                    <Group>
-                      <Rect
-                        x={200}
-                        y={105}
-                        width={120}
-                        height={40}
-                        cornerRadius={[0, 0, 48, 48]}
-                        fill="#09090b"
-                        opacity={0.12}
-                      />
+
+                    {/* Main Torso Fabric */}
+                    <Rect
+                      x={125}
+                      y={110}
+                      width={270}
+                      height={420}
+                      cornerRadius={[24, 24, 16, 16]}
+                      fill={colorHex}
+                      stroke="#27272a"
+                      strokeWidth={1.5}
+                    />
+
+                    {/* Left Sleeve Body */}
+                    <Rect
+                      x={45}
+                      y={120}
+                      width={100}
+                      height={145}
+                      cornerRadius={14}
+                      fill={colorHex}
+                      stroke="#27272a"
+                      strokeWidth={1.5}
+                      rotation={-28}
+                    />
+
+                    {/* Right Sleeve Body */}
+                    <Rect
+                      x={375}
+                      y={73}
+                      width={100}
+                      height={145}
+                      cornerRadius={14}
+                      fill={colorHex}
+                      stroke="#27272a"
+                      strokeWidth={1.5}
+                      rotation={28}
+                    />
+
+                    {/* Collar Ribbing Seam (Front Crew Neck vs Back Collar) */}
+                    {viewSide === 'back' ? (
                       <Path
-                        data="M 200 110 Q 260 145 320 110"
+                        data="M 210 110 Q 260 120 310 110"
                         stroke="#27272a"
                         strokeWidth={2.5}
                         fill="transparent"
                       />
-                    </Group>
-                  )}
+                    ) : (
+                      <Group>
+                        <Rect
+                          x={200}
+                          y={105}
+                          width={120}
+                          height={40}
+                          cornerRadius={[0, 0, 48, 48]}
+                          fill="#09090b"
+                          opacity={0.12}
+                        />
+                        <Path
+                          data="M 200 110 Q 260 145 320 110"
+                          stroke="#27272a"
+                          strokeWidth={2.5}
+                          fill="transparent"
+                        />
+                      </Group>
+                    )}
 
-                  {/* Inner Brand Tag Label */}
-                  <Rect
-                    x={230}
-                    y={118}
-                    width={60}
-                    height={22}
-                    cornerRadius={4}
-                    fill="#000000"
-                    opacity={0.15}
+                    {/* Inner Brand Tag Label */}
+                    <Rect
+                      x={230}
+                      y={118}
+                      width={60}
+                      height={22}
+                      cornerRadius={4}
+                      fill="#000000"
+                      opacity={0.15}
+                    />
+                  </Group>
+                )}
+
+                {/* Printable Bounding Box Container */}
+                <Rect
+                  x={printBounds.x}
+                  y={printBounds.y}
+                  width={printBounds.width}
+                  height={printBounds.height}
+                  stroke="#d97706"
+                  strokeWidth={1.8}
+                  dash={[8, 5]}
+                  cornerRadius={6}
+                />
+
+                {/* Graphic Design Artwork Overlay */}
+                {designImage && (
+                  <KonvaImage
+                    image={designImage}
+                    x={position.x}
+                    y={position.y}
+                    width={170 * scale}
+                    height={170 * scale}
+                    offsetX={(170 * scale) / 2}
+                    offsetY={(170 * scale) / 2}
+                    rotation={rotation}
+                    draggable
+                    onDragMove={handleDragMove}
                   />
-                </Group>
-              )}
+                )}
 
-              {/* Printable Bounding Box Container */}
-              <Rect
-                x={printBounds.x}
-                y={printBounds.y}
-                width={printBounds.width}
-                height={printBounds.height}
-                stroke="#d97706"
-                strokeWidth={1.8}
-                dash={[8, 5]}
-                cornerRadius={6}
-              />
-
-              {/* Graphic Design Artwork Overlay */}
-              {designImage && (
-                <KonvaImage
-                  image={designImage}
-                  x={position.x}
-                  y={position.y}
-                  width={170 * scale}
-                  height={170 * scale}
-                  offsetX={(170 * scale) / 2}
-                  offsetY={(170 * scale) / 2}
-                  rotation={rotation}
-                  draggable
-                  onDragMove={handleDragMove}
-                />
-              )}
-
-              {/* Custom Text Overlay */}
-              {customText && (
-                <KonvaText
-                  text={customText}
-                  x={position.x}
-                  y={position.y + (designImage ? 95 * scale : 0)}
-                  fontSize={24 * scale}
-                  fontFamily={textFont}
-                  fill={textColor}
-                  align="center"
-                  offsetX={(customText.length * 12 * scale) / 2}
-                  offsetY={12 * scale}
-                  rotation={rotation}
-                  draggable
-                  onDragMove={handleDragMove}
-                />
-              )}
-            </Layer>
-          </Stage>
+                {/* Custom Text Overlay */}
+                {customText && (
+                  <KonvaText
+                    text={customText}
+                    x={position.x}
+                    y={position.y + (designImage ? 95 * scale : 0)}
+                    fontSize={24 * scale}
+                    fontFamily={textFont}
+                    fill={textColor}
+                    align="center"
+                    offsetX={(customText.length * 12 * scale) / 2}
+                    offsetY={12 * scale}
+                    rotation={rotation}
+                    draggable
+                    onDragMove={handleDragMove}
+                  />
+                )}
+              </Layer>
+            </Stage>
+          </div>
 
           {/* Top Printable Zone Badge */}
-          <div className="absolute top-3 left-3 flex items-center gap-2">
-            <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full bg-black/75 text-white backdrop-blur shadow">
+          <div className="absolute top-2 left-2 sm:top-3 sm:left-3 flex items-center gap-2">
+            <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full bg-black/80 text-white backdrop-blur shadow">
               {printBounds.name}
             </span>
           </div>
 
           {/* Color Indicator Badge */}
-          <div className="absolute top-3 right-3 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface/90 border border-border text-xs font-semibold shadow-sm">
+          <div className="absolute top-2 right-2 sm:top-3 sm:right-3 flex items-center gap-1.5 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full bg-surface/90 border border-border text-[10px] sm:text-xs font-semibold shadow-sm">
             <span
-              className="h-3 w-3 rounded-full border border-black/20"
+              className="h-3 w-3 rounded-full border border-black/20 shadow-inner"
               style={{ backgroundColor: colorHex }}
             />
-            <span>{colorName}</span>
+            <span className="max-w-[100px] truncate">{colorName}</span>
           </div>
         </div>
       </div>
 
-      {/* 5mm Precision Positioning & Fine Nudge Controls */}
-      <div className="rounded-2xl border border-border bg-surface p-4 space-y-4 text-xs">
+      {/* Touch-Friendly Fine Precision Positioning & Controls */}
+      <div className="rounded-2xl border border-border bg-surface p-3 sm:p-4 space-y-4 text-xs">
         <div className="flex items-center justify-between border-b border-border pb-2">
-          <span className="font-bold text-text flex items-center gap-1.5">
-            <span>🎯</span> Fine 5mm Precision Position &amp; Transform
+          <span className="font-bold text-text flex items-center gap-1.5 text-xs sm:text-sm">
+            <span>🎯</span> Fine 5mm Precision Position
           </span>
           <button
             type="button"
             onClick={handleCenter}
-            className="px-3 py-1 rounded-lg bg-surface-hover border border-border hover:border-amber-600 font-bold transition-all active:scale-95"
+            className="px-2.5 py-1 rounded-lg bg-surface-hover border border-border hover:border-amber-600 font-bold text-xs transition-all active:scale-95"
           >
-            ↺ Center Design
+            ↺ Center
           </button>
         </div>
 
-        {/* Directional Nudge Buttons (5mm step = 18px) */}
+        {/* Directional Nudge Buttons & Sliders */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label className="font-semibold text-muted mb-2 block uppercase tracking-wider text-[10px]">
@@ -317,7 +383,7 @@ export function TShirtEditor({
               <button
                 type="button"
                 onClick={() => nudge(0, -18)}
-                className="p-2 rounded-lg border border-border bg-bg hover:border-amber-600 font-bold text-center active:scale-95 shadow-sm"
+                className="h-9 w-9 rounded-lg border border-border bg-bg hover:border-amber-600 font-bold text-center active:scale-95 shadow-sm flex items-center justify-center text-sm"
                 title="Nudge Up 5mm"
               >
                 ▲
@@ -326,7 +392,7 @@ export function TShirtEditor({
               <button
                 type="button"
                 onClick={() => nudge(-18, 0)}
-                className="p-2 rounded-lg border border-border bg-bg hover:border-amber-600 font-bold text-center active:scale-95 shadow-sm"
+                className="h-9 w-9 rounded-lg border border-border bg-bg hover:border-amber-600 font-bold text-center active:scale-95 shadow-sm flex items-center justify-center text-sm"
                 title="Nudge Left 5mm"
               >
                 ◀
@@ -334,7 +400,7 @@ export function TShirtEditor({
               <button
                 type="button"
                 onClick={handleCenter}
-                className="p-2 rounded-lg border border-border bg-amber-500/10 text-amber-600 font-bold text-center active:scale-95 text-[10px]"
+                className="h-9 w-9 rounded-lg border border-border bg-amber-500/10 text-amber-600 font-bold text-center active:scale-95 text-[10px] flex items-center justify-center"
                 title="Center"
               >
                 ⏺
@@ -342,7 +408,7 @@ export function TShirtEditor({
               <button
                 type="button"
                 onClick={() => nudge(18, 0)}
-                className="p-2 rounded-lg border border-border bg-bg hover:border-amber-600 font-bold text-center active:scale-95 shadow-sm"
+                className="h-9 w-9 rounded-lg border border-border bg-bg hover:border-amber-600 font-bold text-center active:scale-95 shadow-sm flex items-center justify-center text-sm"
                 title="Nudge Right 5mm"
               >
                 ▶
@@ -351,7 +417,7 @@ export function TShirtEditor({
               <button
                 type="button"
                 onClick={() => nudge(0, 18)}
-                className="p-2 rounded-lg border border-border bg-bg hover:border-amber-600 font-bold text-center active:scale-95 shadow-sm"
+                className="h-9 w-9 rounded-lg border border-border bg-bg hover:border-amber-600 font-bold text-center active:scale-95 shadow-sm flex items-center justify-center text-sm"
                 title="Nudge Down 5mm"
               >
                 ▼
@@ -363,7 +429,7 @@ export function TShirtEditor({
           {/* Sliders & Numeric Inputs */}
           <div className="space-y-3">
             <div>
-              <div className="flex justify-between font-semibold text-muted mb-1">
+              <div className="flex justify-between font-semibold text-muted mb-1 text-xs">
                 <span>Scale / Size</span>
                 <span className="text-amber-600 font-mono">{(scale * 100).toFixed(0)}%</span>
               </div>
@@ -374,12 +440,12 @@ export function TShirtEditor({
                 step={0.05}
                 value={scale}
                 onChange={(e) => setScale(parseFloat(e.target.value))}
-                className="w-full accent-amber-600"
+                className="w-full accent-amber-600 h-2 rounded-lg cursor-pointer"
               />
             </div>
 
             <div>
-              <div className="flex justify-between font-semibold text-muted mb-1">
+              <div className="flex justify-between font-semibold text-muted mb-1 text-xs">
                 <span>Rotation</span>
                 <span className="text-amber-600 font-mono">{rotation}°</span>
               </div>
@@ -390,7 +456,7 @@ export function TShirtEditor({
                 step={5}
                 value={rotation}
                 onChange={(e) => setRotation(parseInt(e.target.value))}
-                className="w-full accent-amber-600"
+                className="w-full accent-amber-600 h-2 rounded-lg cursor-pointer"
               />
             </div>
 
