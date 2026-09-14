@@ -68,7 +68,7 @@ const DEMO_READY_CANVASES: CanvasProduct[] = [
     name: 'Golden Liquid Fluid Abstract Set',
     slug: 'golden-liquid-fluid-abstract-set',
     description: 'Expansive 7-piece panoramic statement art piece for luxury dining rooms & lobbies.',
-    main_image_url: 'https://images.unsplash.com/photo-1579783902614-a3fb3927b675?auto=format&fit=crop&w=800&q=80',
+    main_image_url: 'https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?auto=format&fit=crop&w=800&q=80',
     panel_count: 7,
     size_label: '84" × 36" Total (7 @ 12×36" each)',
     frame_label: 'Unframed Canvas',

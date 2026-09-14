@@ -5,7 +5,7 @@ import type { HomepageSection } from '@/lib/types';
 export function HeroSection({ section }: { section: HomepageSection }) {
   const desktopImage =
     section.media?.desktop_image ||
-    'https://images.unsplash.com/photo-1579783902614-a3fb3927b675?auto=format&fit=crop&w=1200&q=80';
+    'https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?auto=format&fit=crop&w=1200&q=80';
   const mobileImage = section.media?.mobile_image || desktopImage;
 
   const title = section.title || 'Turn Your Memories Into Beautiful Canvas';
