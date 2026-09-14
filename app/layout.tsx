@@ -24,15 +24,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning className="overflow-x-hidden w-full max-w-full">
       <head>
         {/* Runs before hydration so the correct theme applies with no flash. */}
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
       </head>
-      <body>
+      <body className="overflow-x-hidden w-full max-w-full min-h-screen">
         <ThemeProvider>
           <Navbar />
-          <main className="min-h-[60vh]">{children}</main>
+          <main className="min-h-[60vh] overflow-x-hidden w-full max-w-full">{children}</main>
           <Footer />
           <ChatWidget />
         </ThemeProvider>

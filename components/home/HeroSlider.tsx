@@ -69,7 +69,7 @@ export function HeroSlider({ slides }: { slides: HeroSlide[] }) {
   const slide = activeSlides[currentIndex] || activeSlides[0];
 
   return (
-    <section className="relative overflow-hidden bg-neutral-950 text-white min-h-[500px] sm:min-h-[580px] flex items-center">
+    <section className="relative overflow-hidden bg-neutral-950 text-white min-h-[480px] sm:min-h-[580px] flex items-center justify-center">
       {/* Background Image Carousel */}
       <div className="absolute inset-0 z-0">
         {activeSlides.map((s, idx) => (
@@ -86,32 +86,33 @@ export function HeroSlider({ slides }: { slides: HeroSlide[] }) {
               className="object-cover object-center"
               priority={idx === 0}
             />
-            {/* Dark Overlay Gradient for contrast */}
-            <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/70 to-transparent" />
+            {/* Dark Overlay Gradient for maximum text legibility on all devices */}
+            <div className="absolute inset-0 bg-gradient-to-b sm:bg-gradient-to-r from-black/90 via-black/75 to-black/40" />
           </div>
         ))}
       </div>
 
-      {/* Slide Content */}
-      <div className="container-page relative z-10 py-16 sm:py-24 max-w-3xl">
+      {/* Slide Content (Center Aligned on Mobile, Left Aligned on Desktop) */}
+      <div className="container-page relative z-30 py-12 sm:py-24 max-w-3xl flex flex-col items-center sm:items-start text-center sm:text-left">
         {slide.badge && (
-          <span className="inline-block px-3 py-1 rounded-full text-xs font-bold bg-amber-500 text-neutral-950 uppercase tracking-wider mb-4 shadow-lg animate-fadeIn">
+          <span className="inline-block px-3.5 py-1 rounded-full text-[11px] sm:text-xs font-bold bg-amber-500 text-neutral-950 uppercase tracking-wider mb-3 sm:mb-4 shadow-lg animate-fadeIn">
             {slide.badge}
           </span>
         )}
 
-        <h1 className="font-display text-3xl sm:text-5xl font-extrabold tracking-tight leading-tight mb-4 drop-shadow-md">
+        <h1 className="font-display text-2xl sm:text-5xl font-extrabold tracking-tight leading-tight mb-3 sm:mb-4 drop-shadow-md text-center sm:text-left">
           {slide.title}
         </h1>
 
-        <p className="text-neutral-200 text-base sm:text-xl font-normal leading-relaxed mb-8 max-w-2xl drop-shadow">
+        <p className="text-neutral-200 text-sm sm:text-xl font-normal leading-relaxed mb-6 sm:mb-8 max-w-2xl drop-shadow text-center sm:text-left">
           {slide.subtitle}
         </p>
 
-        <div className="flex flex-wrap items-center gap-4">
+        {/* CTA Buttons Container (z-30 ensures priority for tap/click events) */}
+        <div className="relative z-30 flex flex-col sm:flex-row items-center justify-center sm:justify-start gap-3 sm:gap-4 w-full sm:w-auto">
           <Link
             href={slide.ctaHref}
-            className="px-7 py-3.5 rounded-2xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-sm sm:text-base shadow-xl transition-all hover:scale-105"
+            className="w-full sm:w-auto text-center px-7 py-3.5 rounded-2xl bg-amber-600 hover:bg-amber-700 active:bg-amber-800 text-white font-bold text-sm sm:text-base shadow-xl transition-all hover:scale-105 active:scale-95"
           >
             {slide.ctaText}
           </Link>
@@ -119,7 +120,7 @@ export function HeroSlider({ slides }: { slides: HeroSlide[] }) {
           {slide.secondaryCtaText && (
             <Link
               href={slide.secondaryCtaHref || '/shop'}
-              className="px-7 py-3.5 rounded-2xl bg-white/10 hover:bg-white/20 text-white border border-white/30 font-bold text-sm sm:text-base backdrop-blur transition-all"
+              className="w-full sm:w-auto text-center px-7 py-3.5 rounded-2xl bg-white/10 hover:bg-white/20 active:bg-white/30 text-white border border-white/30 font-bold text-sm sm:text-base backdrop-blur transition-all active:scale-95"
             >
               {slide.secondaryCtaText}
             </Link>
@@ -130,10 +131,11 @@ export function HeroSlider({ slides }: { slides: HeroSlide[] }) {
       {/* Navigation Arrows */}
       {activeSlides.length > 1 && (
         <>
+          {/* Side Arrows (Desktop & Tablet) */}
           <button
             type="button"
             onClick={() => setCurrentIndex((prev) => (prev - 1 + activeSlides.length) % activeSlides.length)}
-            className="absolute left-4 top-1/2 -translate-y-1/2 z-20 h-10 w-10 rounded-full bg-black/40 text-white border border-white/20 hover:bg-amber-600 transition-colors flex items-center justify-center"
+            className="hidden md:flex absolute left-4 top-1/2 -translate-y-1/2 z-20 h-10 w-10 rounded-full bg-black/40 text-white border border-white/20 hover:bg-amber-600 transition-colors items-center justify-center"
             aria-label="Previous Slide"
           >
             ‹
@@ -142,25 +144,45 @@ export function HeroSlider({ slides }: { slides: HeroSlide[] }) {
           <button
             type="button"
             onClick={() => setCurrentIndex((prev) => (prev + 1) % activeSlides.length)}
-            className="absolute right-4 top-1/2 -translate-y-1/2 z-20 h-10 w-10 rounded-full bg-black/40 text-white border border-white/20 hover:bg-amber-600 transition-colors flex items-center justify-center"
+            className="hidden md:flex absolute right-4 top-1/2 -translate-y-1/2 z-20 h-10 w-10 rounded-full bg-black/40 text-white border border-white/20 hover:bg-amber-600 transition-colors items-center justify-center"
             aria-label="Next Slide"
           >
             ›
           </button>
 
-          {/* Dots Indicator */}
-          <div className="absolute bottom-6 inset-x-0 z-20 flex items-center justify-center gap-2">
-            {activeSlides.map((_, idx) => (
-              <button
-                key={idx}
-                type="button"
-                onClick={() => setCurrentIndex(idx)}
-                className={`h-2.5 rounded-full transition-all ${
-                  idx === currentIndex ? 'w-8 bg-amber-500' : 'w-2.5 bg-white/40 hover:bg-white'
-                }`}
-                aria-label={`Go to slide ${idx + 1}`}
-              />
-            ))}
+          {/* Dots & Mobile Navigation Controls Bar */}
+          <div className="absolute bottom-4 sm:bottom-6 inset-x-0 z-20 flex items-center justify-center gap-3">
+            <button
+              type="button"
+              onClick={() => setCurrentIndex((prev) => (prev - 1 + activeSlides.length) % activeSlides.length)}
+              className="md:hidden h-8 w-8 rounded-full bg-black/50 text-white border border-white/20 text-sm flex items-center justify-center active:scale-95"
+              aria-label="Previous Slide"
+            >
+              ‹
+            </button>
+
+            <div className="flex items-center gap-2">
+              {activeSlides.map((_, idx) => (
+                <button
+                  key={idx}
+                  type="button"
+                  onClick={() => setCurrentIndex(idx)}
+                  className={`h-2.5 rounded-full transition-all ${
+                    idx === currentIndex ? 'w-8 bg-amber-500' : 'w-2.5 bg-white/40 hover:bg-white'
+                  }`}
+                  aria-label={`Go to slide ${idx + 1}`}
+                />
+              ))}
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setCurrentIndex((prev) => (prev + 1) % activeSlides.length)}
+              className="md:hidden h-8 w-8 rounded-full bg-black/50 text-white border border-white/20 text-sm flex items-center justify-center active:scale-95"
+              aria-label="Next Slide"
+            >
+              ›
+            </button>
           </div>
         </>
       )}
