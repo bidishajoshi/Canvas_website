@@ -88,11 +88,14 @@ export function TShirtEditor({
       const imgData = ctx.getImageData(0, 0, w, h);
       const data = imgData.data;
 
-      // Parse target colorHex (R, G, B in 0..1)
+      // Parse target colorHex (R, G, B in 0..255)
       const cleanHex = colorHex.replace('#', '');
-      const tintR = parseInt(cleanHex.substring(0, 2) || 'ff', 16) / 255;
-      const tintG = parseInt(cleanHex.substring(2, 4) || 'ff', 16) / 255;
-      const tintB = parseInt(cleanHex.substring(4, 6) || 'ff', 16) / 255;
+      const targetR = parseInt(cleanHex.substring(0, 2) || 'ff', 16);
+      const targetG = parseInt(cleanHex.substring(2, 4) || 'ff', 16);
+      const targetB = parseInt(cleanHex.substring(4, 6) || 'ff', 16);
+
+      // Check if target is dark/black color (< 45 average)
+      const isDarkTarget = (targetR + targetG + targetB) / 3 < 45;
 
       // Sample background color from top-left corner
       const bgR = data[0];
@@ -112,9 +115,25 @@ export function TShirtEditor({
 
         // If pixel is significantly different from background color, it's t-shirt fabric
         if (diff > 18) {
-          data[i] = Math.round(r * tintR);
-          data[i + 1] = Math.round(g * tintG);
-          data[i + 2] = Math.round(b * tintB);
+          // Normalized luminance of the white t-shirt pixel (0..1)
+          const lum = (r * 0.299 + g * 0.587 + b * 0.114) / 255;
+
+          if (isDarkTarget) {
+            // Full Black / Charcoal Black: Render deep rich black with subtle fold highlights
+            const baseR = Math.max(targetR, 18);
+            const baseG = Math.max(targetG, 18);
+            const baseB = Math.max(targetB, 20);
+            const highlight = (lum - 0.5) * 45;
+            data[i] = Math.max(0, Math.min(255, Math.round(baseR + highlight)));
+            data[i + 1] = Math.max(0, Math.min(255, Math.round(baseG + highlight)));
+            data[i + 2] = Math.max(0, Math.min(255, Math.round(baseB + highlight)));
+          } else {
+            // Vibrant colors (Pink, Red, Navy, Gold, etc.): Render exact target color with 3D fold shadows
+            const foldFactor = Math.min(1.15, Math.max(0.35, lum / 0.86));
+            data[i] = Math.max(0, Math.min(255, Math.round(targetR * foldFactor)));
+            data[i + 1] = Math.max(0, Math.min(255, Math.round(targetG * foldFactor)));
+            data[i + 2] = Math.max(0, Math.min(255, Math.round(targetB * foldFactor)));
+          }
         }
       }
 
