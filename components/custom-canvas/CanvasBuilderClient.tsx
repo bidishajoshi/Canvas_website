@@ -55,7 +55,7 @@ const DEMO_ARTWORKS = [
   {
     id: 'abstract-gold',
     name: 'Golden Fluid Abstract',
-    url: 'https://images.unsplash.com/photo-1579783902614-a3fb3927b675?auto=format&fit=crop&w=1200&q=80',
+    url: 'https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?auto=format&fit=crop&w=1200&q=80',
     badge: 'Popular',
   },
   {

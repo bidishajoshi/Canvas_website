@@ -33,7 +33,7 @@ const FALLBACK_SETTINGS: Settings = {
   chatbot_greeting:
     'Namaste! Welcome to Affordable Decoration. I can help you with custom photo canvas, wall decor sizes, framing, prices, delivery in Nepal, and order tracking.',
   demo_photo_url:
-    'https://images.unsplash.com/photo-1579783902614-a3fb3927b675?auto=format&fit=crop&w=1200&q=80',
+    'https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?auto=format&fit=crop&w=1200&q=80',
 };
 
 export async function getSettings(): Promise<Settings> {
@@ -84,8 +84,8 @@ const DEFAULT_HOMEPAGE_SECTIONS: HomepageSection[] = [
     secondary_cta_label: 'Customize T-Shirt',
     secondary_cta_href: '/custom-t-shirt',
     media: {
-      desktop_image: 'https://images.unsplash.com/photo-1579783902614-a3fb3927b675?auto=format&fit=crop&w=1200&q=80',
-      mobile_image: 'https://images.unsplash.com/photo-1579783902614-a3fb3927b675?auto=format&fit=crop&w=800&q=80',
+      desktop_image: 'https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?auto=format&fit=crop&w=1200&q=80',
+      mobile_image: 'https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?auto=format&fit=crop&w=800&q=80',
     },
     settings: {},
     enabled: true,

@@ -4,7 +4,7 @@ import { createClient } from '@/lib/supabase/server';
 import type { HomepageSection, Category } from '@/lib/types';
 
 const DEFAULT_CATEGORIES: Partial<Category>[] = [
-  { id: 'cat-1', name: 'Canvas Prints', slug: 'canvas-prints', image_url: 'https://images.unsplash.com/photo-1579783902614-a3fb3927b675?auto=format&fit=crop&w=600&q=80' },
+  { id: 'cat-1', name: 'Canvas Prints', slug: 'canvas-prints', image_url: 'https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?auto=format&fit=crop&w=600&q=80' },
   { id: 'cat-2', name: 'Multi-Panel Canvas', slug: 'multi-panel', image_url: 'https://images.unsplash.com/photo-1513519245088-0e12902e5a38?auto=format&fit=crop&w=600&q=80' },
   { id: 'cat-3', name: 'Personal Portraits', slug: 'personal-portraits', image_url: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=600&q=80' },
   { id: 'cat-4', name: 'Customized T-Shirts', slug: 'custom-tshirts', image_url: 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=600&q=80' },

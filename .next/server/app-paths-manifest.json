@@ -1,6 +1,1 @@
-{
-  "/(site)/cart/page": "app/(site)/cart/page.js",
-  "/page": "app/page.js",
-  "/(site)/account/wishlist/page": "app/(site)/account/wishlist/page.js",
-  "/(site)/search/page": "app/(site)/search/page.js"
-}
+{}

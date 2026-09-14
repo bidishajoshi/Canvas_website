@@ -1,7 +1,7 @@
 import { requireAdminUser } from '@/lib/adminAuth';
-import { AdminPlaceholder } from '@/components/admin/AdminPlaceholder';
+import AdminSettingsPage from '../settings/page';
 
-export default async function AdminPage() {
+export default async function AdminSocialPage() {
   await requireAdminUser();
-  return <AdminPlaceholder title="WhatsApp and Social" table="social_links" />;
+  return <AdminSettingsPage />;
 }
