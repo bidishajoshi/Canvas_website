@@ -35,6 +35,7 @@ export function TShirtEditor({
 }: TShirtEditorProps) {
   const [designImage] = useImage(designUrl || '', 'anonymous');
   const [customBaseImage] = useImage(customTShirtBaseUrl || '', 'anonymous');
+  const [defaultMockupImage] = useImage('/images/tshirt_default_mockup.png', 'anonymous');
 
   const [position, setPosition] = useState({ x: 260, y: 270 });
   const [scale, setScale] = useState(0.85);
@@ -113,7 +114,7 @@ export function TShirtEditor({
         >
           <Stage width={STAGE_WIDTH} height={STAGE_HEIGHT}>
             <Layer>
-              {/* Customer Uploaded Custom T-Shirt Base Image or Vector Silhouette */}
+              {/* Customer Uploaded Base Image OR Photorealistic White T-Shirt Photo OR Vector Fallback */}
               {customBaseImage ? (
                 <KonvaImage
                   image={customBaseImage}
@@ -121,6 +122,14 @@ export function TShirtEditor({
                   y={40}
                   width={440}
                   height={500}
+                />
+              ) : defaultMockupImage ? (
+                <KonvaImage
+                  image={defaultMockupImage}
+                  x={30}
+                  y={10}
+                  width={460}
+                  height={560}
                 />
               ) : (
                 <Group>

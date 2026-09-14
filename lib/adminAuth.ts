@@ -4,15 +4,14 @@ import { redirect } from 'next/navigation';
 import { createClient } from './supabase/server';
 
 /**
- * Call at the top of any admin Server Component or Server Action.
- * Redirects unauthenticated users to /admin/login.
+ * Returns boolean checking if the current user has an active admin session.
  */
-export async function requireAdminUser() {
+export async function isAdminAuthenticated(): Promise<boolean> {
   const cookieStore = cookies();
   const devAdmin = cookieStore.get('admin_dev_session')?.value;
 
   if (devAdmin === 'true') {
-    return { id: 'dev-admin-id', email: 'admin@affordabledecoration.local', role: 'admin' };
+    return true;
   }
 
   try {
@@ -29,13 +28,24 @@ export async function requireAdminUser() {
         .single();
 
       if (profile && profile.role === 'admin') {
-        return user;
+        return true;
       }
     }
   } catch {
-    // If Supabase auth is unconfigured in local dev, allow dev-admin session
+    return false;
   }
 
-  // If no dev cookie and no supabase admin, redirect to admin login
-  redirect('/admin/login');
+  return false;
+}
+
+/**
+ * Call at the top of any admin Server Component or Server Action.
+ * Redirects unauthenticated users to /admin/login.
+ */
+export async function requireAdminUser() {
+  const isAuth = await isAdminAuthenticated();
+  if (!isAuth) {
+    redirect('/admin/login');
+  }
+  return { id: 'admin-id', email: 'admin@affordabledecoration.local', role: 'admin' };
 }
