@@ -127,12 +127,18 @@ export function TShirtBuilderClient({
 
   const activeDesigns = designs.length > 0 ? designs : [DEFAULT_DEMO_DESIGN];
 
-  // Selection states
+  // Selection & Custom Base states
   const [selectedTypeId, setSelectedTypeId] = useState(activeTypes[0]?.id || 't1');
   const [selectedColorId, setSelectedColorId] = useState(activeColors[0]?.id || 'c1');
   const [selectedSizeId, setSelectedSizeId] = useState(activeSizes[1]?.id || 's2');
   const [selectedLocationId, setSelectedLocationId] = useState(activePrintLocations[0]?.id || 'l1');
   const [viewSide, setViewSide] = useState<'front' | 'back' | 'sleeve'>('front');
+
+  // Customer Uploaded Base T-Shirt Photo & Custom Fabric Color
+  const [useCustomBase, setUseCustomBase] = useState(false);
+  const [customBasePhoto, setCustomBasePhoto] = useState<UploadedPhoto | null>(null);
+  const [customColorHex, setCustomColorHex] = useState('#ffffff');
+  const [useCustomColor, setUseCustomColor] = useState(false);
 
   // Artwork & Custom Text states
   const [designMode, setDesignMode] = useState<'catalog' | 'upload'>('catalog');
@@ -151,6 +157,9 @@ export function TShirtBuilderClient({
   const selectedColor = activeColors.find((c) => c.id === selectedColorId) || activeColors[0];
   const selectedSize = activeSizes.find((s) => s.id === selectedSizeId) || activeSizes[0];
   const selectedLocation = activePrintLocations.find((l) => l.id === selectedLocationId) || activePrintLocations[0];
+
+  const activeColorHex = useCustomColor ? customColorHex : selectedColor.color_hex;
+  const activeColorName = useCustomColor ? `Custom Hex (${customColorHex})` : selectedColor.name;
 
   const activeArtworkUrl =
     designMode === 'upload'
@@ -184,12 +193,15 @@ export function TShirtBuilderClient({
     try {
       addToCart({
         type: 'custom_tshirt',
-        name: `Custom T-Shirt (${selectedType.name})`,
-        imageUrl: activeArtworkUrl,
+        name: `Custom T-Shirt (${useCustomBase ? 'Customer Base Photo' : selectedType.name})`,
+        imageUrl: activeArtworkUrl || customBasePhoto?.url,
         sizeLabel: selectedSize.name,
-        colorLabel: selectedColor.name,
+        colorLabel: activeColorName,
         printLocationLabel: selectedLocation.name,
-        designLabel: selectedDesign?.name || 'Custom Uploaded Artwork',
+        designLabel:
+          designMode === 'catalog'
+            ? selectedDesign?.name || 'Standard Graphic'
+            : 'Custom Uploaded Artwork',
         quantity,
         unitPricePaisa,
       });
@@ -205,48 +217,131 @@ export function TShirtBuilderClient({
       <div className="space-y-6">
         {/* Step 1: Model & Color Palette */}
         <div className="rounded-2xl border border-border p-5 bg-surface/50 space-y-4">
-          <div className="flex items-center gap-2">
-            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-amber-600 text-white text-xs font-bold">1</span>
-            <h2 className="text-base font-semibold">T-Shirt Model &amp; Color</h2>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-amber-600 text-white text-xs font-bold">1</span>
+              <h2 className="text-base font-semibold">T-Shirt Model &amp; Color</h2>
+            </div>
+            {customBasePhoto && useCustomBase && (
+              <span className="text-xs font-bold text-emerald-600">✓ Own Base Photo Loaded</span>
+            )}
           </div>
 
-          <OptionSelector
-            label="Select Apparel Model"
-            options={activeTypes.map((t) => ({
-              id: t.id,
-              label: t.name,
-            }))}
-            selectedId={selectedTypeId}
-            onSelect={setSelectedTypeId}
-          />
+          {/* Model Selection Tabs: Store Model vs Upload Own T-Shirt Base */}
+          <div className="flex rounded-xl border border-border bg-bg p-1 text-xs font-semibold">
+            <button
+              type="button"
+              onClick={() => setUseCustomBase(false)}
+              className={`flex-1 py-2 rounded-lg transition-colors ${
+                !useCustomBase
+                  ? 'bg-amber-600 text-white shadow-sm'
+                  : 'text-muted hover:text-text'
+              }`}
+            >
+              👕 Store Mockup Models
+            </button>
+            <button
+              type="button"
+              onClick={() => setUseCustomBase(true)}
+              className={`flex-1 py-2 rounded-lg transition-colors ${
+                useCustomBase
+                  ? 'bg-amber-600 text-white shadow-sm'
+                  : 'text-muted hover:text-text'
+              }`}
+            >
+              📤 Upload My Own T-Shirt Base
+            </button>
+          </div>
 
-          <div>
-            <label className="text-xs font-semibold text-muted mb-2 block uppercase tracking-wider">
-              T-Shirt Color Palette
-            </label>
-            <div className="flex flex-wrap gap-2.5">
-              {activeColors.map((c) => {
-                const isSelected = selectedColorId === c.id;
-                return (
-                  <button
-                    key={c.id}
-                    type="button"
-                    onClick={() => setSelectedColorId(c.id)}
-                    className={`flex items-center gap-2 px-3 py-2 rounded-xl border text-xs font-medium transition-all ${
-                      isSelected
-                        ? 'border-amber-600 bg-amber-500/10 text-amber-600 font-semibold ring-2 ring-amber-500/30'
-                        : 'border-border bg-surface hover:border-text/30'
-                    }`}
-                  >
-                    <span
-                      className="h-4 w-4 rounded-full border border-black/20 shadow-inner"
-                      style={{ backgroundColor: c.color_hex }}
-                    />
-                    <span>{c.name}</span>
-                  </button>
-                );
-              })}
+          {useCustomBase ? (
+            <div className="space-y-3 p-4 rounded-xl border border-amber-500/30 bg-amber-500/5 text-xs">
+              <div>
+                <h3 className="font-bold text-amber-700 dark:text-amber-300 mb-1">
+                  Upload Photo of Your Own T-Shirt / Hoodie / Apparel
+                </h3>
+                <p className="text-muted text-[11px]">
+                  Upload a front photo of your own T-shirt, hoodie, jersey, or polo shirt to visualize your print design right on your own garment!
+                </p>
+              </div>
+
+              <PhotoUpload
+                onUploaded={setCustomBasePhoto}
+                maxUploadSizeMb={settings.max_upload_size_mb}
+              />
             </div>
+          ) : (
+            <OptionSelector
+              label="Select Apparel Model"
+              options={activeTypes.map((t) => ({
+                id: t.id,
+                label: t.name,
+              }))}
+              selectedId={selectedTypeId}
+              onSelect={setSelectedTypeId}
+            />
+          )}
+
+          {/* Color Palette & Custom Color Picker */}
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <label className="text-xs font-semibold text-muted uppercase tracking-wider block">
+                T-Shirt Fabric Color
+              </label>
+              <button
+                type="button"
+                onClick={() => setUseCustomColor((v) => !v)}
+                className="text-[11px] font-bold text-amber-600 hover:underline"
+              >
+                {useCustomColor ? '← Standard Palette' : '🎨 Pick Custom Color Hex'}
+              </button>
+            </div>
+
+            {useCustomColor ? (
+              <div className="flex items-center gap-3 p-3 rounded-xl border border-border bg-surface">
+                <input
+                  type="color"
+                  value={customColorHex}
+                  onChange={(e) => setCustomColorHex(e.target.value)}
+                  className="h-9 w-9 rounded-lg border-0 cursor-pointer bg-transparent"
+                />
+                <div className="flex-1">
+                  <label className="text-[10px] font-bold uppercase text-muted block">Custom Color Hex</label>
+                  <input
+                    type="text"
+                    value={customColorHex}
+                    onChange={(e) => setCustomColorHex(e.target.value)}
+                    className="w-full px-2.5 py-1 text-xs rounded-lg border border-border bg-bg font-mono font-bold"
+                  />
+                </div>
+              </div>
+            ) : (
+              <div className="flex flex-wrap gap-2.5">
+                {activeColors.map((c) => {
+                  const isSelected = selectedColorId === c.id;
+                  return (
+                    <button
+                      key={c.id}
+                      type="button"
+                      onClick={() => {
+                        setSelectedColorId(c.id);
+                        setUseCustomColor(false);
+                      }}
+                      className={`flex items-center gap-2 px-3 py-2 rounded-xl border text-xs font-medium transition-all ${
+                        isSelected && !useCustomColor
+                          ? 'border-amber-600 bg-amber-500/10 text-amber-600 font-semibold ring-2 ring-amber-500/30'
+                          : 'border-border bg-surface hover:border-text/30'
+                      }`}
+                    >
+                      <span
+                        className="h-4 w-4 rounded-full border border-black/20 shadow-inner"
+                        style={{ backgroundColor: c.color_hex }}
+                      />
+                      <span>{c.name}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
           </div>
         </div>
 
@@ -437,14 +532,15 @@ export function TShirtBuilderClient({
               <span>👕</span> Realistic Product Mockup
             </h2>
             <span className="text-xs font-bold text-amber-600 px-2.5 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/20">
-              {selectedColor.name} • {viewSide.toUpperCase()}
+              {useCustomBase ? 'Custom Base Photo' : activeColorName} • {viewSide.toUpperCase()}
             </span>
           </div>
 
           <TShirtEditor
-            colorHex={selectedColor.color_hex}
-            colorName={selectedColor.name}
+            colorHex={activeColorHex}
+            colorName={activeColorName}
             designUrl={activeArtworkUrl}
+            customTShirtBaseUrl={useCustomBase ? customBasePhoto?.url : null}
             customText={customText}
             textFont={textFont}
             textColor={textColor}

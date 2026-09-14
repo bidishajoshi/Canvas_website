@@ -1,7 +1,5 @@
 {
-  "/(site)/offers/page": "app/(site)/offers/page.js",
-  "/(site)/categories/page": "app/(site)/categories/page.js",
-  "/(site)/shop/page": "app/(site)/shop/page.js",
-  "/page": "app/page.js",
+  "/(site)/custom-canvas/page": "app/(site)/custom-canvas/page.js",
+  "/api/canvas/upload/route": "app/api/canvas/upload/route.js",
   "/(site)/custom-t-shirt/page": "app/(site)/custom-t-shirt/page.js"
 }

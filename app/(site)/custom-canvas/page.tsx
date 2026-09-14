@@ -210,24 +210,33 @@ const FALLBACK_FINISHES: Finish[] = [
 ];
 
 export default async function CustomCanvasPage() {
-  const supabase = createClient();
+  const settings = await getSettings();
 
-  const [panelTypesRes, sizesRes, framesRes, finishesRes, settings] = await Promise.all([
-    supabase
-      .from('panel_types')
-      .select('*')
-      .eq('status', 'published')
-      .order('sort_order', { ascending: true }),
-    supabase.from('canvas_sizes').select('*').eq('active', true).order('sort_order', { ascending: true }),
-    supabase.from('frames').select('*').eq('status', 'published').order('sort_order', { ascending: true }),
-    supabase.from('finishes').select('*').eq('status', 'published').order('sort_order', { ascending: true }),
-    getSettings(),
-  ]);
+  let panelTypes = FALLBACK_PANELS;
+  let sizes = FALLBACK_SIZES;
+  let frames = FALLBACK_FRAMES;
+  let finishes = FALLBACK_FINISHES;
 
-  const panelTypes = panelTypesRes.data && panelTypesRes.data.length > 0 ? panelTypesRes.data : FALLBACK_PANELS;
-  const sizes = sizesRes.data && sizesRes.data.length > 0 ? sizesRes.data : FALLBACK_SIZES;
-  const frames = framesRes.data && framesRes.data.length > 0 ? framesRes.data : FALLBACK_FRAMES;
-  const finishes = finishesRes.data && finishesRes.data.length > 0 ? finishesRes.data : FALLBACK_FINISHES;
+  try {
+    const supabase = createClient();
+    const [panelTypesRes, sizesRes, framesRes, finishesRes] = await Promise.all([
+      supabase
+        .from('panel_types')
+        .select('*')
+        .eq('status', 'published')
+        .order('sort_order', { ascending: true }),
+      supabase.from('canvas_sizes').select('*').eq('active', true).order('sort_order', { ascending: true }),
+      supabase.from('frames').select('*').eq('status', 'published').order('sort_order', { ascending: true }),
+      supabase.from('finishes').select('*').eq('status', 'published').order('sort_order', { ascending: true }),
+    ]);
+
+    panelTypes = panelTypesRes.data && panelTypesRes.data.length > 0 ? panelTypesRes.data : FALLBACK_PANELS;
+    sizes = sizesRes.data && sizesRes.data.length > 0 ? sizesRes.data : FALLBACK_SIZES;
+    frames = framesRes.data && framesRes.data.length > 0 ? framesRes.data : FALLBACK_FRAMES;
+    finishes = finishesRes.data && finishesRes.data.length > 0 ? finishesRes.data : FALLBACK_FINISHES;
+  } catch {
+    // Fallbacks active
+  }
 
   return (
     <div className="container-page py-10">

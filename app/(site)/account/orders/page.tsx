@@ -3,6 +3,8 @@ import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { formatPaisa } from '@/lib/utils';
 
+export const dynamic = 'force-dynamic';
+
 export default async function AccountOrdersPage() {
   const supabase = createClient();
   const {

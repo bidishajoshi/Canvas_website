@@ -15,6 +15,8 @@ const STATUS_LABELS: Record<string, string> = {
   cancelled: 'Cancelled',
 };
 
+export const dynamic = 'force-dynamic';
+
 export default async function OrderConfirmationPage({
   params,
 }: {

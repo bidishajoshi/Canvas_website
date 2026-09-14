@@ -35,7 +35,10 @@ function saveCart(items: CartItem[]) {
 
 export function addToCart(item: Omit<CartItem, 'id'>) {
   const items = getCart();
-  items.push({ ...item, id: crypto.randomUUID() });
+  const id = typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'
+    ? crypto.randomUUID()
+    : 'item_' + Date.now().toString(36) + Math.random().toString(36).substring(2, 7);
+  items.push({ ...item, id });
   saveCart(items);
 }
 

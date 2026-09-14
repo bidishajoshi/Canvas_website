@@ -37,9 +37,13 @@ const FALLBACK_SETTINGS: Settings = {
 };
 
 export async function getSettings(): Promise<Settings> {
-  const supabase = createClient();
-  const { data } = await supabase.from('settings').select('*').single();
-  return (data as Settings) ?? FALLBACK_SETTINGS;
+  try {
+    const supabase = createClient();
+    const { data } = await supabase.from('settings').select('*').single();
+    return (data as Settings) ?? FALLBACK_SETTINGS;
+  } catch {
+    return FALLBACK_SETTINGS;
+  }
 }
 
 export interface MenuItem {
@@ -61,15 +65,19 @@ const DEFAULT_MENU_ITEMS: MenuItem[] = [
 ];
 
 export async function getMenuItems(menuGroup = 'main'): Promise<MenuItem[]> {
-  const supabase = createClient();
-  const { data } = await supabase
-    .from('menu_items')
-    .select('id, label, href, sort_order')
-    .eq('menu_group', menuGroup)
-    .eq('visible', true)
-    .order('sort_order', { ascending: true });
+  try {
+    const supabase = createClient();
+    const { data } = await supabase
+      .from('menu_items')
+      .select('id, label, href, sort_order')
+      .eq('menu_group', menuGroup)
+      .eq('visible', true)
+      .order('sort_order', { ascending: true });
 
-  return data && data.length > 0 ? data : DEFAULT_MENU_ITEMS;
+    return data && data.length > 0 ? data : DEFAULT_MENU_ITEMS;
+  } catch {
+    return DEFAULT_MENU_ITEMS;
+  }
 }
 
 const DEFAULT_HOMEPAGE_SECTIONS: HomepageSection[] = [

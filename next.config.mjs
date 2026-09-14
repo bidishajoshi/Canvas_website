@@ -1,14 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
-    domains: [
-      'images.unsplash.com',
-      'res.cloudinary.com',
-      'images.pexels.com',
-      'cdn.pixabay.com',
-      'lh3.googleusercontent.com',
-      'via.placeholder.com',
-    ],
     remotePatterns: [
       { protocol: 'https', hostname: 'res.cloudinary.com' },
       { protocol: 'https', hostname: 'images.unsplash.com' },
@@ -16,11 +8,12 @@ const nextConfig = {
       { protocol: 'https', hostname: 'cdn.pixabay.com' },
       { protocol: 'https', hostname: 'lh3.googleusercontent.com' },
       { protocol: 'https', hostname: 'via.placeholder.com' },
+      { protocol: 'https', hostname: '**.supabase.co' },
     ],
   },
   webpack: (config, { isServer }) => {
     if (isServer) {
-      config.externals = [...(config.externals || []), 'canvas'];
+      config.externals = [...(config.externals || []), 'canvas', 'konva', 'react-konva'];
     }
     config.resolve.alias = {
       ...config.resolve.alias,
@@ -31,6 +24,3 @@ const nextConfig = {
 };
 
 export default nextConfig;
-
-
-

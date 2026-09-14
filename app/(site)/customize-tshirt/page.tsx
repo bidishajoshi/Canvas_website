@@ -13,22 +13,32 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function CustomizeTShirtPage() {
-  const supabase = createClient();
   const settings = await getSettings();
 
-  const [
-    { data: tshirtTypes },
-    { data: colors },
-    { data: sizes },
-    { data: printLocations },
-    { data: designs },
-  ] = await Promise.all([
-    supabase.from('tshirt_types').select('*').order('sort_order', { ascending: true }),
-    supabase.from('tshirt_colors').select('*').order('sort_order', { ascending: true }),
-    supabase.from('tshirt_sizes').select('*').order('sort_order', { ascending: true }),
-    supabase.from('print_locations').select('*').order('sort_order', { ascending: true }),
-    supabase.from('tshirt_designs').select('*').order('sort_order', { ascending: true }),
-  ]);
+  let tshirtTypes: any[] = [];
+  let colors: any[] = [];
+  let sizes: any[] = [];
+  let printLocations: any[] = [];
+  let designs: any[] = [];
+
+  try {
+    const supabase = createClient();
+    const [typesRes, colorsRes, sizesRes, locsRes, designsRes] = await Promise.all([
+      supabase.from('tshirt_types').select('*').order('sort_order', { ascending: true }),
+      supabase.from('tshirt_colors').select('*').order('sort_order', { ascending: true }),
+      supabase.from('tshirt_sizes').select('*').order('sort_order', { ascending: true }),
+      supabase.from('print_locations').select('*').order('sort_order', { ascending: true }),
+      supabase.from('tshirt_designs').select('*').order('sort_order', { ascending: true }),
+    ]);
+
+    tshirtTypes = typesRes.data || [];
+    colors = colorsRes.data || [];
+    sizes = sizesRes.data || [];
+    printLocations = locsRes.data || [];
+    designs = designsRes.data || [];
+  } catch {
+    // Graceful fallbacks handled inside TShirtBuilderClient
+  }
 
   return (
     <div className="container-page py-10">

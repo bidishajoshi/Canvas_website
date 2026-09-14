@@ -1,75 +1,79 @@
 import Link from 'next/link';
 
-const NAV_GROUPS: Array<{ label: string; items: Array<{ label: string; href: string }> }> = [
+const NAV_GROUPS: Array<{ label: string; items: Array<{ label: string; href: string; icon?: string }> }> = [
   {
-    label: '',
-    items: [{ label: 'Dashboard', href: '/admin/dashboard' }],
+    label: 'Overview',
+    items: [{ label: 'Dashboard', href: '/admin/dashboard', icon: '📊' }],
   },
   {
-    label: 'Catalog',
+    label: 'Apparel & T-Shirts',
     items: [
-      { label: 'Products', href: '/admin/products' },
-      { label: 'Categories', href: '/admin/categories' },
+      { label: 'T-Shirt Builder', href: '/admin/tshirt-builder', icon: '👕' },
+      { label: 'T-Shirt Categories', href: '/admin/tshirt-categories', icon: '🏷️' },
+      { label: 'T-Shirt Designs', href: '/admin/tshirt-designs', icon: '🎨' },
+      { label: 'Apparel Sizes', href: '/admin/sizes', icon: '📏' },
+      { label: 'Apparel Colors', href: '/admin/colors', icon: '🎨' },
     ],
   },
   {
-    label: 'Canvas Builder',
+    label: 'Canvas & Wall Decor',
     items: [
-      { label: 'Panel Types / Sizes / Frames / Finishes', href: '/admin/canvas-builder' },
+      { label: 'Canvas Builder', href: '/admin/canvas-builder', icon: '🖼️' },
+      { label: 'Canvas Sizes', href: '/admin/canvas-sizes', icon: '📐' },
+      { label: 'Ready-Made Products', href: '/admin/canvas-products', icon: '🛒' },
+      { label: 'Categories', href: '/admin/categories', icon: '📁' },
     ],
   },
   {
-    label: 'Sales',
+    label: 'Sales & Discounts',
     items: [
-      { label: 'Orders', href: '/admin/orders' },
-      { label: 'Custom Inquiries', href: '/admin/inquiries' },
-      { label: 'Coupons', href: '/admin/coupons' },
+      { label: 'Customer Orders', href: '/admin/orders', icon: '📦' },
+      { label: 'Sales & Custom Inquiries', href: '/admin/inquiries', icon: '📩' },
+      { label: 'Promo & Coupon Codes', href: '/admin/coupons', icon: '🎟️' },
     ],
   },
   {
-    label: 'Content',
+    label: 'Storefront Content',
     items: [
-      { label: 'Homepage', href: '/admin/homepage' },
-      { label: 'Reviews', href: '/admin/reviews' },
-      { label: 'FAQs', href: '/admin/faqs' },
-      { label: 'Gallery', href: '/admin/gallery' },
-      { label: 'AI Assistant', href: '/admin/ai-assistant' },
-    ],
-  },
-  {
-    label: 'Configuration',
-    items: [
-      { label: 'Shipping', href: '/admin/shipping' },
-      { label: 'Payments', href: '/admin/payments' },
-      { label: 'WhatsApp & Social', href: '/admin/social' },
-      { label: 'SEO', href: '/admin/seo' },
-      { label: 'Settings', href: '/admin/settings' },
+      { label: 'Homepage & Banners', href: '/admin/homepage', icon: '🏠' },
+      { label: 'Review Moderation', href: '/admin/reviews', icon: '⭐' },
+      { label: 'AI Knowledge & FAQs', href: '/admin/ai-assistant', icon: '🤖' },
+      { label: 'Social & WhatsApp', href: '/admin/social', icon: '💬' },
+      { label: 'Store Settings', href: '/admin/settings', icon: '⚙️' },
     ],
   },
 ];
 
 export function AdminSidebar() {
   return (
-    <aside className="w-64 shrink-0 border-r border-border p-4">
-      <Link href="/admin/dashboard" className="block px-2 py-2 font-display text-lg font-semibold">
-        Admin
+    <aside className="w-64 shrink-0 border-r border-border bg-surface p-4 min-h-screen">
+      <Link href="/admin/dashboard" className="flex items-center gap-2.5 px-2 py-3 border-b border-border mb-4">
+        <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-amber-600 text-white font-bold font-display text-xs shadow-sm">
+          AD
+        </div>
+        <div>
+          <span className="font-display text-base font-bold text-text block leading-tight">Admin Portal</span>
+          <span className="text-[10px] text-muted font-semibold uppercase tracking-wider block">E-Commerce Management</span>
+        </div>
       </Link>
-      <nav className="mt-4 space-y-6">
+
+      <nav className="space-y-5">
         {NAV_GROUPS.map((group, i) => (
           <div key={i}>
             {group.label && (
-              <p className="px-2 text-xs font-semibold uppercase tracking-wide text-muted">
+              <p className="px-2 text-[10px] font-bold uppercase tracking-widest text-muted mb-1.5">
                 {group.label}
               </p>
             )}
-            <ul className="mt-1">
+            <ul className="space-y-0.5">
               {group.items.map((item) => (
                 <li key={item.href}>
                   <Link
                     href={item.href}
-                    className="block rounded-card px-2 py-2 text-sm hover:bg-surface"
+                    className="flex items-center gap-2.5 rounded-xl px-2.5 py-2 text-xs font-semibold text-text/80 hover:bg-amber-500/10 hover:text-amber-600 transition-colors"
                   >
-                    {item.label}
+                    <span>{item.icon || '•'}</span>
+                    <span>{item.label}</span>
                   </Link>
                 </li>
               ))}

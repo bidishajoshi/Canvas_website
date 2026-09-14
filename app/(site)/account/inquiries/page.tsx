@@ -2,6 +2,8 @@ import { redirect } from 'next/navigation';
 import Image from 'next/image';
 import { createClient } from '@/lib/supabase/server';
 
+export const dynamic = 'force-dynamic';
+
 export default async function AccountInquiriesPage() {
   const supabase = createClient();
   const {

@@ -9,6 +9,7 @@ export interface TShirtEditorProps {
   colorHex: string;
   colorName?: string;
   designUrl?: string | null;
+  customTShirtBaseUrl?: string | null;
   customText?: string;
   textFont?: string;
   textColor?: string;
@@ -24,6 +25,7 @@ export function TShirtEditor({
   colorHex = '#ffffff',
   colorName = 'White',
   designUrl,
+  customTShirtBaseUrl,
   customText = '',
   textFont = 'Plus Jakarta Sans',
   textColor = '#ffffff',
@@ -32,6 +34,7 @@ export function TShirtEditor({
   onChange,
 }: TShirtEditorProps) {
   const [designImage] = useImage(designUrl || '', 'anonymous');
+  const [customBaseImage] = useImage(customTShirtBaseUrl || '', 'anonymous');
 
   const [position, setPosition] = useState({ x: 260, y: 270 });
   const [scale, setScale] = useState(0.85);
@@ -110,98 +113,108 @@ export function TShirtEditor({
         >
           <Stage width={STAGE_WIDTH} height={STAGE_HEIGHT}>
             <Layer>
-              {/* Realistic White Cotton T-Shirt Mockup Silhouette */}
-              <Group>
-                {/* Outer Shadow Drop */}
-                <Rect
-                  x={110}
-                  y={100}
-                  width={300}
-                  height={430}
-                  cornerRadius={24}
-                  fill="#000000"
-                  opacity={0.08}
-                  shadowBlur={20}
-                  shadowOffsetY={10}
+              {/* Customer Uploaded Custom T-Shirt Base Image or Vector Silhouette */}
+              {customBaseImage ? (
+                <KonvaImage
+                  image={customBaseImage}
+                  x={40}
+                  y={40}
+                  width={440}
+                  height={500}
                 />
-
-                {/* Main Torso Fabric */}
-                <Rect
-                  x={125}
-                  y={110}
-                  width={270}
-                  height={420}
-                  cornerRadius={[24, 24, 16, 16]}
-                  fill={colorHex}
-                  stroke="#27272a"
-                  strokeWidth={1.5}
-                />
-
-                {/* Left Sleeve Body */}
-                <Rect
-                  x={45}
-                  y={120}
-                  width={100}
-                  height={145}
-                  cornerRadius={14}
-                  fill={colorHex}
-                  stroke="#27272a"
-                  strokeWidth={1.5}
-                  rotation={-28}
-                />
-
-                {/* Right Sleeve Body */}
-                <Rect
-                  x={375}
-                  y={73}
-                  width={100}
-                  height={145}
-                  cornerRadius={14}
-                  fill={colorHex}
-                  stroke="#27272a"
-                  strokeWidth={1.5}
-                  rotation={28}
-                />
-
-                {/* Collar Ribbing Seam (Front Crew Neck vs Back Collar) */}
-                {viewSide === 'back' ? (
-                  <Path
-                    data="M 210 110 Q 260 120 310 110"
-                    stroke="#27272a"
-                    strokeWidth={2.5}
-                    fill="transparent"
+              ) : (
+                <Group>
+                  {/* Outer Shadow Drop */}
+                  <Rect
+                    x={110}
+                    y={100}
+                    width={300}
+                    height={430}
+                    cornerRadius={24}
+                    fill="#000000"
+                    opacity={0.08}
+                    shadowBlur={20}
+                    shadowOffsetY={10}
                   />
-                ) : (
-                  <Group>
-                    <Rect
-                      x={200}
-                      y={105}
-                      width={120}
-                      height={40}
-                      cornerRadius={[0, 0, 48, 48]}
-                      fill="#09090b"
-                      opacity={0.12}
-                    />
+
+                  {/* Main Torso Fabric */}
+                  <Rect
+                    x={125}
+                    y={110}
+                    width={270}
+                    height={420}
+                    cornerRadius={[24, 24, 16, 16]}
+                    fill={colorHex}
+                    stroke="#27272a"
+                    strokeWidth={1.5}
+                  />
+
+                  {/* Left Sleeve Body */}
+                  <Rect
+                    x={45}
+                    y={120}
+                    width={100}
+                    height={145}
+                    cornerRadius={14}
+                    fill={colorHex}
+                    stroke="#27272a"
+                    strokeWidth={1.5}
+                    rotation={-28}
+                  />
+
+                  {/* Right Sleeve Body */}
+                  <Rect
+                    x={375}
+                    y={73}
+                    width={100}
+                    height={145}
+                    cornerRadius={14}
+                    fill={colorHex}
+                    stroke="#27272a"
+                    strokeWidth={1.5}
+                    rotation={28}
+                  />
+
+                  {/* Collar Ribbing Seam (Front Crew Neck vs Back Collar) */}
+                  {viewSide === 'back' ? (
                     <Path
-                      data="M 200 110 Q 260 145 320 110"
+                      data="M 210 110 Q 260 120 310 110"
                       stroke="#27272a"
                       strokeWidth={2.5}
                       fill="transparent"
                     />
-                  </Group>
-                )}
+                  ) : (
+                    <Group>
+                      <Rect
+                        x={200}
+                        y={105}
+                        width={120}
+                        height={40}
+                        cornerRadius={[0, 0, 48, 48]}
+                        fill="#09090b"
+                        opacity={0.12}
+                      />
+                      <Path
+                        data="M 200 110 Q 260 145 320 110"
+                        stroke="#27272a"
+                        strokeWidth={2.5}
+                        fill="transparent"
+                      />
+                    </Group>
+                  )}
 
-                {/* Inner Brand Tag Label */}
-                <Rect
-                  x={230}
-                  y={118}
-                  width={60}
-                  height={22}
-                  cornerRadius={4}
-                  fill="#000000"
-                  opacity={0.15}
-                />
-              </Group>
+                  {/* Inner Brand Tag Label */}
+                  <Rect
+                    x={230}
+                    y={118}
+                    width={60}
+                    height={22}
+                    cornerRadius={4}
+                    fill="#000000"
+                    opacity={0.15}
+                  />
+                </Group>
+              )}
 
               {/* Printable Bounding Box Container */}
               <Rect

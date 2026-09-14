@@ -1,7 +1,8 @@
 import { getSettings } from '@/lib/content';
+import { WhatsAppIcon } from '@/components/layout/SocialIcons';
 import type { HomepageSection } from '@/lib/types';
 
-export async function WhatsAppCtaSection({ section }: { section: HomepageSection }) {
+export async function WhatsAppCtaSection({ section }: { section?: HomepageSection }) {
   const settings = await getSettings();
   const whatsappNum = settings.whatsapp_number || '9779800000000';
   const digitsOnly = whatsappNum.replace(/[^\d]/g, '');
@@ -12,27 +13,26 @@ export async function WhatsAppCtaSection({ section }: { section: HomepageSection
   return (
     <section className="bg-emerald-500/10 border-t border-emerald-500/20 py-14">
       <div className="container-page flex flex-col items-center gap-3 text-center max-w-xl mx-auto">
-        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#25D366] text-white text-2xl shadow-sm mb-1">
-          💬
+        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#25D366] text-white shadow-md mb-1">
+          <WhatsAppIcon className="h-6 w-6" />
         </div>
         <h2 className="font-display text-2xl sm:text-3xl font-bold tracking-tight text-text">
-          {section.title || 'Need Custom Help or Instant Order?'}
+          {section?.title || 'Need Custom Help or Instant Order?'}
         </h2>
         <p className="text-muted text-xs sm:text-sm">
-          {section.subtitle ||
+          {section?.subtitle ||
             'Our design consultants are live on WhatsApp to help you pick the best frame size, multi-panel split, or t-shirt print!'}
         </p>
         <a
           href={`https://wa.me/${digitsOnly}?text=${message}`}
           target="_blank"
           rel="noopener noreferrer"
-          className="mt-3 inline-flex items-center gap-2.5 rounded-xl bg-[#25D366] hover:bg-[#20bd5a] px-6 py-3.5 text-sm font-bold text-white shadow-md transition-transform hover:scale-[1.02]"
+          className="mt-3 inline-flex items-center gap-2.5 rounded-2xl bg-[#25D366] hover:bg-[#20bd5a] px-7 py-3.5 text-sm font-bold text-white shadow-md transition-transform hover:scale-[1.02] active:scale-95"
         >
-          <span>💬</span>
-          <span>{section.cta_label || 'Chat Live on WhatsApp'}</span>
+          <WhatsAppIcon className="h-5 w-5" />
+          <span>{section?.cta_label || 'Chat Live on WhatsApp'}</span>
         </a>
       </div>
     </section>
   );
 }
-

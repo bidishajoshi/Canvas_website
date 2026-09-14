@@ -4,7 +4,6 @@ import { useEffect, useMemo, useState } from 'react';
 import { Stage, Layer, Image as KonvaImage, Rect, Group } from 'react-konva';
 import useImage from 'use-image';
 import type Konva from 'konva';
-import { useCssVar } from '@/lib/useCssVar';
 import type { PanelCropData } from '@/lib/types';
 
 interface CanvasEditorProps {
@@ -38,7 +37,6 @@ export function CanvasEditor({
 
   const [zoom, setZoom] = useState(1);
   const [pos, setPos] = useState({ x: 0, y: 0 });
-  const gapColor = useCssVar('--color-bg', '#faf8f5');
 
   const stageWidth = PREVIEW_WIDTH;
   const stageHeight = Math.round(PREVIEW_WIDTH / Math.max(aspectRatio, 0.01));
@@ -70,16 +68,16 @@ export function CanvasEditor({
     const lower = frameName.toLowerCase();
 
     if (lower.includes('black')) {
-      return { stroke: '#18181b', strokeWidth: 4, fill: undefined };
+      return { stroke: '#18181b', strokeWidth: 4 };
     }
     if (lower.includes('white')) {
-      return { stroke: '#e2e8f0', strokeWidth: 4, fill: undefined };
+      return { stroke: '#e2e8f0', strokeWidth: 4 };
     }
     if (lower.includes('wood') || lower.includes('natural')) {
-      return { stroke: '#78350f', strokeWidth: 5, fill: undefined };
+      return { stroke: '#78350f', strokeWidth: 5 };
     }
     if (lower.includes('gold') || lower.includes('golden')) {
-      return { stroke: '#d97706', strokeWidth: 5, fill: undefined };
+      return { stroke: '#d97706', strokeWidth: 5 };
     }
     return null;
   }, [frameName]);
@@ -96,8 +94,8 @@ export function CanvasEditor({
   // Re-center whenever image or layout changes
   useEffect(() => {
     setPos({
-      x: (stageWidth - imageWidth) / 2,
-      y: (stageHeight - imageHeight) / 2,
+      x: Math.round((stageWidth - imageWidth) / 2),
+      y: Math.round((stageHeight - imageHeight) / 2),
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [imageUrl, panelCount, aspectRatio, baseScale]);
@@ -129,6 +127,18 @@ export function CanvasEditor({
     setPos({ x, y });
   }
 
+  // 5mm fine nudge adjustment (5mm ≈ 18px on screen preview)
+  function nudge5mm(dx: number, dy: number) {
+    setPos((prev) => {
+      const minX = stageWidth - imageWidth;
+      const minY = stageHeight - imageHeight;
+      return {
+        x: Math.min(0, Math.max(minX, Math.round(prev.x + dx))),
+        y: Math.min(0, Math.max(minY, Math.round(prev.y + dy))),
+      };
+    });
+  }
+
   function handleZoomIn() {
     setZoom((z) => Math.min(2.5, z + 0.15));
   }
@@ -140,19 +150,19 @@ export function CanvasEditor({
   function handleResetTransform() {
     setZoom(1);
     setPos({
-      x: (stageWidth - imageWidth) / 2,
-      y: (stageHeight - imageHeight) / 2,
+      x: Math.round((stageWidth - imageWidth) / 2),
+      y: Math.round((stageHeight - imageHeight) / 2),
     });
   }
 
   return (
     <div className="space-y-4">
-      {/* Live Canvas Stage Container */}
-      <div className="relative mx-auto overflow-hidden rounded-xl border border-border bg-surface p-3 shadow-sm">
+      {/* Live Clean Canvas Stage Container (NO Price Overlays Inside Preview) */}
+      <div className="relative mx-auto overflow-hidden rounded-2xl border border-border bg-surface p-3 shadow-md flex justify-center items-center">
         {mockupUrl && mockupImage ? (
-          <div className="relative aspect-[16/9] w-full overflow-hidden rounded-lg">
+          <div className="relative aspect-[16/9] w-full overflow-hidden rounded-xl">
             <img src={mockupUrl} alt="Room Mockup" className="absolute inset-0 w-full h-full object-cover" />
-            <div className="absolute inset-0 flex items-center justify-center p-8">
+            <div className="absolute inset-0 flex items-center justify-center p-6">
               <div className="scale-75 sm:scale-90 shadow-2xl transition-transform">
                 <RenderKonvaStage />
               </div>
@@ -165,45 +175,132 @@ export function CanvasEditor({
         )}
       </div>
 
-      {/* Control Toolbar */}
-      <div className="flex flex-wrap items-center justify-between gap-3 p-3 rounded-lg border border-border bg-surface/60 text-xs">
-        <div className="flex items-center gap-2">
-          <span className="font-semibold text-muted">Pan &amp; Zoom:</span>
-          <button
-            type="button"
-            onClick={handleZoomOut}
-            className="px-2.5 py-1 rounded bg-surface-hover border border-border hover:border-amber-600 font-bold"
-            title="Zoom Out"
-          >
-            -
-          </button>
-          <span className="w-12 text-center font-mono font-semibold">
-            {Math.round(zoom * 100)}%
+      {/* Fine 5mm Positioning & Zoom Control Panel */}
+      <div className="rounded-2xl border border-border bg-surface p-4 space-y-4 text-xs">
+        <div className="flex items-center justify-between border-b border-border pb-2">
+          <span className="font-bold text-text flex items-center gap-1.5">
+            <span>📐</span> Fine 5mm Positioning &amp; Image Adjustment
           </span>
           <button
             type="button"
-            onClick={handleZoomIn}
-            className="px-2.5 py-1 rounded bg-surface-hover border border-border hover:border-amber-600 font-bold"
-            title="Zoom In"
+            onClick={handleResetTransform}
+            className="px-3 py-1 rounded-lg bg-surface-hover border border-border hover:border-amber-600 font-bold transition-all active:scale-95"
           >
-            +
+            ↺ Center Reset
           </button>
         </div>
 
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={handleResetTransform}
-            className="px-3 py-1 rounded bg-surface-hover border border-border hover:border-amber-600 text-text font-medium transition-colors"
-          >
-            Reset Center
-          </button>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {/* 5mm Directional Nudge Grid */}
+          <div>
+            <label className="font-semibold text-muted mb-2 block uppercase tracking-wider text-[10px]">
+              5mm Step Directional Nudge
+            </label>
+            <div className="grid grid-cols-3 gap-1.5 w-36 mx-auto sm:mx-0">
+              <div />
+              <button
+                type="button"
+                onClick={() => nudge5mm(0, -18)}
+                className="p-2 rounded-lg border border-border bg-bg hover:border-amber-600 font-bold text-center active:scale-95 shadow-sm"
+                title="Nudge Up 5mm"
+              >
+                ▲
+              </button>
+              <div />
+              <button
+                type="button"
+                onClick={() => nudge5mm(-18, 0)}
+                className="p-2 rounded-lg border border-border bg-bg hover:border-amber-600 font-bold text-center active:scale-95 shadow-sm"
+                title="Nudge Left 5mm"
+              >
+                ◀
+              </button>
+              <button
+                type="button"
+                onClick={handleResetTransform}
+                className="p-2 rounded-lg border border-border bg-amber-500/10 text-amber-600 font-bold text-center active:scale-95 text-[10px]"
+                title="Center"
+              >
+                ⏺
+              </button>
+              <button
+                type="button"
+                onClick={() => nudge5mm(18, 0)}
+                className="p-2 rounded-lg border border-border bg-bg hover:border-amber-600 font-bold text-center active:scale-95 shadow-sm"
+                title="Nudge Right 5mm"
+              >
+                ▶
+              </button>
+              <div />
+              <button
+                type="button"
+                onClick={() => nudge5mm(0, 18)}
+                className="p-2 rounded-lg border border-border bg-bg hover:border-amber-600 font-bold text-center active:scale-95 shadow-sm"
+                title="Nudge Down 5mm"
+              >
+                ▼
+              </button>
+              <div />
+            </div>
+          </div>
+
+          {/* Zoom Slider & Numeric Inputs */}
+          <div className="space-y-3">
+            <div>
+              <div className="flex items-center justify-between font-semibold text-muted mb-1">
+                <span>Zoom Scale</span>
+                <span className="text-amber-600 font-mono font-bold">{Math.round(zoom * 100)}%</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={handleZoomOut}
+                  className="h-8 w-8 rounded-lg border border-border bg-bg font-bold hover:border-amber-600 active:scale-95"
+                >
+                  -
+                </button>
+                <input
+                  type="range"
+                  min={1}
+                  max={2.5}
+                  step={0.05}
+                  value={zoom}
+                  onChange={(e) => setZoom(parseFloat(e.target.value))}
+                  className="flex-1 accent-amber-600"
+                />
+                <button
+                  type="button"
+                  onClick={handleZoomIn}
+                  className="h-8 w-8 rounded-lg border border-border bg-bg font-bold hover:border-amber-600 active:scale-95"
+                >
+                  +
+                </button>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-2 pt-1">
+              <div>
+                <label className="text-[10px] font-bold text-muted uppercase block mb-0.5">X Offset</label>
+                <input
+                  type="number"
+                  value={pos.x}
+                  onChange={(e) => setPos((p) => ({ ...p, x: parseInt(e.target.value) || 0 }))}
+                  className="w-full px-2.5 py-1.5 rounded-lg border border-border bg-bg text-xs font-mono"
+                />
+              </div>
+              <div>
+                <label className="text-[10px] font-bold text-muted uppercase block mb-0.5">Y Offset</label>
+                <input
+                  type="number"
+                  value={pos.y}
+                  onChange={(e) => setPos((p) => ({ ...p, y: parseInt(e.target.value) || 0 }))}
+                  className="w-full px-2.5 py-1.5 rounded-lg border border-border bg-bg text-xs font-mono"
+                />
+              </div>
+            </div>
+          </div>
         </div>
       </div>
-
-      <p className="text-[11px] text-muted text-center italic">
-        💡 Drag photo inside the frame to center key artwork subjects across panels.
-      </p>
     </div>
   );
 
