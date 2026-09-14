@@ -1,14 +1,16 @@
 'use client';
 
 import Link from 'next/link';
-import { useState, useRef, useEffect } from 'react';
+import { usePathname } from 'next/navigation';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import type { MenuItem } from '@/lib/content';
 
 export function NavLinks({ menuItems }: { menuItems: MenuItem[] }) {
+  const pathname = usePathname();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // Define standard primary links per prompt requirements
+  // Standard primary links per user requirements
   const primaryLinks = [
     { label: 'Home', href: '/' },
     { label: 'Shop', href: '/shop' },
@@ -18,7 +20,7 @@ export function NavLinks({ menuItems }: { menuItems: MenuItem[] }) {
     { label: 'Offers', href: '/offers' },
   ];
 
-  // More options dropdown
+  // Secondary links in More dropdown
   const secondaryLinks = [
     { label: 'How It Works', href: '/how-it-works' },
     { label: 'About Us', href: '/about' },
@@ -26,35 +28,54 @@ export function NavLinks({ menuItems }: { menuItems: MenuItem[] }) {
     { label: 'Contact Us', href: '/contact' },
   ];
 
+  const closeDropdown = useCallback(() => {
+    setDropdownOpen(false);
+  }, []);
+
   // Close dropdown on outside click
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
       if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
-        setDropdownOpen(false);
+        closeDropdown();
       }
     }
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
+  }, [closeDropdown]);
 
   return (
     <nav className="hidden lg:flex items-center gap-6">
-      {primaryLinks.map((item) => (
-        <Link
-          key={item.href}
-          href={item.href}
-          className="text-sm font-semibold text-text/85 hover:text-amber-600 transition-colors relative py-1 after:absolute after:bottom-0 after:left-0 after:right-0 after:h-[2px] after:bg-amber-600 after:scale-x-0 hover:after:scale-x-100 after:transition-transform"
-        >
-          {item.label}
-        </Link>
-      ))}
+      {primaryLinks.map((item) => {
+        const isActive =
+          item.href === '/'
+            ? pathname === '/'
+            : pathname.startsWith(item.href);
+
+        return (
+          <Link
+            key={item.href}
+            href={item.href}
+            className={`text-sm font-semibold transition-all duration-150 relative py-1.5 active:scale-95 ${
+              isActive
+                ? 'text-amber-600 font-bold after:absolute after:bottom-0 after:left-0 after:right-0 after:h-[2.5px] after:bg-amber-600 after:rounded-full'
+                : 'text-text/80 hover:text-amber-600 after:absolute after:bottom-0 after:left-0 after:right-0 after:h-[2px] after:bg-amber-600 after:scale-x-0 hover:after:scale-x-100 after:transition-transform'
+            }`}
+          >
+            {item.label}
+          </Link>
+        );
+      })}
 
       {/* More Dropdown */}
       <div ref={containerRef} className="relative">
         <button
           type="button"
           onClick={() => setDropdownOpen((v) => !v)}
-          className="flex items-center gap-1 text-sm font-semibold text-text/85 hover:text-amber-600 transition-colors py-1 focus:outline-none"
+          className={`flex items-center gap-1 text-sm font-semibold transition-all duration-150 py-1.5 focus:outline-none active:scale-95 ${
+            dropdownOpen || secondaryLinks.some((l) => pathname.startsWith(l.href))
+              ? 'text-amber-600 font-bold'
+              : 'text-text/80 hover:text-amber-600'
+          }`}
           aria-expanded={dropdownOpen}
         >
           <span>More</span>
@@ -74,18 +95,25 @@ export function NavLinks({ menuItems }: { menuItems: MenuItem[] }) {
         </button>
 
         {dropdownOpen && (
-          <div className="absolute top-full right-0 mt-2 w-48 rounded-xl border border-border bg-surface p-2 shadow-xl backdrop-blur-md animate-fadeIn z-50">
-            {secondaryLinks.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                onClick={() => setDropdownOpen(false)}
-                className="flex items-center justify-between px-3 py-2 rounded-lg text-xs font-semibold text-text hover:bg-amber-500/10 hover:text-amber-600 transition-colors"
-              >
-                <span>{item.label}</span>
-                <span className="text-muted text-[10px]">→</span>
-              </Link>
-            ))}
+          <div className="absolute top-full right-0 mt-2 w-52 rounded-2xl border border-border bg-surface p-2 shadow-2xl z-50 animate-fadeIn transform origin-top-right">
+            {secondaryLinks.map((item) => {
+              const isSecActive = pathname.startsWith(item.href);
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  onClick={closeDropdown}
+                  className={`flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-colors ${
+                    isSecActive
+                      ? 'bg-amber-500/10 text-amber-600 font-bold'
+                      : 'text-text hover:bg-surface-hover hover:text-amber-600'
+                  }`}
+                >
+                  <span>{item.label}</span>
+                  <span className="text-muted text-[10px]">→</span>
+                </Link>
+              );
+            })}
           </div>
         )}
       </div>
