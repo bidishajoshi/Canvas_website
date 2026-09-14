@@ -32,10 +32,13 @@ export async function addCanvasSize(formData: FormData) {
   revalidatePath('/custom-canvas');
 }
 
+import { markIdAsDeleted } from '@/lib/adminStore';
+
 export async function deleteCanvasSize(id: string) {
   await requireAdminUser();
   const supabase = createAdminClient();
 
+  markIdAsDeleted(id);
   await supabase.from('canvas_sizes').delete().eq('id', id);
 
   revalidatePath('/admin/canvas-sizes');

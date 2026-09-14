@@ -2,6 +2,7 @@ import { requireAdminUser } from '@/lib/adminAuth';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { addTShirtColor, deleteTShirtColor } from './actions';
 import type { TShirtColor } from '@/lib/types';
+import { filterDeleted } from '@/lib/adminStore';
 
 export default async function AdminColorsPage() {
   await requireAdminUser();
@@ -22,7 +23,7 @@ export default async function AdminColorsPage() {
     { id: 'c7', name: 'Beige / Cream', color_hex: '#fef3c7', additional_price_paisa: 0, active: true, sort_order: 7 },
   ];
 
-  const colors = dbColors && dbColors.length > 0 ? (dbColors as TShirtColor[]) : defaultColors;
+  const colors = filterDeleted(dbColors && dbColors.length > 0 ? (dbColors as TShirtColor[]) : defaultColors);
 
   return (
     <div className="space-y-8 max-w-4xl">

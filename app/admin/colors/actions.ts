@@ -26,10 +26,13 @@ export async function addTShirtColor(formData: FormData) {
   revalidatePath('/custom-t-shirt');
 }
 
+import { markIdAsDeleted } from '@/lib/adminStore';
+
 export async function deleteTShirtColor(id: string) {
   await requireAdminUser();
   const supabase = createAdminClient();
 
+  markIdAsDeleted(id);
   await supabase.from('tshirt_colors').delete().eq('id', id);
 
   revalidatePath('/admin/colors');
