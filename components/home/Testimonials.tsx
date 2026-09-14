@@ -1,5 +1,5 @@
-import Image from 'next/image';
 import { createClient } from '@/lib/supabase/server';
+import { TestimonialsClientContainer } from './TestimonialsClientContainer';
 import type { HomepageSection } from '@/lib/types';
 
 const DEFAULT_TESTIMONIALS = [
@@ -29,62 +29,25 @@ const DEFAULT_TESTIMONIALS = [
   },
 ];
 
-export async function Testimonials({ section }: { section: HomepageSection }) {
+export async function Testimonials({ section }: { section?: HomepageSection }) {
   const supabase = createClient();
-  const { data } = await supabase
-    .from('testimonials')
-    .select('*')
-    .eq('status', 'published')
-    .order('is_featured', { ascending: false })
-    .limit(6);
+  const [{ data: dbTestimonials }, { data: dbReviews }] = await Promise.all([
+    supabase.from('testimonials').select('*').eq('status', 'published').limit(6),
+    supabase.from('reviews').select('*').eq('status', 'published').limit(6),
+  ]);
 
-  const testimonials = data && data.length > 0 ? data : DEFAULT_TESTIMONIALS;
+  const combined = [
+    ...(dbTestimonials || []).map((t) => ({ ...t, quote: t.quote })),
+    ...(dbReviews || []).map((r) => ({ ...r, quote: r.comment, customer_location: r.location })),
+  ];
+
+  const testimonials = combined.length > 0 ? combined : DEFAULT_TESTIMONIALS;
 
   return (
-    <section className="container-page py-16 border-t border-border">
-      <div className="text-center max-w-xl mx-auto mb-10 space-y-2">
-        <h2 className="font-display text-2xl sm:text-3xl font-bold tracking-tight text-text">
-          {section.title || 'Loved by Homes & Offices Across Nepal'}
-        </h2>
-        <p className="text-muted text-xs sm:text-sm">
-          See what our happy customers have to say about our canvas prints and customized clothing.
-        </p>
-      </div>
-
-      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        {testimonials.map((t) => (
-          <figure key={t.id} className="rounded-2xl border border-border p-6 bg-surface shadow-sm flex flex-col justify-between space-y-4">
-            <div className="space-y-3">
-              <div className="flex items-center gap-1 text-amber-500 text-sm">
-                {'★'.repeat(t.rating || 5)}
-              </div>
-              <blockquote className="text-sm text-text leading-relaxed font-medium">
-                &ldquo;{t.quote}&rdquo;
-              </blockquote>
-            </div>
-
-            <figcaption className="flex items-center gap-3 pt-3 border-t border-border/60">
-              {t.customer_image_url && (
-                <div className="relative h-10 w-10 overflow-hidden rounded-full border border-amber-600/30">
-                  <Image
-                    src={t.customer_image_url}
-                    alt={t.customer_name}
-                    fill
-                    className="object-cover"
-                  />
-                </div>
-              )}
-              <div>
-                <span className="text-sm font-bold block text-text">{t.customer_name}</span>
-                {t.customer_location && (
-                  <span className="text-xs text-muted block">{t.customer_location}, Nepal</span>
-                )}
-              </div>
-            </figcaption>
-          </figure>
-        ))}
-      </div>
-    </section>
+    <TestimonialsClientContainer
+      title={section?.title || 'Loved by Homes & Offices Across Nepal'}
+      subtitle={section?.subtitle || 'See what our happy customers have to say about our canvas prints and customized clothing.'}
+      testimonials={testimonials}
+    />
   );
 }
-

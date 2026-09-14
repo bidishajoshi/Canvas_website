@@ -25,6 +25,7 @@ export async function updateSettings(formData: FormData) {
       facebook_url: field('facebook_url'),
       instagram_url: field('instagram_url'),
       tiktok_url: field('tiktok_url'),
+      youtube_url: field('youtube_url'),
       logo_url: field('logo_url'),
       updated_at: new Date().toISOString(),
     });
