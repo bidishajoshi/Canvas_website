@@ -1,8 +1,1 @@
-{
-  "/(site)/search/page": "app/(site)/search/page.js",
-  "/page": "app/page.js",
-  "/(site)/shop/page": "app/(site)/shop/page.js",
-  "/(site)/custom-t-shirt/page": "app/(site)/custom-t-shirt/page.js",
-  "/(site)/custom-canvas/page": "app/(site)/custom-canvas/page.js",
-  "/admin/login/page": "app/admin/login/page.js"
-}
+{}

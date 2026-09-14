@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { getCart, removeFromCart, updateCartQuantity, cartSubtotalPaisa, type CartItem } from '@/lib/cart';
@@ -9,10 +9,11 @@ import { formatPaisa } from '@/lib/utils';
 export function CartDrawer({ open, onClose }: { open: boolean; onClose: () => void }) {
   const [items, setItems] = useState<CartItem[]>([]);
 
+  const syncCart = useCallback(() => {
+    setItems(getCart());
+  }, []);
+
   useEffect(() => {
-    const syncCart = () => {
-      setItems(getCart());
-    };
     if (open) {
       syncCart();
       document.body.style.overflow = 'hidden';
@@ -24,7 +25,7 @@ export function CartDrawer({ open, onClose }: { open: boolean; onClose: () => vo
       document.body.style.overflow = 'unset';
       window.removeEventListener('cart-updated', syncCart);
     };
-  }, [open]);
+  }, [open, syncCart]);
 
   if (!open) return null;
 
@@ -33,34 +34,34 @@ export function CartDrawer({ open, onClose }: { open: boolean; onClose: () => vo
 
   return (
     <div className="fixed inset-0 z-50 overflow-hidden">
-      {/* Backdrop */}
+      {/* Light, Hardware-Accelerated Overlay Backdrop */}
       <div
-        className="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity animate-fadeIn"
+        className="fixed inset-0 bg-black/60 transition-opacity duration-200"
         onClick={onClose}
       />
 
       <div className="fixed inset-y-0 right-0 max-w-full flex pl-10">
-        <div className="w-screen max-w-md bg-bg border-l border-border shadow-2xl flex flex-col justify-between">
+        <div className="w-screen max-w-md bg-bg border-l border-border shadow-2xl flex flex-col justify-between transform transition-transform duration-300 ease-out">
           {/* Header */}
           <div className="p-5 border-b border-border flex items-center justify-between bg-surface">
             <div className="flex items-center gap-2">
               <span className="text-xl">🛒</span>
               <h2 className="font-display font-bold text-lg text-text">Your Shopping Cart</h2>
-              <span className="px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-600 text-xs font-bold">
+              <span className="px-2.5 py-0.5 rounded-full bg-amber-500/10 text-amber-600 text-xs font-bold border border-amber-500/20">
                 {items.reduce((acc, i) => acc + i.quantity, 0)} Items
               </span>
             </div>
             <button
               type="button"
               onClick={onClose}
-              className="h-8 w-8 rounded-full border border-border flex items-center justify-center text-muted hover:text-text hover:border-amber-600 transition-colors"
+              className="h-8 w-8 rounded-full border border-border flex items-center justify-center text-muted hover:text-text hover:border-amber-600 transition-colors active:scale-95"
             >
               ✕
             </button>
           </div>
 
           {/* Cart Item List */}
-          <div className="flex-1 overflow-y-auto p-5 space-y-4">
+          <div className="flex-1 overflow-y-auto p-5 space-y-3.5">
             {items.length === 0 ? (
               <div className="py-16 text-center space-y-4">
                 <div className="text-5xl">🛍️</div>
@@ -71,7 +72,7 @@ export function CartDrawer({ open, onClose }: { open: boolean; onClose: () => vo
                 <button
                   type="button"
                   onClick={onClose}
-                  className="inline-block px-5 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs shadow-sm transition-colors"
+                  className="inline-block px-5 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs shadow-sm transition-colors active:scale-95"
                 >
                   Start Shopping Now →
                 </button>
@@ -80,7 +81,7 @@ export function CartDrawer({ open, onClose }: { open: boolean; onClose: () => vo
               items.map((item) => (
                 <div
                   key={item.id}
-                  className="p-3.5 rounded-2xl border border-border bg-surface flex gap-3 shadow-sm hover:border-amber-600/30 transition-colors"
+                  className="p-3.5 rounded-2xl border border-border bg-surface flex gap-3 shadow-sm hover:border-amber-600/40 transition-colors"
                 >
                   {/* Item Image */}
                   <div className="relative h-20 w-20 shrink-0 rounded-xl bg-surface-hover overflow-hidden border border-border">
@@ -89,6 +90,7 @@ export function CartDrawer({ open, onClose }: { open: boolean; onClose: () => vo
                         src={item.imageUrl}
                         alt={item.name}
                         fill
+                        sizes="80px"
                         className="object-cover"
                       />
                     ) : (
@@ -106,7 +108,7 @@ export function CartDrawer({ open, onClose }: { open: boolean; onClose: () => vo
                         <button
                           type="button"
                           onClick={() => removeFromCart(item.id)}
-                          className="text-muted hover:text-rose-600 text-sm font-bold"
+                          className="text-muted hover:text-rose-600 text-sm font-bold active:scale-95"
                           title="Remove item"
                         >
                           ✕
@@ -125,7 +127,7 @@ export function CartDrawer({ open, onClose }: { open: boolean; onClose: () => vo
                         <button
                           type="button"
                           onClick={() => updateCartQuantity(item.id, item.quantity - 1)}
-                          className="text-muted hover:text-text font-bold px-1"
+                          className="text-muted hover:text-text font-bold px-1.5 active:scale-95"
                         >
                           -
                         </button>
@@ -133,7 +135,7 @@ export function CartDrawer({ open, onClose }: { open: boolean; onClose: () => vo
                         <button
                           type="button"
                           onClick={() => updateCartQuantity(item.id, item.quantity + 1)}
-                          className="text-muted hover:text-text font-bold px-1"
+                          className="text-muted hover:text-text font-bold px-1.5 active:scale-95"
                         >
                           +
                         </button>
@@ -174,7 +176,7 @@ export function CartDrawer({ open, onClose }: { open: boolean; onClose: () => vo
                 <Link
                   href="/cart"
                   onClick={onClose}
-                  className="w-full py-3 rounded-xl border border-border bg-bg hover:border-amber-600 text-text font-bold text-xs text-center transition-colors shadow-sm"
+                  className="w-full py-3 rounded-xl border border-border bg-bg hover:border-amber-600 text-text font-bold text-xs text-center transition-colors active:scale-95 shadow-sm"
                 >
                   View Full Cart
                 </Link>
@@ -182,7 +184,7 @@ export function CartDrawer({ open, onClose }: { open: boolean; onClose: () => vo
                 <Link
                   href="/checkout"
                   onClick={onClose}
-                  className="w-full py-3 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs text-center transition-colors shadow-md"
+                  className="w-full py-3 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs text-center transition-colors active:scale-95 shadow-md"
                 >
                   Checkout Now 💳
                 </Link>

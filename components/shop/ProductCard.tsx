@@ -15,7 +15,7 @@ export function ProductCard({ product }: { product: Partial<Product> & { title?:
   return (
     <Link
       href={`/product/${product.slug}`}
-      className="group block overflow-hidden rounded-2xl border border-border bg-surface card-hover transition-all"
+      className="group block overflow-hidden rounded-2xl border border-border bg-surface shadow-sm hover:shadow-xl hover:border-amber-600/60 active:scale-[0.98] transition-all duration-200"
     >
       <div className="relative aspect-[4/3] sm:aspect-square w-full overflow-hidden bg-surface-hover">
         {imageUrl ? (
@@ -82,4 +82,3 @@ export function ProductCard({ product }: { product: Partial<Product> & { title?:
     </Link>
   );
 }
-
