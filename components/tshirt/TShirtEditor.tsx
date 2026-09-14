@@ -65,7 +65,7 @@ export function TShirtEditor({
     return () => window.removeEventListener('resize', updateScale);
   }, []);
 
-  // Photorealistic Fabric Color Tinting via Multiply Canvas Filter
+  // Photorealistic Fabric-Only Color Tinting (Excludes Mockup Background)
   useEffect(() => {
     if (!defaultMockupImage) return;
     if (!colorHex || colorHex.toLowerCase() === '#ffffff') {
@@ -75,18 +75,51 @@ export function TShirtEditor({
 
     try {
       const canvas = document.createElement('canvas');
-      canvas.width = defaultMockupImage.width;
-      canvas.height = defaultMockupImage.height;
+      const w = defaultMockupImage.width;
+      const h = defaultMockupImage.height;
+      canvas.width = w;
+      canvas.height = h;
       const ctx = canvas.getContext('2d');
-      if (ctx) {
-        ctx.drawImage(defaultMockupImage, 0, 0);
-        ctx.globalCompositeOperation = 'multiply';
-        ctx.fillStyle = colorHex;
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        ctx.globalCompositeOperation = 'destination-in';
-        ctx.drawImage(defaultMockupImage, 0, 0);
-        setTintedMockupCanvas(canvas);
+      if (!ctx) return;
+
+      // Draw original photorealistic mockup
+      ctx.drawImage(defaultMockupImage, 0, 0);
+
+      const imgData = ctx.getImageData(0, 0, w, h);
+      const data = imgData.data;
+
+      // Parse target colorHex (R, G, B in 0..1)
+      const cleanHex = colorHex.replace('#', '');
+      const tintR = parseInt(cleanHex.substring(0, 2) || 'ff', 16) / 255;
+      const tintG = parseInt(cleanHex.substring(2, 4) || 'ff', 16) / 255;
+      const tintB = parseInt(cleanHex.substring(4, 6) || 'ff', 16) / 255;
+
+      // Sample background color from top-left corner
+      const bgR = data[0];
+      const bgG = data[1];
+      const bgB = data[2];
+
+      for (let i = 0; i < data.length; i += 4) {
+        const r = data[i];
+        const g = data[i + 1];
+        const b = data[i + 2];
+        const a = data[i + 3];
+
+        if (a === 0) continue;
+
+        // Calculate difference from background color
+        const diff = Math.abs(r - bgR) + Math.abs(g - bgG) + Math.abs(b - bgB);
+
+        // If pixel is significantly different from background color, it's t-shirt fabric
+        if (diff > 18) {
+          data[i] = Math.round(r * tintR);
+          data[i + 1] = Math.round(g * tintG);
+          data[i + 2] = Math.round(b * tintB);
+        }
       }
+
+      ctx.putImageData(imgData, 0, 0);
+      setTintedMockupCanvas(canvas);
     } catch {
       setTintedMockupCanvas(null);
     }
