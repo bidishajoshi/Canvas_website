@@ -90,7 +90,7 @@ create table settings (
   default_panel_gap_mm int not null default 20,
   chatbot_enabled boolean not null default true,
   chatbot_greeting text default 'Namaste! Welcome to Affordable Decoration. I can help you with custom photo canvas, wall decor sizes, framing, prices, delivery in Nepal, and order tracking.',
-  demo_photo_url text default 'https://images.unsplash.com/photo-1579783902614-a3fb3927b675?auto=format&fit=crop&w=1200&q=80',
+  demo_photo_url text default 'https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?auto=format&fit=crop&w=1200&q=80',
   updated_at timestamptz not null default now()
 );
 
