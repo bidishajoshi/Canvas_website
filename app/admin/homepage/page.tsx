@@ -2,6 +2,7 @@ import Image from 'next/image';
 import { requireAdminUser } from '@/lib/adminAuth';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { addHeroSlide, deleteHeroSlide, toggleSectionEnabled } from './actions';
+import { filterDeleted } from '@/lib/adminStore';
 
 export default async function AdminHomepagePage() {
   await requireAdminUser();
@@ -12,7 +13,7 @@ export default async function AdminHomepagePage() {
     supabase.from('homepage_sections').select('*').order('sort_order', { ascending: true }),
   ]);
 
-  const activeSlides = slides || [];
+  const activeSlides = filterDeleted(slides || []);
   const activeSections = sections || [];
 
   return (
@@ -157,12 +158,7 @@ export default async function AdminHomepagePage() {
                 <span className="text-muted text-[11px]">{sec.section_key}</span>
               </div>
 
-              <form
-                action={async () => {
-                  'use server';
-                  await toggleSectionEnabled(sec.id, !sec.enabled);
-                }}
-              >
+              <form action={toggleSectionEnabled.bind(null, sec.id, !sec.enabled)}>
                 <button
                   type="submit"
                   className={`px-3 py-1 rounded-lg font-bold text-[11px] transition-colors ${

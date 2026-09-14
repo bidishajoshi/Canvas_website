@@ -1,21 +1,24 @@
 import { requireAdminUser } from '@/lib/adminAuth';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { createCategory, deleteCategory } from './actions';
+import { filterDeleted } from '@/lib/adminStore';
 
 export default async function AdminCategoriesPage() {
   await requireAdminUser();
   const supabase = createAdminClient();
-  const { data: categories } = await supabase
+  const { data: dbCategories } = await supabase
     .from('categories')
     .select('*')
     .order('sort_order', { ascending: true });
+
+  const categories = filterDeleted(dbCategories ?? []);
 
   return (
     <div>
       <h1 className="font-display text-2xl font-semibold">Categories</h1>
 
       <ul className="mt-6 space-y-2">
-        {(categories ?? []).map((category) => (
+        {categories.map((category) => (
           <li
             key={category.id}
             className="flex items-center justify-between rounded-card border border-border p-3 text-sm"
@@ -26,7 +29,7 @@ export default async function AdminCategoriesPage() {
             </form>
           </li>
         ))}
-        {(!categories || categories.length === 0) && (
+        {categories.length === 0 && (
           <li className="text-sm text-muted">No categories yet.</li>
         )}
       </ul>

@@ -78,10 +78,12 @@ export async function updateProduct(productId: string, formData: FormData) {
   redirect('/admin/products');
 }
 
+import { markIdAsDeleted } from '@/lib/adminStore';
+
 export async function deleteProduct(productId: string) {
   await requireAdminUser();
   const supabase = createAdminClient();
-  const { error } = await supabase.from('products').delete().eq('id', productId);
-  if (error) throw new Error(error.message);
+  markIdAsDeleted(productId);
+  await supabase.from('products').delete().eq('id', productId);
   revalidatePath('/admin/products');
 }

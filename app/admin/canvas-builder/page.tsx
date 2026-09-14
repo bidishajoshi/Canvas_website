@@ -11,12 +11,13 @@ import {
   createFinish,
   deleteFinish,
 } from './actions';
+import { filterDeleted } from '@/lib/adminStore';
 
 export default async function CanvasBuilderAdminPage() {
   await requireAdminUser();
   const supabase = createAdminClient();
 
-  const [{ data: panelTypes }, { data: sizes }, { data: frames }, { data: finishes }] =
+  const [{ data: rawPanelTypes }, { data: rawSizes }, { data: rawFrames }, { data: rawFinishes }] =
     await Promise.all([
       supabase.from('panel_types').select('*').order('sort_order', { ascending: true }),
       supabase
@@ -26,6 +27,11 @@ export default async function CanvasBuilderAdminPage() {
       supabase.from('frames').select('*').order('sort_order', { ascending: true }),
       supabase.from('finishes').select('*').order('sort_order', { ascending: true }),
     ]);
+
+  const panelTypes = filterDeleted(rawPanelTypes ?? []);
+  const sizes = filterDeleted(rawSizes ?? []);
+  const frames = filterDeleted(rawFrames ?? []);
+  const finishes = filterDeleted(rawFinishes ?? []);
 
   return (
     <div className="space-y-10">

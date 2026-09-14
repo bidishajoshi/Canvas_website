@@ -3,14 +3,17 @@ import { requireAdminUser } from '@/lib/adminAuth';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { formatPaisa } from '@/lib/utils';
 import { deleteProduct } from './actions';
+import { filterDeleted } from '@/lib/adminStore';
 
 export default async function AdminProductsPage() {
   await requireAdminUser();
   const supabase = createAdminClient();
-  const { data: products } = await supabase
+  const { data: rawProducts } = await supabase
     .from('products')
     .select('*')
     .order('created_at', { ascending: false });
+
+  const products = filterDeleted(rawProducts ?? []);
 
   return (
     <div>
@@ -36,7 +39,7 @@ export default async function AdminProductsPage() {
             </tr>
           </thead>
           <tbody>
-            {(products ?? []).map((product) => (
+            {products.map((product) => (
               <tr key={product.id} className="border-t border-border">
                 <td className="p-3">{product.name}</td>
                 <td className="p-3">{formatPaisa(product.base_price_paisa)}</td>
@@ -49,13 +52,7 @@ export default async function AdminProductsPage() {
                   >
                     Edit
                   </Link>
-                  <form
-                    action={async () => {
-                      'use server';
-                      await deleteProduct(product.id);
-                    }}
-                    className="inline"
-                  >
+                  <form action={deleteProduct.bind(null, product.id)} className="inline">
                     <button type="submit" className="text-red-600 underline">
                       Delete
                     </button>
@@ -63,7 +60,7 @@ export default async function AdminProductsPage() {
                 </td>
               </tr>
             ))}
-            {(!products || products.length === 0) && (
+            {products.length === 0 && (
               <tr>
                 <td colSpan={5} className="p-6 text-center text-muted">
                   No products yet.

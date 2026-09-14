@@ -21,9 +21,12 @@ export async function createCategory(formData: FormData) {
   revalidatePath('/admin/categories');
 }
 
+import { markIdAsDeleted } from '@/lib/adminStore';
+
 export async function deleteCategory(id: string) {
   await requireAdminUser();
   const supabase = createAdminClient();
+  markIdAsDeleted(id);
   await supabase.from('categories').delete().eq('id', id);
   revalidatePath('/admin/categories');
 }

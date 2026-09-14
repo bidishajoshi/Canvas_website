@@ -23,10 +23,13 @@ export async function approveReview(id: string) {
   revalidatePath('/');
 }
 
+import { markIdAsDeleted } from '@/lib/adminStore';
+
 export async function deleteReview(id: string) {
   await requireAdminUser();
   const supabase = createAdminClient();
 
+  markIdAsDeleted(id);
   await supabase.from('reviews').delete().eq('id', id);
   await supabase.from('testimonials').delete().eq('id', id);
 

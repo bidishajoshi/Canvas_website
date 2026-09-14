@@ -3,6 +3,7 @@ import { createAdminClient } from '@/lib/supabase/admin';
 import { formatPaisa } from '@/lib/utils';
 import { createCanvasProduct, deleteCanvasProduct } from './actions';
 import type { CanvasProduct } from '@/lib/types';
+import { filterDeleted } from '@/lib/adminStore';
 
 const DEMO_PRODUCTS: CanvasProduct[] = [
   {
@@ -54,7 +55,7 @@ export default async function AdminCanvasProductsPage() {
     .select('*')
     .order('sort_order', { ascending: true });
 
-  const products = data && data.length > 0 ? (data as CanvasProduct[]) : DEMO_PRODUCTS;
+  const products = filterDeleted(data && data.length > 0 ? (data as CanvasProduct[]) : DEMO_PRODUCTS);
 
   return (
     <div className="space-y-10">

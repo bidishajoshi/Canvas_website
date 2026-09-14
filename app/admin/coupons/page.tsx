@@ -3,6 +3,7 @@ import { createAdminClient } from '@/lib/supabase/admin';
 import { formatPaisa } from '@/lib/utils';
 import { createCoupon, deleteCoupon, toggleCouponActive } from './actions';
 import type { CouponCode } from '@/lib/types';
+import { filterDeleted } from '@/lib/adminStore';
 
 const DEMO_COUPONS: CouponCode[] = [
   {
@@ -43,7 +44,7 @@ export default async function AdminCouponsPage() {
     .select('*')
     .order('created_at', { ascending: false });
 
-  const coupons = data && data.length > 0 ? (data as CouponCode[]) : DEMO_COUPONS;
+  const coupons = filterDeleted(data && data.length > 0 ? (data as CouponCode[]) : DEMO_COUPONS);
 
   return (
     <div className="space-y-10">

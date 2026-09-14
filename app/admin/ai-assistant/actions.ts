@@ -25,10 +25,13 @@ export async function addFaqKnowledge(formData: FormData) {
   revalidatePath('/admin/ai-assistant');
 }
 
+import { markIdAsDeleted } from '@/lib/adminStore';
+
 export async function deleteFaqKnowledge(id: string) {
   await requireAdminUser();
   const supabase = createAdminClient();
 
+  markIdAsDeleted(id);
   await supabase.from('chat_knowledge').delete().eq('id', id);
 
   revalidatePath('/admin/ai-assistant');

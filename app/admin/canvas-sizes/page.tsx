@@ -3,6 +3,7 @@ import { createAdminClient } from '@/lib/supabase/admin';
 import { formatPaisa } from '@/lib/utils';
 import { addCanvasSize, deleteCanvasSize } from './actions';
 import type { CanvasSize } from '@/lib/types';
+import { filterDeleted } from '@/lib/adminStore';
 
 export default async function AdminCanvasSizesPage() {
   await requireAdminUser();
@@ -22,7 +23,7 @@ export default async function AdminCanvasSizesPage() {
     { id: 'cs6', name: '24 × 36 inch Grand Statement', width: 24, height: 36, unit: 'inch', panel_type_id: null, price_adjustment_paisa: 699000, is_recommended: false, active: true, sort_order: 6 },
   ];
 
-  const sizes = dbSizes && dbSizes.length > 0 ? (dbSizes as CanvasSize[]) : defaultCanvasSizes;
+  const sizes = filterDeleted(dbSizes && dbSizes.length > 0 ? (dbSizes as CanvasSize[]) : defaultCanvasSizes);
 
   return (
     <div className="space-y-8 max-w-4xl">

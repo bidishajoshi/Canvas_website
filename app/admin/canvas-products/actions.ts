@@ -59,9 +59,12 @@ export async function createCanvasProduct(formData: FormData) {
   revalidatePath('/');
 }
 
+import { markIdAsDeleted } from '@/lib/adminStore';
+
 export async function deleteCanvasProduct(id: string) {
   await requireAdminUser();
   const supabase = createAdminClient();
+  markIdAsDeleted(id);
   await supabase.from('canvas_products').delete().eq('id', id);
   revalidatePath('/admin/canvas-products');
   revalidatePath('/shop');

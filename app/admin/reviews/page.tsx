@@ -1,6 +1,7 @@
 import { requireAdminUser } from '@/lib/adminAuth';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { approveReview, deleteReview } from './actions';
+import { filterDeleted } from '@/lib/adminStore';
 
 export default async function AdminReviewsPage() {
   await requireAdminUser();
@@ -11,8 +12,8 @@ export default async function AdminReviewsPage() {
     supabase.from('reviews').select('*').eq('status', 'published').order('created_at', { ascending: false }).limit(20),
   ]);
 
-  const pending = pendingReviews || [];
-  const published = publishedReviews || [];
+  const pending = filterDeleted(pendingReviews || []);
+  const published = filterDeleted(publishedReviews || []);
 
   return (
     <div className="space-y-8">

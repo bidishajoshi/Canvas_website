@@ -2,6 +2,7 @@ import { requireAdminUser } from '@/lib/adminAuth';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { addFaqKnowledge, deleteFaqKnowledge } from './actions';
 import type { ChatKnowledge } from '@/lib/types';
+import { filterDeleted } from '@/lib/adminStore';
 
 export default async function AdminAiAssistantPage() {
   await requireAdminUser();
@@ -39,7 +40,7 @@ export default async function AdminAiAssistantPage() {
     },
   ];
 
-  const knowledge = dbKnowledge && dbKnowledge.length > 0 ? (dbKnowledge as ChatKnowledge[]) : defaultKnowledge;
+  const knowledge = filterDeleted(dbKnowledge && dbKnowledge.length > 0 ? (dbKnowledge as ChatKnowledge[]) : defaultKnowledge);
 
   return (
     <div className="space-y-8 max-w-4xl">

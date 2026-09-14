@@ -22,9 +22,12 @@ export async function createPanelType(formData: FormData) {
   revalidatePath('/custom-canvas');
 }
 
+import { markIdAsDeleted } from '@/lib/adminStore';
+
 export async function deletePanelType(id: string) {
   await requireAdminUser();
   const supabase = createAdminClient();
+  markIdAsDeleted(id);
   await supabase.from('panel_types').delete().eq('id', id);
   revalidatePath('/admin/canvas-builder');
   revalidatePath('/custom-canvas');
@@ -52,6 +55,7 @@ export async function createCanvasSize(formData: FormData) {
 export async function deleteCanvasSize(id: string) {
   await requireAdminUser();
   const supabase = createAdminClient();
+  markIdAsDeleted(id);
   await supabase.from('canvas_sizes').delete().eq('id', id);
   revalidatePath('/admin/canvas-builder');
   revalidatePath('/custom-canvas');
@@ -72,6 +76,7 @@ export async function createFrame(formData: FormData) {
 export async function deleteFrame(id: string) {
   await requireAdminUser();
   const supabase = createAdminClient();
+  markIdAsDeleted(id);
   await supabase.from('frames').delete().eq('id', id);
   revalidatePath('/admin/canvas-builder');
   revalidatePath('/custom-canvas');
@@ -92,6 +97,7 @@ export async function createFinish(formData: FormData) {
 export async function deleteFinish(id: string) {
   await requireAdminUser();
   const supabase = createAdminClient();
+  markIdAsDeleted(id);
   await supabase.from('finishes').delete().eq('id', id);
   revalidatePath('/admin/canvas-builder');
   revalidatePath('/custom-canvas');

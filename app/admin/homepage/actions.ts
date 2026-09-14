@@ -32,10 +32,13 @@ export async function addHeroSlide(formData: FormData) {
   revalidatePath('/');
 }
 
+import { markIdAsDeleted } from '@/lib/adminStore';
+
 export async function deleteHeroSlide(id: string) {
   await requireAdminUser();
   const supabase = createAdminClient();
 
+  markIdAsDeleted(id);
   await supabase.from('hero_slides').delete().eq('id', id);
 
   revalidatePath('/admin/homepage');

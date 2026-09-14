@@ -45,9 +45,14 @@ export async function toggleCouponActive(id: string, active: boolean) {
   revalidatePath('/admin/coupons');
 }
 
+import { markIdAsDeleted } from '@/lib/adminStore';
+
 export async function deleteCoupon(id: string) {
   await requireAdminUser();
   const supabase = createAdminClient();
+
+  markIdAsDeleted(id);
   await supabase.from('coupon_codes').delete().eq('id', id);
+
   revalidatePath('/admin/coupons');
 }
