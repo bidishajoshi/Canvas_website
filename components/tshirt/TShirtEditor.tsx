@@ -37,7 +37,7 @@ export function TShirtEditor({
   const [customBaseImage] = useImage(customTShirtBaseUrl || '', 'anonymous');
   const [defaultMockupImage] = useImage('/images/tshirt_default_mockup.png', 'anonymous');
 
-  // Fabric Color Tint Canvas state
+  // Fabric Color Tint Canvas state for previous photorealistic mockup image
   const [tintedMockupCanvas, setTintedMockupCanvas] = useState<HTMLCanvasElement | null>(null);
 
   // Responsive stage scaling state for mobile phone screens
@@ -65,7 +65,7 @@ export function TShirtEditor({
     return () => window.removeEventListener('resize', updateScale);
   }, []);
 
-  // Photorealistic Fabric-Only Color Tinting (Excludes Mockup Background)
+  // Photorealistic Fabric Color Tinting for Previous Mockup Photo (100% Smooth Coverage, Zero Splotches)
   useEffect(() => {
     if (!defaultMockupImage) return;
     if (!colorHex || colorHex.toLowerCase() === '#ffffff') {
@@ -82,62 +82,46 @@ export function TShirtEditor({
       const ctx = canvas.getContext('2d');
       if (!ctx) return;
 
-      // Draw original photorealistic mockup
+      // 1. Draw base photo
       ctx.drawImage(defaultMockupImage, 0, 0);
 
-      const imgData = ctx.getImageData(0, 0, w, h);
-      const data = imgData.data;
+      // 2. Define smooth t-shirt silhouette clip path matching photo contours
+      ctx.save();
+      ctx.beginPath();
+      ctx.moveTo(w * 0.35, h * 0.11);
+      ctx.bezierCurveTo(w * 0.45, h * 0.14, w * 0.55, h * 0.14, w * 0.65, h * 0.11);
+      ctx.lineTo(w * 0.77, h * 0.15);
+      ctx.lineTo(w * 0.96, h * 0.28);
+      ctx.lineTo(w * 0.94, h * 0.40);
+      ctx.lineTo(w * 0.80, h * 0.41);
+      ctx.lineTo(w * 0.76, h * 0.33);
+      ctx.lineTo(w * 0.77, h * 0.93);
+      ctx.lineTo(w * 0.23, h * 0.93);
+      ctx.lineTo(w * 0.24, h * 0.33);
+      ctx.lineTo(w * 0.20, h * 0.41);
+      ctx.lineTo(w * 0.06, h * 0.40);
+      ctx.lineTo(w * 0.04, h * 0.28);
+      ctx.lineTo(w * 0.23, h * 0.15);
+      ctx.closePath();
+      ctx.clip();
 
-      // Parse target colorHex (R, G, B in 0..255)
+      // 3. Multiply blend target color over garment fabric
+      ctx.globalCompositeOperation = 'multiply';
+      ctx.fillStyle = colorHex;
+      ctx.fillRect(0, 0, w, h);
+
+      // 4. Soft-light blend enhancement for deep rich dark colors (Black/Charcoal)
       const cleanHex = colorHex.replace('#', '');
-      const targetR = parseInt(cleanHex.substring(0, 2) || 'ff', 16);
-      const targetG = parseInt(cleanHex.substring(2, 4) || 'ff', 16);
-      const targetB = parseInt(cleanHex.substring(4, 6) || 'ff', 16);
-
-      // Check if target is dark/black color (< 45 average)
-      const isDarkTarget = (targetR + targetG + targetB) / 3 < 45;
-
-      // Sample background color from top-left corner
-      const bgR = data[0];
-      const bgG = data[1];
-      const bgB = data[2];
-
-      for (let i = 0; i < data.length; i += 4) {
-        const r = data[i];
-        const g = data[i + 1];
-        const b = data[i + 2];
-        const a = data[i + 3];
-
-        if (a === 0) continue;
-
-        // Calculate difference from background color
-        const diff = Math.abs(r - bgR) + Math.abs(g - bgG) + Math.abs(b - bgB);
-
-        // If pixel is significantly different from background color, it's t-shirt fabric
-        if (diff > 18) {
-          // Normalized luminance of the white t-shirt pixel (0..1)
-          const lum = (r * 0.299 + g * 0.587 + b * 0.114) / 255;
-
-          if (isDarkTarget) {
-            // Full Black / Charcoal Black: Render deep rich black with subtle fold highlights
-            const baseR = Math.max(targetR, 18);
-            const baseG = Math.max(targetG, 18);
-            const baseB = Math.max(targetB, 20);
-            const highlight = (lum - 0.5) * 45;
-            data[i] = Math.max(0, Math.min(255, Math.round(baseR + highlight)));
-            data[i + 1] = Math.max(0, Math.min(255, Math.round(baseG + highlight)));
-            data[i + 2] = Math.max(0, Math.min(255, Math.round(baseB + highlight)));
-          } else {
-            // Vibrant colors (Pink, Red, Navy, Gold, etc.): Render exact target color with 3D fold shadows
-            const foldFactor = Math.min(1.15, Math.max(0.35, lum / 0.86));
-            data[i] = Math.max(0, Math.min(255, Math.round(targetR * foldFactor)));
-            data[i + 1] = Math.max(0, Math.min(255, Math.round(targetG * foldFactor)));
-            data[i + 2] = Math.max(0, Math.min(255, Math.round(targetB * foldFactor)));
-          }
-        }
+      const r = parseInt(cleanHex.substring(0, 2) || 'ff', 16);
+      const g = parseInt(cleanHex.substring(2, 4) || 'ff', 16);
+      const b = parseInt(cleanHex.substring(4, 6) || 'ff', 16);
+      if ((r + g + b) / 3 < 55) {
+        ctx.globalCompositeOperation = 'soft-light';
+        ctx.fillStyle = colorHex;
+        ctx.fillRect(0, 0, w, h);
       }
 
-      ctx.putImageData(imgData, 0, 0);
+      ctx.restore();
       setTintedMockupCanvas(canvas);
     } catch {
       setTintedMockupCanvas(null);
@@ -231,7 +215,7 @@ export function TShirtEditor({
           >
             <Stage width={STAGE_WIDTH} height={STAGE_HEIGHT}>
               <Layer>
-                {/* Customer Uploaded Base Image OR HD Full Uniform Color T-Shirt Garment */}
+                {/* Customer Uploaded Base Image OR Photorealistic Color-Tinted T-Shirt Photo */}
                 {customBaseImage ? (
                   <KonvaImage
                     image={customBaseImage}
@@ -239,6 +223,14 @@ export function TShirtEditor({
                     y={40}
                     width={440}
                     height={500}
+                  />
+                ) : defaultMockupImage ? (
+                  <KonvaImage
+                    image={tintedMockupCanvas || defaultMockupImage}
+                    x={30}
+                    y={10}
+                    width={460}
+                    height={560}
                   />
                 ) : (
                   <Group>
