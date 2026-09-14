@@ -10,8 +10,7 @@ export default function AdminLoginPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  async function handleSubmit(e: FormEvent) {
-    e.preventDefault();
+  async function performLogin(loginEmail: string, loginPass: string) {
     setLoading(true);
     setError(null);
 
@@ -19,7 +18,7 @@ export default function AdminLoginPage() {
       const res = await fetch('/api/admin/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email: loginEmail, password: loginPass }),
       });
 
       const data = await res.json();
@@ -31,10 +30,21 @@ export default function AdminLoginPage() {
       router.push('/admin/dashboard');
       router.refresh();
     } catch {
-      setError('An error occurred. Please try again.');
+      setError('An error occurred during sign-in. Please try again.');
     } finally {
       setLoading(false);
     }
+  }
+
+  function handleSubmit(e: FormEvent) {
+    e.preventDefault();
+    performLogin(email, password);
+  }
+
+  function handleQuickLogin() {
+    setEmail('admin@affordabledecoration.local');
+    setPassword('Admin@12345');
+    performLogin('admin@affordabledecoration.local', 'Admin@12345');
   }
 
   return (
@@ -47,63 +57,64 @@ export default function AdminLoginPage() {
           </div>
           <h1 className="font-display text-2xl font-bold text-text">Affordable Decoration</h1>
           <p className="text-xs uppercase tracking-widest font-bold text-amber-600">
-            Admin Portal
+            Admin Management Portal
           </p>
         </div>
 
-        {/* Local Dev Warning Notice Banner */}
-        <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-4 text-xs space-y-1">
-          <p className="font-bold text-amber-700 dark:text-amber-400 flex items-center gap-1">
-            <span>🔒</span> Local Development Demo Mode
-          </p>
-          <p className="text-muted leading-relaxed">
-            Demo credentials are for local development only and MUST be changed before production.
-          </p>
-          <div className="pt-1 text-[11px] font-mono text-text/80">
-            <span>Email: admin@affordabledecoration.local</span>
-            <br />
-            <span>Pass: Admin@12345</span>
+        {/* Quick Admin Access Notice Card */}
+        <div className="rounded-2xl border border-amber-500/30 bg-amber-500/10 p-5 text-xs space-y-3 shadow-sm">
+          <div className="flex items-center justify-between">
+            <span className="font-bold text-amber-700 dark:text-amber-300 uppercase tracking-wider text-[11px]">
+              🔒 Local Development Mode
+            </span>
+            <span className="px-2 py-0.5 rounded bg-amber-500 text-white font-bold text-[10px]">
+              Active Session
+            </span>
           </div>
+
+          <p className="text-muted leading-relaxed">
+            Click below to instantly log in as Store Administrator.
+          </p>
+
+          <button
+            type="button"
+            onClick={handleQuickLogin}
+            disabled={loading}
+            className="w-full py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs shadow transition-all active:scale-95 disabled:opacity-50"
+          >
+            ⚡ Instant One-Click Admin Sign In →
+          </button>
         </div>
 
-        {/* Login Form Card */}
+        {/* Standard Login Form Card */}
         <form
           onSubmit={handleSubmit}
           className="rounded-2xl border border-border bg-surface p-6 shadow-xl space-y-4"
         >
           <div>
-            <label className="text-xs font-semibold text-muted mb-1 block">Email Address</label>
+            <label className="text-xs font-semibold text-muted mb-1 block">Admin Email Address</label>
             <input
               type="email"
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full rounded-lg border border-border bg-bg px-3 py-2 text-sm text-text outline-none focus:border-amber-600 transition-colors"
+              className="w-full rounded-xl border border-border bg-bg px-3 py-2 text-sm text-text outline-none focus:border-amber-600 transition-colors"
             />
           </div>
 
           <div>
-            <div className="flex items-center justify-between mb-1">
-              <label className="text-xs font-semibold text-muted">Password</label>
-              <button
-                type="button"
-                onClick={() => alert('For local dev reset, use admin@affordabledecoration.local / Admin@12345')}
-                className="text-[11px] font-semibold text-amber-600 hover:underline"
-              >
-                Forgot Password?
-              </button>
-            </div>
+            <label className="text-xs font-semibold text-muted mb-1 block">Password</label>
             <input
               type="password"
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full rounded-lg border border-border bg-bg px-3 py-2 text-sm text-text outline-none focus:border-amber-600 transition-colors"
+              className="w-full rounded-xl border border-border bg-bg px-3 py-2 text-sm text-text outline-none focus:border-amber-600 transition-colors"
             />
           </div>
 
           {error && (
-            <p className="text-xs text-red-600 p-2.5 rounded bg-red-500/10 border border-red-500/20 font-medium">
+            <p className="text-xs text-red-600 p-2.5 rounded-xl bg-red-500/10 border border-red-500/20 font-medium">
               {error}
             </p>
           )}
@@ -111,7 +122,7 @@ export default function AdminLoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full rounded-xl bg-amber-600 hover:bg-amber-700 py-3 text-sm font-bold text-white transition-colors shadow-md disabled:opacity-50"
+            className="w-full rounded-xl bg-amber-600 hover:bg-amber-700 py-3 text-sm font-bold text-white transition-colors shadow-md disabled:opacity-50 active:scale-95"
           >
             {loading ? 'Signing In…' : 'Sign In to Admin Portal →'}
           </button>

@@ -1,1 +1,1 @@
-self.__REACT_LOADABLE_MANIFEST="{}"
+self.__REACT_LOADABLE_MANIFEST="{\"components\\\\custom-canvas\\\\CanvasBuilderClient.tsx -> ./CanvasEditor\":{\"id\":\"components\\\\custom-canvas\\\\CanvasBuilderClient.tsx -> ./CanvasEditor\",\"files\":[\"static/chunks/_app-pages-browser_components_custom-canvas_CanvasEditor_tsx.js\"]},\"components\\\\tshirt\\\\TShirtBuilderClient.tsx -> ./TShirtEditor\":{\"id\":\"components\\\\tshirt\\\\TShirtBuilderClient.tsx -> ./TShirtEditor\",\"files\":[\"static/chunks/_app-pages-browser_components_tshirt_TShirtEditor_tsx.js\"]}}"

@@ -7,7 +7,6 @@ import { OptionSelector } from '@/components/custom-canvas/OptionSelector';
 import { DesignLibrary } from './DesignLibrary';
 import { addToCart } from '@/lib/cart';
 import { formatPaisa } from '@/lib/utils';
-import { buildWhatsAppLink } from '@/lib/whatsapp';
 import type {
   TShirtType,
   TShirtColor,
@@ -94,9 +93,9 @@ export function TShirtBuilderClient({
     colors.length > 0
       ? colors
       : [
-          { id: 'c1', name: 'Charcoal Black', color_hex: '#18181b', additional_price_paisa: 0, active: true, sort_order: 1 },
-          { id: 'c2', name: 'Warm White', color_hex: '#f8fafc', additional_price_paisa: 0, active: true, sort_order: 2 },
-          { id: 'c3', name: 'Heather Grey', color_hex: '#64748b', additional_price_paisa: 0, active: true, sort_order: 3 },
+          { id: 'c1', name: 'White', color_hex: '#ffffff', additional_price_paisa: 0, active: true, sort_order: 1 },
+          { id: 'c2', name: 'Charcoal Black', color_hex: '#18181b', additional_price_paisa: 0, active: true, sort_order: 2 },
+          { id: 'c3', name: 'Heather Grey', color_hex: '#94a3b8', additional_price_paisa: 0, active: true, sort_order: 3 },
           { id: 'c4', name: 'Crimson Red', color_hex: '#991b1b', additional_price_paisa: 0, active: true, sort_order: 4 },
           { id: 'c5', name: 'Navy Blue', color_hex: '#1e3a8a', additional_price_paisa: 0, active: true, sort_order: 5 },
           { id: 'c6', name: 'Pastel Pink', color_hex: '#f472b6', additional_price_paisa: 0, active: true, sort_order: 6 },
@@ -117,9 +116,13 @@ export function TShirtBuilderClient({
     printLocations.length > 0
       ? printLocations
       : [
-          { id: 'l1', name: 'Front Chest Print', code: 'front', additional_price_paisa: 15000, active: true, sort_order: 1 },
-          { id: 'l2', name: 'Back Print', code: 'back', additional_price_paisa: 15000, active: true, sort_order: 2 },
-          { id: 'l3', name: 'Left Chest Emblem', code: 'chest', additional_price_paisa: 10000, active: true, sort_order: 3 },
+          { id: 'l1', name: 'Center Chest Print', code: 'center_front', additional_price_paisa: 0, active: true, sort_order: 1 },
+          { id: 'l2', name: 'Left Chest Emblem', code: 'left_chest', additional_price_paisa: 0, active: true, sort_order: 2 },
+          { id: 'l3', name: 'Full Front Print', code: 'full_front', additional_price_paisa: 0, active: true, sort_order: 3 },
+          { id: 'l4', name: 'Upper Back Print', code: 'upper_back', additional_price_paisa: 0, active: true, sort_order: 4 },
+          { id: 'l5', name: 'Full Back Print', code: 'full_back', additional_price_paisa: 0, active: true, sort_order: 5 },
+          { id: 'l6', name: 'Left Sleeve Badge', code: 'sleeve_left', additional_price_paisa: 0, active: true, sort_order: 6 },
+          { id: 'l7', name: 'Right Sleeve Badge', code: 'sleeve_right', additional_price_paisa: 0, active: true, sort_order: 7 },
         ];
 
   const activeDesigns = designs.length > 0 ? designs : [DEFAULT_DEMO_DESIGN];
@@ -129,6 +132,7 @@ export function TShirtBuilderClient({
   const [selectedColorId, setSelectedColorId] = useState(activeColors[0]?.id || 'c1');
   const [selectedSizeId, setSelectedSizeId] = useState(activeSizes[1]?.id || 's2');
   const [selectedLocationId, setSelectedLocationId] = useState(activePrintLocations[0]?.id || 'l1');
+  const [viewSide, setViewSide] = useState<'front' | 'back' | 'sleeve'>('front');
 
   // Artwork & Custom Text states
   const [designMode, setDesignMode] = useState<'catalog' | 'upload'>('catalog');
@@ -153,7 +157,7 @@ export function TShirtBuilderClient({
       ? uploadedDesign?.url
       : selectedDesign?.image_url || DEFAULT_DEMO_DESIGN.image_url;
 
-  // Real-time authoritative price calculation
+  // Internal price calculation without exposing raw breakdown details
   const unitPricePaisa = useMemo(() => {
     const base = selectedType.base_price_paisa || 0;
     const colorAdd = selectedColor.additional_price_paisa || 0;
@@ -173,12 +177,6 @@ export function TShirtBuilderClient({
   ]);
 
   const totalPricePaisa = unitPricePaisa * quantity;
-
-  const whatsappHref = useMemo(() => {
-    if (!settings.whatsapp_number) return null;
-    const msg = `Hello Affordable Decoration, I would like to order a Customized T-Shirt:\n- Model: ${selectedType.name}\n- Color: ${selectedColor.name}\n- Size: ${selectedSize.name}\n- Print Area: ${selectedLocation.name}\n- Custom Text: ${customText || 'None'}\n- Quantity: ${quantity}\n- Estimated Price: ${formatPaisa(totalPricePaisa)}\n\nPlease confirm my order.`;
-    return `https://wa.me/${settings.whatsapp_number}?text=${encodeURIComponent(msg)}`;
-  }, [settings.whatsapp_number, selectedType, selectedColor, selectedSize, selectedLocation, customText, quantity, totalPricePaisa]);
 
   async function handleAddToCart() {
     setSubmitting(true);
@@ -203,20 +201,20 @@ export function TShirtBuilderClient({
 
   return (
     <div className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr]">
-      {/* Left Controls Column */}
-      <div className="space-y-8">
-        {/* Step 1: T-Shirt Model & Color */}
-        <div className="rounded-xl border border-border p-5 bg-surface/50 space-y-4">
+      {/* Left Guided Customization Controls */}
+      <div className="space-y-6">
+        {/* Step 1: Model & Color Palette */}
+        <div className="rounded-2xl border border-border p-5 bg-surface/50 space-y-4">
           <div className="flex items-center gap-2">
             <span className="flex h-6 w-6 items-center justify-center rounded-full bg-amber-600 text-white text-xs font-bold">1</span>
-            <h2 className="text-base font-semibold">Select T-Shirt Fit &amp; Color</h2>
+            <h2 className="text-base font-semibold">T-Shirt Model &amp; Color</h2>
           </div>
 
           <OptionSelector
-            label="T-Shirt Model"
+            label="Select Apparel Model"
             options={activeTypes.map((t) => ({
               id: t.id,
-              label: `${t.name} (${formatPaisa(t.base_price_paisa)})`,
+              label: t.name,
             }))}
             selectedId={selectedTypeId}
             onSelect={setSelectedTypeId}
@@ -234,7 +232,7 @@ export function TShirtBuilderClient({
                     key={c.id}
                     type="button"
                     onClick={() => setSelectedColorId(c.id)}
-                    className={`flex items-center gap-2 px-3 py-2 rounded-lg border text-xs font-medium transition-all ${
+                    className={`flex items-center gap-2 px-3 py-2 rounded-xl border text-xs font-medium transition-all ${
                       isSelected
                         ? 'border-amber-600 bg-amber-500/10 text-amber-600 font-semibold ring-2 ring-amber-500/30'
                         : 'border-border bg-surface hover:border-text/30'
@@ -252,18 +250,18 @@ export function TShirtBuilderClient({
           </div>
         </div>
 
-        {/* Step 2: Size & Print Area */}
-        <div className="rounded-xl border border-border p-5 bg-surface/50 space-y-4">
+        {/* Step 2: Size & Printable Area Selection */}
+        <div className="rounded-2xl border border-border p-5 bg-surface/50 space-y-4">
           <div className="flex items-center gap-2">
             <span className="flex h-6 w-6 items-center justify-center rounded-full bg-amber-600 text-white text-xs font-bold">2</span>
-            <h2 className="text-base font-semibold">Size &amp; Print Location</h2>
+            <h2 className="text-base font-semibold">Size &amp; Printable Area</h2>
           </div>
 
           <OptionSelector
             label="Select Size"
             options={activeSizes.map((s) => ({
               id: s.id,
-              label: `${s.name} ${s.price_adjustment_paisa > 0 ? `(+${formatPaisa(s.price_adjustment_paisa)})` : ''}`,
+              label: s.name,
             }))}
             selectedId={selectedSizeId}
             onSelect={setSelectedSizeId}
@@ -273,43 +271,90 @@ export function TShirtBuilderClient({
             label="Print Area Location"
             options={activePrintLocations.map((l) => ({
               id: l.id,
-              label: `${l.name} (+${formatPaisa(l.additional_price_paisa)})`,
+              label: l.name,
             }))}
             selectedId={selectedLocationId}
-            onSelect={setSelectedLocationId}
+            onSelect={(id) => {
+              setSelectedLocationId(id);
+              const loc = activePrintLocations.find((x) => x.id === id);
+              if (loc?.code.includes('back')) setViewSide('back');
+              else if (loc?.code.includes('sleeve')) setViewSide('sleeve');
+              else setViewSide('front');
+            }}
           />
+
+          {/* View Perspective Switcher */}
+          <div>
+            <label className="text-xs font-semibold text-muted mb-2 block uppercase tracking-wider">
+              Mockup View Perspective
+            </label>
+            <div className="grid grid-cols-3 gap-2">
+              <button
+                type="button"
+                onClick={() => setViewSide('front')}
+                className={`py-2 rounded-xl text-xs font-semibold transition-all ${
+                  viewSide === 'front'
+                    ? 'bg-amber-600 text-white shadow-sm'
+                    : 'bg-surface border border-border text-muted hover:text-text'
+                }`}
+              >
+                Front View
+              </button>
+              <button
+                type="button"
+                onClick={() => setViewSide('back')}
+                className={`py-2 rounded-xl text-xs font-semibold transition-all ${
+                  viewSide === 'back'
+                    ? 'bg-amber-600 text-white shadow-sm'
+                    : 'bg-surface border border-border text-muted hover:text-text'
+                }`}
+              >
+                Back View
+              </button>
+              <button
+                type="button"
+                onClick={() => setViewSide('sleeve')}
+                className={`py-2 rounded-xl text-xs font-semibold transition-all ${
+                  viewSide === 'sleeve'
+                    ? 'bg-amber-600 text-white shadow-sm'
+                    : 'bg-surface border border-border text-muted hover:text-text'
+                }`}
+              >
+                Sleeve View
+              </button>
+            </div>
+          </div>
         </div>
 
-        {/* Step 3: Choose Graphic Artwork OR Upload Own Design */}
-        <div className="rounded-xl border border-border p-5 bg-surface/50 space-y-4">
+        {/* Step 3: Choose Ready-Made Graphic OR Upload Custom Photo */}
+        <div className="rounded-2xl border border-border p-5 bg-surface/50 space-y-4">
           <div className="flex items-center gap-2">
             <span className="flex h-6 w-6 items-center justify-center rounded-full bg-amber-600 text-white text-xs font-bold">3</span>
-            <h2 className="text-base font-semibold">Choose Graphic Artwork</h2>
+            <h2 className="text-base font-semibold">Choose Graphic Art OR Upload</h2>
           </div>
 
-          {/* Mode Switcher */}
-          <div className="flex rounded-lg border border-border bg-bg p-1 text-xs">
+          <div className="flex rounded-xl border border-border bg-bg p-1 text-xs">
             <button
               type="button"
               onClick={() => setDesignMode('catalog')}
-              className={`flex-1 py-2 rounded-md font-semibold transition-colors ${
+              className={`flex-1 py-2 rounded-lg font-semibold transition-colors ${
                 designMode === 'catalog'
                   ? 'bg-amber-600 text-white shadow-sm'
                   : 'text-muted hover:text-text'
               }`}
             >
-              🎨 Browse Design Library
+              🎨 Ready-Made Designs
             </button>
             <button
               type="button"
               onClick={() => setDesignMode('upload')}
-              className={`flex-1 py-2 rounded-md font-semibold transition-colors ${
+              className={`flex-1 py-2 rounded-lg font-semibold transition-colors ${
                 designMode === 'upload'
                   ? 'bg-amber-600 text-white shadow-sm'
                   : 'text-muted hover:text-text'
               }`}
             >
-              📤 Upload Your Own Design
+              📤 Upload Custom Photo
             </button>
           </div>
 
@@ -327,32 +372,32 @@ export function TShirtBuilderClient({
           )}
         </div>
 
-        {/* Step 4: Custom Text Overlay (Optional) */}
-        <div className="rounded-xl border border-border p-5 bg-surface/50 space-y-4">
+        {/* Step 4: Custom Text Line Overlay (Optional) */}
+        <div className="rounded-2xl border border-border p-5 bg-surface/50 space-y-4">
           <div className="flex items-center gap-2">
             <span className="flex h-6 w-6 items-center justify-center rounded-full bg-amber-600 text-white text-xs font-bold">4</span>
-            <h2 className="text-base font-semibold">Custom Text Overlay (Optional)</h2>
+            <h2 className="text-base font-semibold">Custom Text Line (Optional)</h2>
           </div>
 
           <div>
-            <label className="text-xs font-semibold text-muted mb-1 block">Custom Text Line</label>
+            <label className="text-xs font-semibold text-muted mb-1 block">Custom Text</label>
             <input
               type="text"
               value={customText}
               onChange={(e) => setCustomText(e.target.value)}
-              placeholder="e.g. 'BIDISHA' or 'Kathmandu Originals'"
-              className="w-full px-3 py-2 text-sm rounded-lg border border-border bg-bg text-text focus:outline-none focus:ring-2 focus:ring-amber-600"
+              placeholder="e.g. 'Kathmandu Originals' or 'EST 2026'"
+              className="w-full px-3 py-2 text-xs rounded-xl border border-border bg-bg text-text focus:outline-none focus:ring-2 focus:ring-amber-600"
             />
           </div>
 
           {customText && (
-            <div className="grid grid-cols-2 gap-3 pt-2">
+            <div className="grid grid-cols-2 gap-3 pt-1">
               <div>
                 <label className="text-xs text-muted mb-1 block">Font Style</label>
                 <select
                   value={textFont}
                   onChange={(e) => setTextFont(e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg border border-border bg-bg text-xs"
+                  className="w-full px-3 py-2 rounded-xl border border-border bg-bg text-xs"
                 >
                   {FONTS.map((f) => (
                     <option key={f} value={f}>
@@ -384,64 +429,69 @@ export function TShirtBuilderClient({
         </div>
       </div>
 
-      {/* Right Column: Live Interactive Konva Stage & Summary */}
+      {/* Right Column: Live Mockup Preview & Clean E-Commerce Order Summary */}
       <div className="space-y-6 lg:sticky lg:top-24 lg:self-start">
-        <div className="rounded-xl border border-border p-5 bg-surface shadow-sm">
+        <div className="rounded-2xl border border-border p-5 bg-surface shadow-sm">
           <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-2">
-              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-amber-600 text-white text-xs font-bold">5</span>
-              <h2 className="text-base font-semibold">Live T-Shirt Stage Preview</h2>
-            </div>
-            <span className="text-xs font-semibold text-amber-600 px-2 py-0.5 rounded bg-amber-500/10 border border-amber-500/20">
-              {selectedColor.name}
+            <h2 className="text-base font-bold text-text flex items-center gap-2">
+              <span>👕</span> Realistic Product Mockup
+            </h2>
+            <span className="text-xs font-bold text-amber-600 px-2.5 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/20">
+              {selectedColor.name} • {viewSide.toUpperCase()}
             </span>
           </div>
 
           <TShirtEditor
             colorHex={selectedColor.color_hex}
+            colorName={selectedColor.name}
             designUrl={activeArtworkUrl}
             customText={customText}
             textFont={textFont}
             textColor={textColor}
             printAreaCode={selectedLocation.code}
+            viewSide={viewSide}
           />
         </div>
 
-        {/* Order Summary & Actions */}
-        <div className="rounded-xl border border-border p-5 bg-surface shadow-sm space-y-4">
+        {/* Clean E-Commerce Summary (No Complicated Pricing Details) */}
+        <div className="rounded-2xl border border-border p-5 bg-surface shadow-md space-y-4">
           <div className="flex items-center justify-between border-b border-border pb-3">
-            <h2 className="text-base font-semibold">T-Shirt Order Breakdown</h2>
-            <span className="text-xl font-bold text-amber-600">{formatPaisa(totalPricePaisa)}</span>
+            <h3 className="text-base font-bold text-text">Order Summary</h3>
+            <span className="text-2xl font-extrabold text-amber-600">{formatPaisa(totalPricePaisa)}</span>
           </div>
 
           <div className="space-y-2 text-xs text-muted">
             <div className="flex justify-between">
-              <span>Model:</span>
-              <span className="font-semibold text-text">{selectedType.name}</span>
+              <span>Apparel Model:</span>
+              <span className="font-bold text-text">{selectedType.name}</span>
             </div>
             <div className="flex justify-between">
-              <span>Color &amp; Size:</span>
-              <span className="font-semibold text-text">{selectedColor.name} • {selectedSize.name}</span>
+              <span>Selected Size:</span>
+              <span className="font-bold text-text">{selectedSize.name}</span>
             </div>
             <div className="flex justify-between">
-              <span>Print Area:</span>
-              <span className="font-semibold text-text">{selectedLocation.name}</span>
+              <span>Selected Color:</span>
+              <span className="font-bold text-text">{selectedColor.name}</span>
             </div>
             <div className="flex justify-between">
-              <span>Design:</span>
-              <span className="font-semibold text-text">
-                {designMode === 'catalog' ? selectedDesign?.name || 'Demo Art' : 'Custom Upload'}
+              <span>Print Location:</span>
+              <span className="font-bold text-text">{selectedLocation.name}</span>
+            </div>
+            <div className="flex justify-between">
+              <span>Artwork / Design:</span>
+              <span className="font-bold text-text">
+                {designMode === 'catalog' ? selectedDesign?.name || 'Standard Graphic' : 'Custom Upload'}
               </span>
             </div>
           </div>
 
-          <div className="flex items-center gap-3 pt-2">
-            <label className="text-xs font-semibold text-muted">Quantity:</label>
+          <div className="flex items-center justify-between border-t border-border pt-3">
+            <label className="text-xs font-bold text-text">Quantity:</label>
             <div className="flex items-center gap-2">
               <button
                 type="button"
                 onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-                className="h-8 w-8 rounded-lg border border-border bg-bg font-bold hover:border-amber-600"
+                className="h-8 w-8 rounded-lg border border-border bg-bg font-bold hover:border-amber-600 active:scale-95"
               >
                 -
               </button>
@@ -449,7 +499,7 @@ export function TShirtBuilderClient({
               <button
                 type="button"
                 onClick={() => setQuantity((q) => q + 1)}
-                className="h-8 w-8 rounded-lg border border-border bg-bg font-bold hover:border-amber-600"
+                className="h-8 w-8 rounded-lg border border-border bg-bg font-bold hover:border-amber-600 active:scale-95"
               >
                 +
               </button>
@@ -457,35 +507,19 @@ export function TShirtBuilderClient({
           </div>
 
           {feedback && (
-            <div
-              role="status"
-              className="p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-700 dark:text-emerald-300 text-xs font-semibold"
-            >
+            <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-700 dark:text-emerald-300 text-xs font-bold">
               {feedback}
             </div>
           )}
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
-            <button
-              type="button"
-              disabled={submitting}
-              onClick={handleAddToCart}
-              className="w-full py-3 rounded-lg bg-amber-600 hover:bg-amber-700 text-white font-bold text-sm transition-colors shadow-sm disabled:opacity-50"
-            >
-              {submitting ? 'Adding...' : 'Add to Cart 🛒'}
-            </button>
-
-            {whatsappHref && (
-              <a
-                href={whatsappHref}
-                target="_blank"
-                rel="noreferrer"
-                className="w-full py-3 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm text-center transition-colors shadow-sm"
-              >
-                Order on WhatsApp 💬
-              </a>
-            )}
-          </div>
+          <button
+            type="button"
+            disabled={submitting}
+            onClick={handleAddToCart}
+            className="w-full py-3.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-sm transition-all shadow-md active:scale-95 disabled:opacity-50"
+          >
+            {submitting ? 'Adding to Cart…' : 'Add Custom T-Shirt to Cart 🛒'}
+          </button>
         </div>
       </div>
     </div>
@@ -494,9 +528,9 @@ export function TShirtBuilderClient({
 
 function EditorPlaceholder() {
   return (
-    <div className="flex aspect-[4/3] w-full flex-col items-center justify-center rounded-lg border border-dashed border-border bg-surface-hover p-6 text-center text-muted">
+    <div className="flex aspect-[4/3] w-full flex-col items-center justify-center rounded-2xl border border-dashed border-border bg-surface-hover p-6 text-center text-muted">
       <span className="text-3xl mb-2">👕</span>
-      <p className="text-sm font-medium text-text">Loading T-Shirt Customizer Stage...</p>
+      <p className="text-sm font-medium text-text">Loading T-Shirt Customizer Mockup…</p>
     </div>
   );
 }
