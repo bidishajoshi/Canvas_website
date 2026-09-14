@@ -73,6 +73,58 @@ body {
   background: var(--color-muted);
 }
 
+/* Interactive Glow & Click Color Change Effects */
+.btn-glow {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.btn-glow:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 0 25px rgba(217, 119, 6, 0.55), 0 4px 20px rgba(217, 119, 6, 0.35);
+  filter: brightness(1.08);
+}
+.btn-glow:active {
+  transform: translateY(1px) scale(0.97);
+  box-shadow: 0 0 12px rgba(217, 119, 6, 0.85);
+  background-color: #b45309 !important;
+}
+
+.logo-glow {
+  transition: all 0.3s ease;
+}
+.logo-glow:hover {
+  box-shadow: 0 0 22px rgba(217, 119, 6, 0.6);
+  transform: scale(1.06);
+}
+.logo-glow:active {
+  transform: scale(0.95);
+  box-shadow: 0 0 12px rgba(217, 119, 6, 0.9);
+}
+
+.nav-link-glow {
+  transition: all 0.2s ease;
+}
+.nav-link-glow:hover {
+  color: #d97706 !important;
+  text-shadow: 0 0 12px rgba(217, 119, 6, 0.5);
+}
+.nav-link-glow:active {
+  color: #b45309 !important;
+  transform: scale(0.95);
+}
+
+@keyframes pulseGlow {
+  0%, 100% {
+    box-shadow: 0 0 15px rgba(217, 119, 6, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(217, 119, 6, 0.7);
+  }
+}
+
+.animate-glow {
+  animation: pulseGlow 2.5s infinite ease-in-out;
+}
+
 /* Utility Animations & Card Effects */
 @layer utilities {
   .container-page {
