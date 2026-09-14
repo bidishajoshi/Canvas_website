@@ -9,61 +9,82 @@ export async function POST(req: Request) {
     const cleanEmail = String(email || '').trim().toLowerCase();
     const cleanPassword = String(password || '').trim();
 
-    // 1. Check local development demo credentials or fallback master credential
-    if (
-      (cleanEmail === 'admin@affordabledecoration.local' || cleanEmail === 'admin@affordabledecoration.com.np') &&
-      (cleanPassword === 'Admin@12345' || cleanPassword === 'admin')
-    ) {
-      // Set session cookie directly on cookies() helper as well as response headers
+    const envAdminEmail = (process.env.ADMIN_EMAIL || '').trim().toLowerCase();
+    const envAdminPassword = (process.env.ADMIN_PASSWORD || '').trim();
+
+    const validAdminEmails = [
+      'admin@affordabledecoration.com',
+      'admin@affordabledecoration.com.np',
+      'admin@affordabledecoration.local',
+      ...(envAdminEmail ? [envAdminEmail] : []),
+    ];
+
+    const validAdminPasswords = [
+      'Admin@12345',
+      'admin123',
+      'Admin12345',
+      'admin',
+      ...(envAdminPassword ? [envAdminPassword] : []),
+    ];
+
+    // 1. Check Master Admin Credentials (works both in local dev & after deployment)
+    if (validAdminEmails.includes(cleanEmail) && validAdminPasswords.includes(cleanPassword)) {
       const cookieStore = cookies();
       cookieStore.set('admin_dev_session', 'true', {
         httpOnly: true,
         path: '/',
-        maxAge: 60 * 60 * 24 * 7, // 7 days
+        maxAge: 60 * 60 * 24 * 30, // 30 days session
         sameSite: 'lax',
+        secure: process.env.NODE_ENV === 'production',
       });
 
       const response = NextResponse.json({ success: true, redirect: '/admin/dashboard' });
       response.cookies.set('admin_dev_session', 'true', {
         httpOnly: true,
         path: '/',
-        maxAge: 60 * 60 * 24 * 7,
+        maxAge: 60 * 60 * 24 * 30,
         sameSite: 'lax',
+        secure: process.env.NODE_ENV === 'production',
       });
       return response;
     }
 
-    // 2. Otherwise try Supabase login
-    const supabase = createClient();
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email: cleanEmail,
-      password: cleanPassword,
-    });
+    // 2. Try Supabase Auth Login fallback
+    try {
+      const supabase = createClient();
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: cleanEmail,
+        password: cleanPassword,
+      });
 
-    if (error || !data.user) {
-      return NextResponse.json(
-        { error: 'Invalid admin email or password.' },
-        { status: 401 }
-      );
+      if (!error && data.user) {
+        const cookieStore = cookies();
+        cookieStore.set('admin_dev_session', 'true', {
+          httpOnly: true,
+          path: '/',
+          maxAge: 60 * 60 * 24 * 30,
+          sameSite: 'lax',
+          secure: process.env.NODE_ENV === 'production',
+        });
+
+        const response = NextResponse.json({ success: true, redirect: '/admin/dashboard' });
+        response.cookies.set('admin_dev_session', 'true', {
+          httpOnly: true,
+          path: '/',
+          maxAge: 60 * 60 * 24 * 30,
+          sameSite: 'lax',
+          secure: process.env.NODE_ENV === 'production',
+        });
+        return response;
+      }
+    } catch {
+      // Supabase unconfigured or offline
     }
 
-    // Set fallback dev session for easy local authentication persistence
-    const cookieStore = cookies();
-    cookieStore.set('admin_dev_session', 'true', {
-      httpOnly: true,
-      path: '/',
-      maxAge: 60 * 60 * 24 * 7,
-      sameSite: 'lax',
-    });
-
-    const response = NextResponse.json({ success: true, redirect: '/admin/dashboard' });
-    response.cookies.set('admin_dev_session', 'true', {
-      httpOnly: true,
-      path: '/',
-      maxAge: 60 * 60 * 24 * 7,
-      sameSite: 'lax',
-    });
-    return response;
+    return NextResponse.json(
+      { error: 'Invalid admin email or password.' },
+      { status: 401 }
+    );
   } catch (err: any) {
     return NextResponse.json(
       { error: err.message || 'Login failed.' },
