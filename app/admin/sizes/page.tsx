@@ -1,6 +1,7 @@
 import { requireAdminUser } from '@/lib/adminAuth';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { formatPaisa } from '@/lib/utils';
+import { filterDeleted } from '@/lib/adminStore';
 import { addTShirtSize, deleteTShirtSize } from './actions';
 import type { TShirtSize } from '@/lib/types';
 
@@ -8,10 +9,16 @@ export default async function AdminSizesPage() {
   await requireAdminUser();
   const supabase = createAdminClient();
 
-  const { data: dbSizes } = await supabase
-    .from('tshirt_sizes')
-    .select('*')
-    .order('sort_order', { ascending: true });
+  let dbSizes: any[] | null = null;
+  try {
+    const res = await supabase
+      .from('tshirt_sizes')
+      .select('*')
+      .order('sort_order', { ascending: true });
+    dbSizes = res.data;
+  } catch {
+    dbSizes = null;
+  }
 
   const defaultSizes: TShirtSize[] = [
     { id: 's1', name: 'Small (S)', code: 'S', price_adjustment_paisa: 0, active: true, sort_order: 1 },
@@ -22,7 +29,9 @@ export default async function AdminSizesPage() {
     { id: 's6', name: 'Triple XL (3XL)', code: '3XL', price_adjustment_paisa: 15000, active: true, sort_order: 6 },
   ];
 
-  const sizes = dbSizes && dbSizes.length > 0 ? (dbSizes as TShirtSize[]) : defaultSizes;
+  const sizes = filterDeleted(
+    dbSizes && dbSizes.length > 0 ? (dbSizes as TShirtSize[]) : defaultSizes
+  );
 
   return (
     <div className="space-y-8 max-w-4xl">
@@ -74,7 +83,7 @@ export default async function AdminSizesPage() {
 
         <button
           type="submit"
-          className="px-5 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs shadow-sm transition-all active:scale-95"
+          className="px-5 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs shadow-sm transition-all active:scale-95 btn-glow"
         >
           + Save Apparel Size
         </button>

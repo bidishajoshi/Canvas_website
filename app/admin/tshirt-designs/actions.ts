@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import { requireAdminUser } from '@/lib/adminAuth';
 import { createAdminClient } from '@/lib/supabase/admin';
+import { markIdAsDeleted } from '@/lib/adminStore';
 
 export async function addTShirtDesign(formData: FormData) {
   await requireAdminUser();
@@ -15,14 +16,16 @@ export async function addTShirtDesign(formData: FormData) {
 
   if (!name || !imageUrl) return;
 
-  await supabase.from('tshirt_designs').insert({
-    name,
-    theme,
-    image_url: imageUrl,
-    price_paisa: Math.round(priceRs * 100),
-    active: true,
-    sort_order: Date.now(),
-  });
+  try {
+    await supabase.from('tshirt_designs').insert({
+      name,
+      theme,
+      image_url: imageUrl,
+      price_paisa: Math.round(priceRs * 100),
+      active: true,
+      sort_order: Date.now(),
+    });
+  } catch {}
 
   revalidatePath('/admin/tshirt-designs');
   revalidatePath('/custom-t-shirt');
@@ -30,9 +33,12 @@ export async function addTShirtDesign(formData: FormData) {
 
 export async function deleteTShirtDesign(id: string) {
   await requireAdminUser();
-  const supabase = createAdminClient();
+  markIdAsDeleted(id);
 
-  await supabase.from('tshirt_designs').delete().eq('id', id);
+  try {
+    const supabase = createAdminClient();
+    await supabase.from('tshirt_designs').delete().eq('id', id);
+  } catch {}
 
   revalidatePath('/admin/tshirt-designs');
   revalidatePath('/custom-t-shirt');

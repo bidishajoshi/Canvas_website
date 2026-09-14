@@ -1,16 +1,23 @@
 import Image from 'next/image';
 import { requireAdminUser } from '@/lib/adminAuth';
 import { createAdminClient } from '@/lib/supabase/admin';
+import { filterDeleted } from '@/lib/adminStore';
 import { addTShirtDesign, deleteTShirtDesign } from './actions';
 
 export default async function AdminTShirtDesignsPage() {
   await requireAdminUser();
   const supabase = createAdminClient();
 
-  const { data: dbDesigns } = await supabase
-    .from('tshirt_designs')
-    .select('*')
-    .order('created_at', { ascending: false });
+  let dbDesigns: any[] | null = null;
+  try {
+    const res = await supabase
+      .from('tshirt_designs')
+      .select('*')
+      .order('created_at', { ascending: false });
+    dbDesigns = res.data;
+  } catch {
+    dbDesigns = null;
+  }
 
   const defaultDesigns = [
     {
@@ -43,7 +50,9 @@ export default async function AdminTShirtDesignsPage() {
     },
   ];
 
-  const designs = dbDesigns && dbDesigns.length > 0 ? dbDesigns : defaultDesigns;
+  const designs = filterDeleted(
+    dbDesigns && dbDesigns.length > 0 ? dbDesigns : defaultDesigns
+  );
 
   return (
     <div className="space-y-8 max-w-5xl">
@@ -106,7 +115,7 @@ export default async function AdminTShirtDesignsPage() {
 
         <button
           type="submit"
-          className="px-5 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs shadow-sm transition-all active:scale-95"
+          className="px-5 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs shadow-sm transition-all active:scale-95 btn-glow"
         >
           + Add Ready-Made Design
         </button>

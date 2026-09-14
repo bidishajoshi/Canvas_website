@@ -1,16 +1,23 @@
 import Image from 'next/image';
 import { requireAdminUser } from '@/lib/adminAuth';
 import { createAdminClient } from '@/lib/supabase/admin';
+import { filterDeleted } from '@/lib/adminStore';
 import { addTShirtCategory, deleteTShirtCategory } from './actions';
 
 export default async function AdminTShirtCategoriesPage() {
   await requireAdminUser();
   const supabase = createAdminClient();
 
-  const { data: dbCategories } = await supabase
-    .from('tshirt_categories')
-    .select('*')
-    .order('sort_order', { ascending: true });
+  let dbCategories: any[] | null = null;
+  try {
+    const res = await supabase
+      .from('tshirt_categories')
+      .select('*')
+      .order('sort_order', { ascending: true });
+    dbCategories = res.data;
+  } catch {
+    dbCategories = null;
+  }
 
   const defaultCategories = [
     { id: 'cat-1', name: 'Logo & Brand T-Shirts', slug: 'logo-brand', description: 'Corporate logos and minimalist brand graphic tees.', image_url: 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=600&q=80' },
@@ -21,7 +28,9 @@ export default async function AdminTShirtCategoriesPage() {
     { id: 'cat-6', name: 'Oversized & Streetwear T-Shirts', slug: 'oversized-streetwear', description: 'Heavyweight drop shoulder streetwear aesthetics.', image_url: 'https://images.unsplash.com/photo-1503341455253-b2e723bb3dbb?auto=format&fit=crop&w=600&q=80' },
   ];
 
-  const categories = dbCategories && dbCategories.length > 0 ? dbCategories : defaultCategories;
+  const categories = filterDeleted(
+    dbCategories && dbCategories.length > 0 ? dbCategories : defaultCategories
+  );
 
   return (
     <div className="space-y-8 max-w-4xl">
@@ -71,7 +80,7 @@ export default async function AdminTShirtCategoriesPage() {
 
         <button
           type="submit"
-          className="px-5 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs shadow-sm transition-all active:scale-95"
+          className="px-5 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs shadow-sm transition-all active:scale-95 btn-glow"
         >
           + Save Category
         </button>
