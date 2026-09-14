@@ -8,7 +8,7 @@ const DEFAULT_PANELS: Partial<PanelType>[] = [
     id: 'single',
     name: '1 Panel Single Canvas',
     description: 'Classic single-piece canvas print with gallery stretched depth.',
-    preview_image_url: 'https://images.unsplash.com/photo-1579783902614-a3fb3927b675?auto=format&fit=crop&w=600&q=80',
+    preview_image_url: 'https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?auto=format&fit=crop&w=600&q=80',
     panel_count: 1,
     status: 'published',
     sort_order: 1,

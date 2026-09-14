@@ -25,7 +25,7 @@ export function HeroSlider({ slides }: { slides: HeroSlide[] }) {
       title: 'Turn Your Family Photos Into 7-Piece Canvas Art',
       subtitle: 'High-definition canvas wall statement split across staggered heights. Perfect decor for home & office in Nepal.',
       badge: '🇳🇵 #1 Wall Decor Choice in Nepal',
-      imageUrl: 'https://images.unsplash.com/photo-1579783902614-a3fb3927b675?auto=format&fit=crop&w=1600&q=80',
+      imageUrl: 'https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?auto=format&fit=crop&w=1600&q=80',
       ctaText: 'Build Custom Canvas 🖼️',
       ctaHref: '/custom-canvas',
       secondaryCtaText: 'Browse Ready Made Art',
