@@ -587,20 +587,24 @@ export function CanvasBuilderClient({
               <h2 className="text-base font-semibold">Frame &amp; Canvas Finish</h2>
             </div>
 
+            <div className="flex justify-between items-center mb-1">
+              <span className="text-xs font-semibold text-muted uppercase tracking-wider">Item Price Range: Rs. 700 – Rs. 3,000+</span>
+            </div>
+
             <OptionSelector
               label="Outer Frame Accent"
               options={
                 frames.length > 0
                   ? frames.map((f) => ({
                       id: f.id,
-                      label: `${f.name} ${f.price_paisa > 0 ? `(+Rs. ${f.price_paisa / 100})` : ''}`,
+                      label: f.name,
                     }))
                   : [
                       { id: 'f0', label: 'Unframed (Wrapped Edge Canvas)' },
-                      { id: 'f1', label: 'Black Floating Frame (+Rs. 500)' },
-                      { id: 'f2', label: 'White Floating Frame (+Rs. 500)' },
-                      { id: 'f3', label: 'Natural Wood Frame (+Rs. 700)' },
-                      { id: 'f4', label: 'Luxury Gold Frame (+Rs. 900)' },
+                      { id: 'f1', label: 'Black Floating Frame' },
+                      { id: 'f2', label: 'White Floating Frame' },
+                      { id: 'f3', label: 'Natural Wood Frame' },
+                      { id: 'f4', label: 'Luxury Gold Frame' },
                     ]
               }
               selectedId={frameId}

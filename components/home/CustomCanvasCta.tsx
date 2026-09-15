@@ -31,10 +31,10 @@ const SAMPLE_ARTWORKS = [
 ];
 
 const PANEL_PRESETS = [
-  { count: 1, label: '1 Panel Single', pricePaisa: 150000, desc: 'Classic single photo wall statement' },
-  { count: 3, label: '3 Panel Triptych', pricePaisa: 480000, desc: '3 split continuous panoramic panels' },
-  { count: 5, label: '5 Panel Pentaptych', pricePaisa: 690000, desc: '5 staggered chevron wall split' },
-  { count: 7, label: '7 Piece Panoramic', pricePaisa: 1190000, desc: '7 piece panoramic grand wall feature' },
+  { count: 1, label: '1 Panel Single', pricePaisa: 70000, desc: 'Classic single photo wall statement' },
+  { count: 3, label: '3 Panel Triptych', pricePaisa: 180000, desc: '3 split continuous panoramic panels' },
+  { count: 5, label: '5 Panel Pentaptych', pricePaisa: 240000, desc: '5 staggered chevron wall split' },
+  { count: 7, label: '7 Piece Panoramic', pricePaisa: 300000, desc: '7 piece panoramic grand wall feature' },
 ];
 
 const TSHIRT_COLORS = [
