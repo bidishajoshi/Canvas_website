@@ -123,7 +123,16 @@ export function ChatWidget() {
               </div>
             ))}
 
-            {loading && <p className="text-xs text-muted">Typing…</p>}
+            {loading && (
+              <div className="max-w-[85%] rounded-2xl rounded-bl-sm bg-surface p-3 text-xs text-text border border-border flex items-center gap-2 shadow-sm animate-pulse">
+                <span className="font-bold text-amber-600 text-xs">Assistant is typing</span>
+                <div className="flex items-center gap-1">
+                  <span className="h-1.5 w-1.5 rounded-full bg-amber-500 animate-bounce" style={{ animationDelay: '0ms' }} />
+                  <span className="h-1.5 w-1.5 rounded-full bg-amber-500 animate-bounce" style={{ animationDelay: '150ms' }} />
+                  <span className="h-1.5 w-1.5 rounded-full bg-amber-500 animate-bounce" style={{ animationDelay: '300ms' }} />
+                </div>
+              </div>
+            )}
           </div>
 
           <form

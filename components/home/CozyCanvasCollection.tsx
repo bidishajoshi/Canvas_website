@@ -71,7 +71,6 @@ const DEMO_READY_CANVASES: CanvasProduct[] = [
     main_image_url: 'https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?auto=format&fit=crop&w=800&q=80',
     panel_count: 7,
     size_label: '84" × 36" Total (7 @ 12×36" each)',
-    frame_label: 'Unframed Canvas',
     original_price_paisa: 1190000, // Rs. 11900
     discount_price_paisa: 892500, // Rs. 8925 (25% OFF)
     discount_percentage: 25,
@@ -81,6 +80,25 @@ const DEMO_READY_CANVASES: CanvasProduct[] = [
     show_on_homepage: true,
     status: 'published',
     sort_order: 4,
+  },
+  {
+    id: 'rp-5',
+    name: 'Custom Normal Photo Canvas (12" × 18")',
+    slug: 'custom-normal-photo-canvas-12x18',
+    description: 'Personalized high-definition photo canvas print on premium cotton canvas.',
+    main_image_url: 'https://images.unsplash.com/photo-1513519245088-0e12902e5a38?auto=format&fit=crop&w=800&q=80',
+    panel_count: 1,
+    size_label: '12" × 18" Single Canvas',
+    frame_label: 'Unframed Canvas',
+    original_price_paisa: 100000, // Rs. 1000
+    discount_price_paisa: 95000, // Rs. 950 (5% OFF)
+    discount_percentage: 5,
+    is_best_seller: true,
+    is_featured: true,
+    is_new_arrival: true,
+    show_on_homepage: true,
+    status: 'published',
+    sort_order: 5,
   },
 ];
 

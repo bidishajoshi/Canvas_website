@@ -35,18 +35,18 @@ export function ProductCard({ product }: { product: Partial<Product> & { title?:
         {/* Badges */}
         <div className="absolute left-2.5 top-2.5 flex flex-col gap-1.5 z-10">
           {product.is_best_seller && (
-            <span className="rounded-md bg-amber-600 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white shadow-sm">
+            <span className="rounded-md bg-amber-600 px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wider text-white shadow-sm">
               Best Seller
             </span>
           )}
           {product.is_new_arrival && (
-            <span className="rounded-md bg-emerald-600 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white shadow-sm">
+            <span className="rounded-md bg-emerald-600 px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wider text-white shadow-sm">
               New Arrival
             </span>
           )}
           {hasDiscount && (
-            <span className="rounded-md bg-rose-600 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white shadow-sm">
-              Sale
+            <span className="rounded-md bg-rose-600 px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wider text-white shadow-sm">
+              {Math.max(1, Math.round(((product.base_price_paisa! - product.discount_price_paisa!) / product.base_price_paisa!) * 100))}% OFF
             </span>
           )}
         </div>
