@@ -66,8 +66,70 @@ export default async function ProductPage({ params }: ProductPageProps) {
     typedProduct.discount_price_paisa != null &&
     typedProduct.discount_price_paisa < typedProduct.base_price_paisa;
 
+  const currentPricePaisa = hasDiscount
+    ? typedProduct.discount_price_paisa!
+    : typedProduct.base_price_paisa;
+
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://affordabledecoration.com';
+
+  const productSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    name: typedProduct.name,
+    image: typedProduct.main_image_url ? [typedProduct.main_image_url] : [],
+    description: typedProduct.short_description || typedProduct.description,
+    sku: typedProduct.sku || typedProduct.id,
+    brand: {
+      '@type': 'Brand',
+      name: settings.business_name,
+    },
+    offers: {
+      '@type': 'Offer',
+      url: `${siteUrl}/product/${typedProduct.slug}`,
+      priceCurrency: 'NPR',
+      price: (currentPricePaisa / 100).toFixed(2),
+      availability:
+        typedProduct.stock == null || typedProduct.stock > 0
+          ? 'https://schema.org/InStock'
+          : 'https://schema.org/OutOfStock',
+    },
+  };
+
+  const breadcrumbSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: 'Home',
+        item: siteUrl,
+      },
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: 'Shop',
+        item: `${siteUrl}/shop`,
+      },
+      {
+        '@type': 'ListItem',
+        position: 3,
+        name: typedProduct.name,
+        item: `${siteUrl}/product/${typedProduct.slug}`,
+      },
+    ],
+  };
+
   return (
     <div className="container-page py-10">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(productSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+      />
       <div className="grid gap-10 lg:grid-cols-2">
         <div>
           <div className="relative aspect-square w-full overflow-hidden rounded-card bg-surface">
