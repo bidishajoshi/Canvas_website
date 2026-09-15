@@ -237,7 +237,7 @@ export default async function AdminTShirtBuilderPage() {
         </h2>
 
         {/* Add Artwork Form */}
-        <form action={addTShirtDesign} className="p-4 rounded-xl bg-bg border border-border space-y-3">
+        <form action={addTShirtDesign} encType="multipart/form-data" className="p-4 rounded-xl bg-bg border border-border space-y-3">
           <h3 className="text-xs font-bold uppercase tracking-wider text-amber-600">+ Add New Artwork Design</h3>
           <div className="grid sm:grid-cols-2 gap-3">
             <div>
@@ -261,13 +261,21 @@ export default async function AdminTShirtBuilderPage() {
               />
             </div>
           </div>
-          <div className="grid sm:grid-cols-2 gap-3">
+          <div className="grid sm:grid-cols-3 gap-3">
             <div>
-              <label className="text-xs font-semibold text-muted block mb-1">Artwork Image URL *</label>
+              <label className="text-xs font-semibold text-muted block mb-1">📁 Upload Artwork File</label>
+              <input
+                type="file"
+                name="image_file"
+                accept="image/*"
+                className="w-full px-3 py-1.5 rounded-xl border border-border bg-surface text-xs cursor-pointer focus:outline-none focus:ring-2 focus:ring-amber-600"
+              />
+            </div>
+            <div>
+              <label className="text-xs font-semibold text-muted block mb-1">Or Artwork Image URL</label>
               <input
                 type="url"
                 name="image_url"
-                required
                 placeholder="https://images.unsplash.com/photo-..."
                 className="w-full px-3 py-2 rounded-xl border border-border bg-surface text-xs focus:outline-none focus:ring-2 focus:ring-amber-600"
               />

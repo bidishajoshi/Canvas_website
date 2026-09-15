@@ -157,7 +157,7 @@ export async function Footer() {
             )}
             {settings.phone && (
               <li className="flex items-center gap-2">
-                <span className="font-semibold text-text">📞 Call Us:</span> {settings.phone}
+                <span className="font-semibold text-text">🎧 Customer Care:</span> {settings.phone}
               </li>
             )}
             {settings.whatsapp_number && (

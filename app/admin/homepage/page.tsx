@@ -32,10 +32,10 @@ export default async function AdminHomepagePage() {
         </h2>
 
         {/* Add New Slide Form */}
-        <form action={addHeroSlide} className="p-4 rounded-xl bg-bg border border-border space-y-4">
+        <form action={addHeroSlide} encType="multipart/form-data" className="p-4 rounded-xl bg-bg border border-border space-y-4">
           <h3 className="text-xs font-bold uppercase tracking-wider text-amber-600">Add New Banner Photo Slide</h3>
 
-          <div className="grid sm:grid-cols-2 gap-3">
+          <div className="grid sm:grid-cols-3 gap-3">
             <div>
               <label className="text-xs font-semibold text-muted block mb-1">Slide Title *</label>
               <input
@@ -48,11 +48,20 @@ export default async function AdminHomepagePage() {
             </div>
 
             <div>
-              <label className="text-xs font-semibold text-muted block mb-1">Photo Image URL *</label>
+              <label className="text-xs font-semibold text-muted block mb-1">📁 Upload Photo File from Computer</label>
+              <input
+                type="file"
+                name="image_file"
+                accept="image/*"
+                className="w-full px-3 py-1.5 rounded-lg border border-border bg-surface text-text text-xs focus:outline-none cursor-pointer"
+              />
+            </div>
+
+            <div>
+              <label className="text-xs font-semibold text-muted block mb-1">Or Enter Photo Image URL</label>
               <input
                 type="url"
                 name="image_url"
-                required
                 placeholder="https://images.unsplash.com/photo-..."
                 className="w-full px-3 py-2 rounded-lg border border-border bg-surface text-text text-xs focus:outline-none"
               />

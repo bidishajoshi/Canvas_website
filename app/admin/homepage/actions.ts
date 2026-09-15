@@ -11,7 +11,16 @@ export async function addHeroSlide(formData: FormData) {
   const title = String(formData.get('title') ?? '').trim();
   const subtitle = String(formData.get('subtitle') ?? '').trim();
   const badge = String(formData.get('badge') ?? '').trim();
-  const imageUrl = String(formData.get('image_url') ?? '').trim();
+  const imageFile = formData.get('image_file') as File | null;
+  let imageUrl = String(formData.get('image_url') ?? '').trim();
+
+  if (imageFile && imageFile.size > 0) {
+    const buffer = await imageFile.arrayBuffer();
+    const base64 = Buffer.from(buffer).toString('base64');
+    const mimeType = imageFile.type || 'image/jpeg';
+    imageUrl = `data:${mimeType};base64,${base64}`;
+  }
+
   const ctaText = String(formData.get('cta_text') ?? 'Shop Now').trim();
   const ctaHref = String(formData.get('cta_href') ?? '/custom-canvas').trim();
 

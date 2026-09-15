@@ -109,7 +109,16 @@ export async function addTShirtDesign(formData: FormData) {
   await requireAdminUser();
   const name = String(formData.get('name') || '').trim();
   const theme = String(formData.get('theme') || 'General').trim();
-  const image_url = String(formData.get('image_url') || '').trim();
+  const imageFile = formData.get('image_file') as File | null;
+  let image_url = String(formData.get('image_url') || '').trim();
+
+  if (imageFile && imageFile.size > 0) {
+    const buffer = await imageFile.arrayBuffer();
+    const base64 = Buffer.from(buffer).toString('base64');
+    const mimeType = imageFile.type || 'image/jpeg';
+    image_url = `data:${mimeType};base64,${base64}`;
+  }
+
   const priceRs = parseFloat(String(formData.get('price') || '0'));
   const price_paisa = Math.round(priceRs * 100);
 

@@ -158,7 +158,7 @@ export default async function AdminCanvasProductsPage() {
           <span>➕</span> Add New Ready-Made Canvas Product
         </h2>
 
-        <form action={createCanvasProduct} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <form action={createCanvasProduct} encType="multipart/form-data" className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <LabeledInput label="Product Name" name="name" placeholder="e.g. 7 Running Horses Vastu Canvas" required />
           <LabeledInput label="URL Slug (Optional)" name="slug" placeholder="e.g. 7-running-horses-vastu-canvas" />
 
@@ -172,11 +172,20 @@ export default async function AdminCanvasProductsPage() {
             />
           </div>
 
+          <div>
+            <label className="text-xs text-muted font-medium block mb-1">📁 Upload Photo File from Computer</label>
+            <input
+              type="file"
+              name="image_file"
+              accept="image/*"
+              className="w-full rounded-xl border border-border bg-bg px-3 py-2 text-xs cursor-pointer focus:outline-none focus:ring-2 focus:ring-amber-500"
+            />
+          </div>
+
           <LabeledInput
-            label="Main Image URL"
+            label="Or Enter Main Image URL"
             name="main_image_url"
             placeholder="https://images.unsplash.com/..."
-            required
           />
 
           <div>

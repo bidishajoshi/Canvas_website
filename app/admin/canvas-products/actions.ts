@@ -32,11 +32,21 @@ export async function createCanvasProduct(formData: FormData) {
     discPercent = Math.round(((origPaisa - discPaisa) / origPaisa) * 100);
   }
 
+  const imageFile = formData.get('image_file') as File | null;
+  let mainImageUrl = String(formData.get('main_image_url') ?? '').trim();
+
+  if (imageFile && imageFile.size > 0) {
+    const buffer = await imageFile.arrayBuffer();
+    const base64 = Buffer.from(buffer).toString('base64');
+    const mimeType = imageFile.type || 'image/jpeg';
+    mainImageUrl = `data:${mimeType};base64,${base64}`;
+  }
+
   await supabase.from('canvas_products').insert({
     name,
     slug,
     description: String(formData.get('description') ?? '') || null,
-    main_image_url: String(formData.get('main_image_url') ?? ''),
+    main_image_url: mainImageUrl,
     panel_count: Number(formData.get('panel_count') ?? 1),
     size_label: String(formData.get('size_label') ?? 'Standard Size'),
     frame_label: String(formData.get('frame_label') ?? '') || null,
