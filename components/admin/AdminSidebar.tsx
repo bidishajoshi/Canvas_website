@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import Link from 'next/link';
 
 const NAV_GROUPS: Array<{ label: string; items: Array<{ label: string; href: string; icon?: string }> }> = [
@@ -48,8 +49,15 @@ export function AdminSidebar() {
   return (
     <aside className="w-64 shrink-0 border-r border-border bg-surface p-4 min-h-screen">
       <Link href="/admin/dashboard" className="flex items-center gap-2.5 px-2 py-3 border-b border-border mb-4">
-        <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-amber-600 text-white font-bold font-display text-xs shadow-sm">
-          AD
+        <div className="relative flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-white p-1 shadow-sm logo-glow border border-border">
+          <Image
+            src="/images/logo.png"
+            alt="Affordable Decoration Logo"
+            width={36}
+            height={36}
+            priority
+            className="object-contain w-full h-full"
+          />
         </div>
         <div>
           <span className="font-display text-base font-bold text-text block leading-tight">Admin Portal</span>

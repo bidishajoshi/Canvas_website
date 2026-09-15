@@ -2,6 +2,7 @@
 
 import { useState, type FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 
 export default function AdminLoginPage() {
   const router = useRouter();
@@ -52,8 +53,15 @@ export default function AdminLoginPage() {
       <div className="w-full max-w-md space-y-6">
         {/* Brand Header */}
         <div className="text-center space-y-2">
-          <div className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-600 text-white font-bold font-display text-xl shadow-md mb-1 logo-glow">
-            AD
+          <div className="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-white p-1.5 shadow-md mb-1 logo-glow border border-border overflow-hidden">
+            <Image
+              src="/images/logo.png"
+              alt="Affordable Decoration Logo"
+              width={56}
+              height={56}
+              priority
+              className="object-contain w-full h-full"
+            />
           </div>
           <h1 className="font-display text-2xl font-bold text-text">Affordable Decoration</h1>
           <p className="text-xs uppercase tracking-widest font-bold text-amber-600">

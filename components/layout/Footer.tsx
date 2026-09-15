@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import { getMenuItems, getSettings } from '@/lib/content';
 import { FacebookIcon, InstagramIcon, TikTokIcon, WhatsAppIcon, YouTubeIcon } from './SocialIcons';
 
@@ -38,8 +39,14 @@ export async function Footer() {
         {/* Brand Overview & Official Social Logos */}
         <div>
           <div className="flex items-center gap-2.5">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-amber-600 text-white font-bold font-display text-sm shadow-sm">
-              AD
+            <div className="relative flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-white p-1 shadow-sm logo-glow border border-border">
+              <Image
+                src={settings.logo_url || '/images/logo.png'}
+                alt={settings.business_name}
+                width={36}
+                height={36}
+                className="object-contain w-full h-full"
+              />
             </div>
             <h3 className="font-display text-xl font-bold tracking-tight text-text">
               {settings.business_name}
