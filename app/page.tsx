@@ -13,6 +13,8 @@ import { WhyChooseUs } from '@/components/home/WhyChooseUs';
 import { HowItWorks } from '@/components/home/HowItWorks';
 import { WhatsAppCtaSection } from '@/components/home/WhatsAppCtaSection';
 
+export const revalidate = 60;
+
 export default async function HomePage() {
   let announcement: { enabled?: boolean; message?: string; link_href?: string } | null = null;
   let dbSlides: any[] | null = null;
