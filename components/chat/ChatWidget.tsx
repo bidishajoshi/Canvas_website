@@ -8,11 +8,11 @@ interface ChatMessage {
   needsHuman?: boolean;
 }
 
-const SUGGESTED_QUESTIONS = [
+const DEFAULT_SUGGESTIONS = [
+  'How long does delivery take in Nepal?',
+  'What payment methods do you accept?',
+  'Can I print my own custom photo on canvas or t-shirt?',
   'Canvas prices',
-  '3 panel details',
-  'Which size is best?',
-  'Delivery information',
 ];
 
 export function ChatWidget() {
@@ -20,6 +20,7 @@ export function ChatWidget() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
+  const [suggestedQuestions, setSuggestedQuestions] = useState<string[]>(DEFAULT_SUGGESTIONS);
   const sessionIdRef = useRef<string>('');
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -28,6 +29,16 @@ export function ChatWidget() {
     const existing = sessionStorage.getItem('ad-chat-session');
     sessionIdRef.current = existing ?? crypto.randomUUID();
     if (!existing) sessionStorage.setItem('ad-chat-session', sessionIdRef.current);
+
+    // Fetch dynamic FAQ questions configured by admin
+    fetch('/api/chat')
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.questions && Array.isArray(data.questions) && data.questions.length > 0) {
+          setSuggestedQuestions(data.questions);
+        }
+      })
+      .catch(() => {});
   }, []);
 
   useEffect(() => {
@@ -81,11 +92,11 @@ export function ChatWidget() {
                   framing, delivery and ordering.
                 </p>
                 <div className="mt-3 flex flex-wrap gap-2">
-                  {SUGGESTED_QUESTIONS.map((q) => (
+                  {suggestedQuestions.map((q) => (
                     <button
                       key={q}
                       onClick={() => sendMessage(q)}
-                      className="rounded-full border border-border px-3 py-1 text-xs hover:bg-surface"
+                      className="rounded-full border border-border px-3 py-1 text-xs hover:bg-surface text-left"
                     >
                       {q}
                     </button>
@@ -122,17 +133,6 @@ export function ChatWidget() {
                 )}
               </div>
             ))}
-
-            {loading && (
-              <div className="max-w-[85%] rounded-2xl rounded-bl-sm bg-surface p-3 text-xs text-text border border-border flex items-center gap-2 shadow-sm animate-pulse">
-                <span className="font-bold text-amber-600 text-xs">Assistant is typing</span>
-                <div className="flex items-center gap-1">
-                  <span className="h-1.5 w-1.5 rounded-full bg-amber-500 animate-bounce" style={{ animationDelay: '0ms' }} />
-                  <span className="h-1.5 w-1.5 rounded-full bg-amber-500 animate-bounce" style={{ animationDelay: '150ms' }} />
-                  <span className="h-1.5 w-1.5 rounded-full bg-amber-500 animate-bounce" style={{ animationDelay: '300ms' }} />
-                </div>
-              </div>
-            )}
           </div>
 
           <form
