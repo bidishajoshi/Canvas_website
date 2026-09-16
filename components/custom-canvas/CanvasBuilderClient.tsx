@@ -241,10 +241,30 @@ export function CanvasBuilderClient({
         })
       : null;
 
+  useEffect(() => {
+    if (currentPhotoUrl) {
+      const img = new window.Image();
+      img.onload = () => {
+        if (img.naturalHeight > img.naturalWidth) {
+          setOrientation('portrait');
+        } else {
+          setOrientation('landscape');
+        }
+      };
+      img.src = currentPhotoUrl;
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   function handlePhotoUpload(photo: UploadedPhoto | null) {
     if (photo) {
       setUploadedPhoto(photo);
       setIsUsingDemo(false);
+      if (photo.height > photo.width) {
+        setOrientation('portrait');
+      } else {
+        setOrientation('landscape');
+      }
     }
   }
 
@@ -252,6 +272,18 @@ export function CanvasBuilderClient({
     setSelectedDemoId(demoId);
     setUploadedPhoto(null);
     setIsUsingDemo(true);
+    const demoObj = DEMO_ARTWORKS.find((d) => d.id === demoId);
+    if (demoObj?.url) {
+      const img = new window.Image();
+      img.onload = () => {
+        if (img.naturalHeight > img.naturalWidth) {
+          setOrientation('portrait');
+        } else {
+          setOrientation('landscape');
+        }
+      };
+      img.src = demoObj.url;
+    }
   }
 
   async function saveConfiguration(): Promise<string | null> {
@@ -581,32 +613,43 @@ export function CanvasBuilderClient({
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 rounded-xl border border-amber-500/30 bg-amber-500/5">
               <div className="space-y-0.5">
                 <span className="text-xs font-bold text-text flex items-center gap-1.5">
-                  <span>🔄</span> Canvas Orientation Mode
+                  <span>🔄</span> Canvas Orientation Mode (Auto-Detected)
                 </span>
-                <p className="text-[11px] text-muted">Choose Horizontal (Landscape) or Vertical (Portrait) for your wall space.</p>
+                <p className="text-[11px] text-muted">Auto-fitted to photo aspect ratio. Switch to Landscape (↔️) or Portrait (↕️) or rotate anytime.</p>
               </div>
-              <div className="flex rounded-xl bg-surface p-1 border border-border text-xs font-semibold shrink-0">
+              <div className="flex items-center gap-2">
+                <div className="flex rounded-xl bg-surface p-1 border border-border text-xs font-semibold shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => setOrientation('landscape')}
+                    className={`px-3.5 py-1.5 rounded-lg transition-all flex items-center gap-1.5 ${
+                      orientation === 'landscape'
+                        ? 'bg-amber-600 text-white font-bold shadow-sm'
+                        : 'text-text hover:bg-surface-hover'
+                    }`}
+                  >
+                    <span>↔️</span> Landscape
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setOrientation('portrait')}
+                    className={`px-3.5 py-1.5 rounded-lg transition-all flex items-center gap-1.5 ${
+                      orientation === 'portrait'
+                        ? 'bg-amber-600 text-white font-bold shadow-sm'
+                        : 'text-text hover:bg-surface-hover'
+                    }`}
+                  >
+                    <span>↕️</span> Portrait
+                  </button>
+                </div>
+
                 <button
                   type="button"
-                  onClick={() => setOrientation('landscape')}
-                  className={`px-3.5 py-1.5 rounded-lg transition-all flex items-center gap-1.5 ${
-                    orientation === 'landscape'
-                      ? 'bg-amber-600 text-white font-bold shadow-sm'
-                      : 'text-text hover:bg-surface-hover'
-                  }`}
+                  onClick={() => setOrientation((prev) => (prev === 'landscape' ? 'portrait' : 'landscape'))}
+                  className="px-3 py-1.5 rounded-xl border border-border bg-surface hover:bg-surface-hover text-xs font-bold text-text flex items-center gap-1 transition-all active:scale-95 shadow-sm shrink-0"
+                  title="Rotate / Switch Orientation"
                 >
-                  <span>↔️</span> Landscape
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setOrientation('portrait')}
-                  className={`px-3.5 py-1.5 rounded-lg transition-all flex items-center gap-1.5 ${
-                    orientation === 'portrait'
-                      ? 'bg-amber-600 text-white font-bold shadow-sm'
-                      : 'text-text hover:bg-surface-hover'
-                  }`}
-                >
-                  <span>↕️</span> Portrait
+                  <span>↻</span> Rotate
                 </button>
               </div>
             </div>
