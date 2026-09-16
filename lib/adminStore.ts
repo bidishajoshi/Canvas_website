@@ -14,3 +14,21 @@ export function isIdDeleted(id: string): boolean {
 export function filterDeleted<T extends { id: string }>(items: T[]): T[] {
   return items.filter((item) => item && !deletedIdsSet.has(item.id));
 }
+
+export interface CanvasCategoryStoreItem {
+  id: string;
+  name: string;
+  icon: string;
+  slug?: string;
+  description?: string | null;
+}
+
+const customCanvasCategories: CanvasCategoryStoreItem[] = [];
+
+export function addCustomCanvasCategory(cat: CanvasCategoryStoreItem) {
+  customCanvasCategories.push(cat);
+}
+
+export function getCustomCanvasCategories(): CanvasCategoryStoreItem[] {
+  return filterDeleted(customCanvasCategories);
+}
