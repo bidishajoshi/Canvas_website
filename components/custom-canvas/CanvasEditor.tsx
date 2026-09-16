@@ -38,16 +38,21 @@ export function CanvasEditor({
   const containerRef = useRef<HTMLDivElement>(null);
   const [stageScale, setStageScale] = useState(1);
 
-  // Zoom & Transform states (Zoom allowed down to 0.3 = 30% zoom out up to 3.0 = 300% zoom in)
+  // Zoom & Transform states (Zoom allowed down to 0.1 = 10% zoom out up to 3.0 = 300% zoom in)
   const [zoom, setZoom] = useState(1);
   const [pos, setPos] = useState({ x: 0, y: 0 });
 
-  // Photo adjustment states (Brightness, Contrast, Saturation, Filter, Rotation)
+  // Gallery Photo Editor states (Brightness, Contrast, Saturation, Warmth, Filter, Rotation, Flips)
   const [brightness, setBrightness] = useState(0);
   const [contrast, setContrast] = useState(0);
   const [saturation, setSaturation] = useState(0);
+  const [warmth, setWarmth] = useState(0);
   const [filterPreset, setFilterPreset] = useState<string>('original');
   const [rotation, setRotation] = useState<number>(0);
+  const [flipH, setFlipH] = useState(false);
+  const [flipV, setFlipV] = useState(false);
+
+  const [activeTab, setActiveTab] = useState<'adjust' | 'filters' | 'rotate'>('adjust');
 
   const stageWidth = PREVIEW_WIDTH;
   const stageHeight = Math.round(PREVIEW_WIDTH / Math.max(aspectRatio, 0.01));
@@ -114,15 +119,18 @@ export function CanvasEditor({
     if (brightness !== 0) parts.push(`brightness(${100 + brightness}%)`);
     if (contrast !== 0) parts.push(`contrast(${100 + contrast}%)`);
     if (saturation !== 0) parts.push(`saturate(${100 + saturation}%)`);
+    if (warmth !== 0) parts.push(`sepia(${Math.abs(warmth) * 0.8}%) ${warmth < 0 ? 'hue-rotate(180deg)' : ''}`);
 
     if (filterPreset === 'grayscale') parts.push('grayscale(100%)');
     if (filterPreset === 'sepia') parts.push('sepia(80%)');
     if (filterPreset === 'vivid') parts.push('saturate(180%) contrast(110%)');
-    if (filterPreset === 'vintage') parts.push('sepia(40%) contrast(110%) brightness(95%)');
+    if (filterPreset === 'warm') parts.push('sepia(30%) saturate(120%)');
+    if (filterPreset === 'cool') parts.push('hue-rotate(180deg) saturate(110%)');
+    if (filterPreset === 'vintage') parts.push('sepia(45%) contrast(110%) brightness(95%)');
     if (filterPreset === 'high_contrast') parts.push('contrast(160%) brightness(105%)');
 
     return parts.join(' ');
-  }, [brightness, contrast, saturation, filterPreset]);
+  }, [brightness, contrast, saturation, warmth, filterPreset]);
 
   // Re-center whenever image or layout changes
   useEffect(() => {
@@ -155,56 +163,45 @@ export function CanvasEditor({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pos, zoom, panelCount, image, brightness, contrast, saturation, filterPreset, rotation]);
 
-  function handleDragMove(e: Konva.KonvaEventObject<DragEvent>) {
+  function handleDragMove(e: Konva.KonvaEventObject<DragEvent>, panelX: number) {
     const node = e.target;
-    const minX = stageWidth - imageWidth;
-    const minY = stageHeight - imageHeight;
-
-    const x = imageWidth >= stageWidth
-      ? Math.min(0, Math.max(minX, node.x()))
-      : Math.max(0, Math.min(stageWidth - imageWidth, node.x()));
-
-    const y = imageHeight >= stageHeight
-      ? Math.min(0, Math.max(minY, node.y()))
-      : Math.max(0, Math.min(stageHeight - imageHeight, node.y()));
-
-    node.position({ x, y });
-    setPos({ x, y });
+    // Calculate raw position of top-left corner
+    const rawX = node.x() - imageWidth / 2 + panelX;
+    const rawY = node.y() - imageHeight / 2;
+    setPos({ x: rawX, y: rawY });
   }
 
   function nudge5mm(dx: number, dy: number) {
-    setPos((prev) => {
-      const minX = stageWidth - imageWidth;
-      const minY = stageHeight - imageHeight;
-
-      const x = imageWidth >= stageWidth
-        ? Math.min(0, Math.max(minX, Math.round(prev.x + dx)))
-        : Math.round(prev.x + dx);
-
-      const y = imageHeight >= stageHeight
-        ? Math.min(0, Math.max(minY, Math.round(prev.y + dy)))
-        : Math.round(prev.y + dy);
-
-      return { x, y };
-    });
+    setPos((prev) => ({
+      x: Math.round(prev.x + dx),
+      y: Math.round(prev.y + dy),
+    }));
   }
 
   function handleZoomIn() {
-    setZoom((z) => Math.min(3.0, z + 0.15));
+    setZoom((z) => Math.min(3.0, Number((z + 0.1).toFixed(2))));
   }
 
   function handleZoomOut() {
-    setZoom((z) => Math.max(0.3, z - 0.15));
+    setZoom((z) => Math.max(0.1, Number((z - 0.1).toFixed(2))));
+  }
+
+  function handleRotate90() {
+    setRotation((r) => (r + 90) % 360);
   }
 
   function handleFitEntirePhoto() {
     if (!image) return;
-    const containScale = Math.min(stageWidth / image.width, stageHeight / image.height);
-    const fitZoom = Math.max(0.3, containScale / baseScale);
+    const isRotated90 = (rotation % 180) !== 0;
+    const imgW = isRotated90 ? image.height : image.width;
+    const imgH = isRotated90 ? image.width : image.height;
+
+    const containScale = Math.min(stageWidth / imgW, stageHeight / imgH);
+    const fitZoom = Math.max(0.1, Number((containScale / baseScale).toFixed(2)));
     setZoom(fitZoom);
 
-    const fitW = image.width * baseScale * fitZoom;
-    const fitH = image.height * baseScale * fitZoom;
+    const fitW = imgW * baseScale * fitZoom;
+    const fitH = imgH * baseScale * fitZoom;
     setPos({
       x: Math.round((stageWidth - fitW) / 2),
       y: Math.round((stageHeight - fitH) / 2),
@@ -224,8 +221,11 @@ export function CanvasEditor({
     setBrightness(0);
     setContrast(0);
     setSaturation(0);
+    setWarmth(0);
     setFilterPreset('original');
     setRotation(0);
+    setFlipH(false);
+    setFlipV(false);
     setPos({
       x: Math.round((stageWidth - imageWidth) / 2),
       y: Math.round((stageHeight - imageHeight) / 2),
@@ -272,28 +272,31 @@ export function CanvasEditor({
         )}
       </div>
 
-      {/* Advanced Photo Adjustments, Filters, Zoom Out & Positioning Controls */}
-      <div className="rounded-2xl border border-border bg-surface p-4 space-y-5 text-xs shadow-sm">
+      {/* Gallery Photo Editor Panel */}
+      <div className="rounded-2xl border border-border bg-surface p-4 space-y-4 text-xs shadow-sm">
         <div className="flex items-center justify-between border-b border-border pb-3">
-          <span className="font-bold text-text flex items-center gap-1.5 text-xs sm:text-sm">
-            <span>✨</span> Photo Adjustments, Filters &amp; Zoom Tools
-          </span>
+          <div className="flex items-center gap-2">
+            <span className="text-base">🎨</span>
+            <span className="font-bold text-text text-sm">Gallery Photo Editor &amp; Adjustments</span>
+          </div>
           <button
             type="button"
             onClick={handleResetAll}
             className="px-3 py-1 rounded-lg bg-surface-hover border border-border hover:border-amber-600 font-bold text-xs transition-all active:scale-95 text-muted hover:text-text"
           >
-            ↺ Reset All Adjustments
+            ↺ Reset All Edits
           </button>
         </div>
 
-        {/* 1. Quick Zoom Presets & Zoom Out/In Slider */}
+        {/* 1. Zoom Scale Slider with Rotate Button Directly Placed Next to It */}
         <div className="p-3.5 rounded-xl border border-border bg-surface/60 space-y-3">
           <div className="flex items-center justify-between">
-            <span className="font-bold text-text flex items-center gap-1">
-              <span>🔍</span> Zoom Out &amp; Zoom In Controls
+            <span className="font-bold text-text flex items-center gap-1.5">
+              <span>🔍</span> Zoom Scale &amp; Rotate Photo
             </span>
-            <span className="text-amber-600 font-mono font-bold">{Math.round(zoom * 100)}%</span>
+            <span className="text-amber-600 font-mono font-extrabold text-xs">
+              Zoom: {Math.round(zoom * 100)}% {rotation > 0 ? `• Rotate: ${rotation}°` : ''}
+            </span>
           </div>
 
           <div className="flex flex-wrap gap-2">
@@ -313,18 +316,19 @@ export function CanvasEditor({
             </button>
           </div>
 
+          {/* Zoom Slider + Rotate Button directly side-by-side */}
           <div className="flex items-center gap-2 pt-1">
             <button
               type="button"
               onClick={handleZoomOut}
-              className="h-8 w-10 rounded-lg border border-border bg-bg font-bold hover:border-amber-600 active:scale-95 text-xs flex items-center justify-center"
+              className="h-9 w-9 rounded-lg border border-border bg-bg font-bold hover:border-amber-600 active:scale-95 text-sm flex items-center justify-center shrink-0"
               title="Zoom Out"
             >
               −
             </button>
             <input
               type="range"
-              min={0.3}
+              min={0.1}
               max={3.0}
               step={0.05}
               value={zoom}
@@ -334,101 +338,212 @@ export function CanvasEditor({
             <button
               type="button"
               onClick={handleZoomIn}
-              className="h-8 w-10 rounded-lg border border-border bg-bg font-bold hover:border-amber-600 active:scale-95 text-xs flex items-center justify-center"
+              className="h-9 w-9 rounded-lg border border-border bg-bg font-bold hover:border-amber-600 active:scale-95 text-sm flex items-center justify-center shrink-0"
               title="Zoom In"
             >
               +
             </button>
+
+            {/* ROTATE BUTTON PLACED DIRECTLY NEXT TO ZOOM SCALE SLIDER */}
+            <button
+              type="button"
+              onClick={handleRotate90}
+              className="h-9 px-3 rounded-lg bg-amber-600 hover:bg-amber-700 text-white font-extrabold text-xs flex items-center gap-1.5 active:scale-95 shadow-md shrink-0 transition-all"
+              title="Rotate Photo 90° Clockwise"
+            >
+              <span className="text-sm">↻</span>
+              <span>Rotate 90°</span>
+            </button>
           </div>
         </div>
 
-        {/* 2. Photo Tone Adjustments (Brightness, Contrast, Saturation) */}
-        <div className="p-3.5 rounded-xl border border-border bg-surface/60 space-y-3">
-          <span className="font-bold text-text flex items-center gap-1">
-            <span>☀️</span> Tone &amp; Color Sliders
-          </span>
-
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <div>
-              <div className="flex justify-between font-semibold text-muted text-[11px] mb-1">
-                <span>Brightness</span>
-                <span className="font-mono text-amber-600">{brightness > 0 ? `+${brightness}` : brightness}</span>
-              </div>
-              <input
-                type="range"
-                min={-50}
-                max={50}
-                value={brightness}
-                onChange={(e) => setBrightness(parseInt(e.target.value))}
-                className="w-full accent-amber-600 h-1.5 rounded cursor-pointer"
-              />
-            </div>
-
-            <div>
-              <div className="flex justify-between font-semibold text-muted text-[11px] mb-1">
-                <span>Contrast</span>
-                <span className="font-mono text-amber-600">{contrast > 0 ? `+${contrast}` : contrast}</span>
-              </div>
-              <input
-                type="range"
-                min={-50}
-                max={50}
-                value={contrast}
-                onChange={(e) => setContrast(parseInt(e.target.value))}
-                className="w-full accent-amber-600 h-1.5 rounded cursor-pointer"
-              />
-            </div>
-
-            <div>
-              <div className="flex justify-between font-semibold text-muted text-[11px] mb-1">
-                <span>Saturation</span>
-                <span className="font-mono text-amber-600">{saturation > 0 ? `+${saturation}` : saturation}</span>
-              </div>
-              <input
-                type="range"
-                min={-50}
-                max={50}
-                value={saturation}
-                onChange={(e) => setSaturation(parseInt(e.target.value))}
-                className="w-full accent-amber-600 h-1.5 rounded cursor-pointer"
-              />
-            </div>
-          </div>
+        {/* Editor Tabs Navigation */}
+        <div className="flex border-b border-border text-xs font-bold gap-2">
+          <button
+            type="button"
+            onClick={() => setActiveTab('adjust')}
+            className={`pb-2 px-3 border-b-2 transition-colors ${
+              activeTab === 'adjust'
+                ? 'border-amber-600 text-amber-600'
+                : 'border-transparent text-muted hover:text-text'
+            }`}
+          >
+            ☀️ Tone &amp; Light Sliders
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab('filters')}
+            className={`pb-2 px-3 border-b-2 transition-colors ${
+              activeTab === 'filters'
+                ? 'border-amber-600 text-amber-600'
+                : 'border-transparent text-muted hover:text-text'
+            }`}
+          >
+            🪄 Gallery Filters
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab('rotate')}
+            className={`pb-2 px-3 border-b-2 transition-colors ${
+              activeTab === 'rotate'
+                ? 'border-amber-600 text-amber-600'
+                : 'border-transparent text-muted hover:text-text'
+            }`}
+          >
+            🔄 Rotate &amp; Flip Controls
+          </button>
         </div>
 
-        {/* 3. Photo Filter Presets */}
-        <div className="p-3.5 rounded-xl border border-border bg-surface/60 space-y-2.5">
-          <span className="font-bold text-text flex items-center gap-1">
-            <span>🪄</span> Quick Photo Filter Presets
-          </span>
+        {/* Tab 1: Tone Sliders */}
+        {activeTab === 'adjust' && (
+          <div className="p-3.5 rounded-xl border border-border bg-surface/60 space-y-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+              <div>
+                <div className="flex justify-between font-semibold text-muted text-[11px] mb-1">
+                  <span>Brightness</span>
+                  <span className="font-mono text-amber-600">{brightness > 0 ? `+${brightness}` : brightness}</span>
+                </div>
+                <input
+                  type="range"
+                  min={-50}
+                  max={50}
+                  value={brightness}
+                  onChange={(e) => setBrightness(parseInt(e.target.value))}
+                  className="w-full accent-amber-600 h-1.5 rounded cursor-pointer"
+                />
+              </div>
 
-          <div className="flex flex-wrap gap-2">
-            {[
-              { id: 'original', label: 'Original 🖼️' },
-              { id: 'grayscale', label: 'B&W Grayscale 🖤' },
-              { id: 'sepia', label: 'Warm Sepia 📜' },
-              { id: 'vivid', label: 'Vivid Pop 🌈' },
-              { id: 'vintage', label: 'Vintage Tone 🎞️' },
-              { id: 'high_contrast', label: 'High Contrast ⚡' },
-            ].map((preset) => (
+              <div>
+                <div className="flex justify-between font-semibold text-muted text-[11px] mb-1">
+                  <span>Contrast</span>
+                  <span className="font-mono text-amber-600">{contrast > 0 ? `+${contrast}` : contrast}</span>
+                </div>
+                <input
+                  type="range"
+                  min={-50}
+                  max={50}
+                  value={contrast}
+                  onChange={(e) => setContrast(parseInt(e.target.value))}
+                  className="w-full accent-amber-600 h-1.5 rounded cursor-pointer"
+                />
+              </div>
+
+              <div>
+                <div className="flex justify-between font-semibold text-muted text-[11px] mb-1">
+                  <span>Saturation</span>
+                  <span className="font-mono text-amber-600">{saturation > 0 ? `+${saturation}` : saturation}</span>
+                </div>
+                <input
+                  type="range"
+                  min={-50}
+                  max={50}
+                  value={saturation}
+                  onChange={(e) => setSaturation(parseInt(e.target.value))}
+                  className="w-full accent-amber-600 h-1.5 rounded cursor-pointer"
+                />
+              </div>
+
+              <div>
+                <div className="flex justify-between font-semibold text-muted text-[11px] mb-1">
+                  <span>Warmth / Temp</span>
+                  <span className="font-mono text-amber-600">{warmth > 0 ? `+${warmth}` : warmth}</span>
+                </div>
+                <input
+                  type="range"
+                  min={-30}
+                  max={30}
+                  value={warmth}
+                  onChange={(e) => setWarmth(parseInt(e.target.value))}
+                  className="w-full accent-amber-600 h-1.5 rounded cursor-pointer"
+                />
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Tab 2: Gallery Filters */}
+        {activeTab === 'filters' && (
+          <div className="p-3.5 rounded-xl border border-border bg-surface/60 space-y-2.5">
+            <div className="flex flex-wrap gap-2">
+              {[
+                { id: 'original', label: 'Original 🖼️' },
+                { id: 'vivid', label: 'Vivid Pop 🌈' },
+                { id: 'warm', label: 'Warm Sunlight ☀️' },
+                { id: 'cool', label: 'Cool Crisp ❄️' },
+                { id: 'grayscale', label: 'B&W Grayscale 🖤' },
+                { id: 'sepia', label: 'Vintage Sepia 📜' },
+                { id: 'high_contrast', label: 'High Contrast ⚡' },
+              ].map((preset) => (
+                <button
+                  key={preset.id}
+                  type="button"
+                  onClick={() => setFilterPreset(preset.id)}
+                  className={`px-3 py-1.5 rounded-lg border text-xs font-semibold transition-all ${
+                    filterPreset === preset.id
+                      ? 'border-amber-500 bg-amber-500/10 text-amber-700 dark:text-amber-300 font-bold shadow-xs'
+                      : 'border-border bg-bg text-muted hover:text-text'
+                  }`}
+                >
+                  {preset.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Tab 3: Rotate & Flip */}
+        {activeTab === 'rotate' && (
+          <div className="p-3.5 rounded-xl border border-border bg-surface/60 space-y-3">
+            <div className="flex flex-wrap items-center gap-2">
               <button
-                key={preset.id}
                 type="button"
-                onClick={() => setFilterPreset(preset.id)}
-                className={`px-3 py-1.5 rounded-lg border text-xs font-semibold transition-all ${
-                  filterPreset === preset.id
-                    ? 'border-amber-500 bg-amber-500/10 text-amber-700 dark:text-amber-300 font-bold shadow-xs'
-                    : 'border-border bg-bg text-muted hover:text-text'
+                onClick={handleRotate90}
+                className="px-4 py-2 rounded-lg bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs flex items-center gap-1.5 transition-all shadow-sm"
+              >
+                <span>↻</span> Rotate 90°
+              </button>
+              <button
+                type="button"
+                onClick={() => setRotation((r) => (r + 180) % 360)}
+                className="px-4 py-2 rounded-lg border border-border bg-bg hover:border-amber-600 text-text font-bold text-xs transition-all"
+              >
+                <span>↻</span> Rotate 180°
+              </button>
+              <button
+                type="button"
+                onClick={() => setFlipH((f) => !f)}
+                className={`px-4 py-2 rounded-lg border text-xs font-bold transition-all ${
+                  flipH ? 'border-amber-500 bg-amber-500/10 text-amber-700' : 'border-border bg-bg text-text'
                 }`}
               >
-                {preset.label}
+                ↔️ Flip Horizontally
               </button>
-            ))}
+              <button
+                type="button"
+                onClick={() => setFlipV((f) => !f)}
+                className={`px-4 py-2 rounded-lg border text-xs font-bold transition-all ${
+                  flipV ? 'border-amber-500 bg-amber-500/10 text-amber-700' : 'border-border bg-bg text-text'
+                }`}
+              >
+                ↕️ Flip Vertically
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setRotation(0);
+                  setFlipH(false);
+                  setFlipV(false);
+                }}
+                className="px-3 py-2 rounded-lg border border-border bg-bg text-xs font-semibold hover:border-amber-600 text-muted"
+              >
+                Reset Orientation
+              </button>
+            </div>
           </div>
-        </div>
+        )}
 
-        {/* 4. Fine 5mm Positioning & Rotation */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
+        {/* 5mm Directional Nudge Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1 border-t border-border/50">
           <div>
             <label className="font-semibold text-muted mb-2 block uppercase tracking-wider text-[10px]">
               5mm Step Directional Nudge
@@ -481,48 +596,24 @@ export function CanvasEditor({
             </div>
           </div>
 
-          <div className="space-y-3">
+          <div className="grid grid-cols-2 gap-2 self-end">
             <div>
-              <label className="font-semibold text-muted mb-1.5 block uppercase tracking-wider text-[10px]">
-                Photo Rotation Angle
-              </label>
-              <div className="flex gap-2">
-                <button
-                  type="button"
-                  onClick={() => setRotation((r) => (r + 90) % 360)}
-                  className="flex-1 py-2 rounded-lg border border-border bg-bg hover:border-amber-600 text-xs font-bold transition-all flex items-center justify-center gap-1"
-                >
-                  <span>↻</span> Rotate 90°
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setRotation(0)}
-                  className="px-3 py-2 rounded-lg border border-border bg-bg text-xs font-semibold hover:border-amber-600"
-                >
-                  Reset
-                </button>
-              </div>
+              <label className="text-[10px] font-bold text-muted uppercase block mb-0.5">X Offset</label>
+              <input
+                type="number"
+                value={pos.x}
+                onChange={(e) => setPos((p) => ({ ...p, x: parseInt(e.target.value) || 0 }))}
+                className="w-full px-2.5 py-1.5 rounded-lg border border-border bg-bg text-xs font-mono"
+              />
             </div>
-
-            <div className="grid grid-cols-2 gap-2">
-              <div>
-                <label className="text-[10px] font-bold text-muted uppercase block mb-0.5">X Offset</label>
-                <input
-                  type="number"
-                  value={pos.x}
-                  onChange={(e) => setPos((p) => ({ ...p, x: parseInt(e.target.value) || 0 }))}
-                  className="w-full px-2.5 py-1.5 rounded-lg border border-border bg-bg text-xs font-mono"
-                />
-              </div>
-              <div>
-                <label className="text-[10px] font-bold text-muted uppercase block mb-0.5">Y Offset</label>
-                <input
-                  type="number"
-                  value={pos.y}
-                  onChange={(e) => setPos((p) => ({ ...p, y: parseInt(e.target.value) || 0 }))}
-                  className="w-full px-2.5 py-1.5 rounded-lg border border-border bg-bg text-xs font-mono"
-                />
-              </div>
+            <div>
+              <label className="text-[10px] font-bold text-muted uppercase block mb-0.5">Y Offset</label>
+              <input
+                type="number"
+                value={pos.y}
+                onChange={(e) => setPos((p) => ({ ...p, y: parseInt(e.target.value) || 0 }))}
+                className="w-full px-2.5 py-1.5 rounded-lg border border-border bg-bg text-xs font-mono"
+              />
             </div>
           </div>
         </div>
@@ -538,8 +629,7 @@ export function CanvasEditor({
           width: stageWidth,
           height: stageHeight,
           filter: cssFilter || undefined,
-          transform: rotation ? `rotate(${rotation}deg)` : undefined,
-          transition: 'filter 0.15s ease, transform 0.2s ease',
+          transition: 'filter 0.15s ease',
         }}
       >
         <Stage width={stageWidth} height={stageHeight}>
@@ -566,16 +656,21 @@ export function CanvasEditor({
                   clipWidth={panelWidth}
                   clipHeight={pHeight}
                 >
-                  {/* Shared Continuous Image */}
+                  {/* Shared Continuous Image with Native Konva Rotation & Flips */}
                   {image && (
                     <KonvaImage
                       image={image}
-                      x={pos.x - pX}
-                      y={pos.y - pY}
+                      x={pos.x - pX + imageWidth / 2}
+                      y={pos.y - pY + imageHeight / 2}
                       width={imageWidth}
                       height={imageHeight}
+                      rotation={rotation}
+                      scaleX={flipH ? -1 : 1}
+                      scaleY={flipV ? -1 : 1}
+                      offsetX={imageWidth / 2}
+                      offsetY={imageHeight / 2}
                       draggable
-                      onDragMove={handleDragMove}
+                      onDragMove={(e) => handleDragMove(e, pX)}
                     />
                   )}
 
