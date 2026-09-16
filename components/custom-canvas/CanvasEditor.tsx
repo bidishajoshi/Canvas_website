@@ -234,42 +234,109 @@ export function CanvasEditor({
 
   return (
     <div className="space-y-4">
-      {/* Live Clean Canvas Stage Container with Mobile Responsive Scaling */}
-      <div
-        ref={containerRef}
-        className="relative mx-auto w-full overflow-hidden rounded-2xl border border-border bg-surface p-2 sm:p-4 shadow-md flex justify-center items-center"
-      >
-        {mockupUrl && mockupImage ? (
-          <div className="relative aspect-[16/9] w-full overflow-hidden rounded-xl">
-            <img src={mockupUrl} alt="Room Mockup" className="absolute inset-0 w-full h-full object-cover" />
-            <div className="absolute inset-0 flex items-center justify-center p-3 sm:p-6">
-              <div className="scale-75 sm:scale-90 shadow-2xl transition-transform">
-                <RenderKonvaStage />
+      {/* Sticky Live Clean Canvas Stage Container with Quick-Edit Toolbar */}
+      <div className="sticky top-16 sm:top-20 z-30 mx-auto w-full rounded-2xl border border-border bg-bg/95 backdrop-blur-md p-2 sm:p-4 shadow-xl space-y-2 transition-all">
+        {/* Live Stage Display */}
+        <div
+          ref={containerRef}
+          className="relative w-full overflow-hidden rounded-xl bg-surface p-2 shadow-inner flex justify-center items-center"
+        >
+          {mockupUrl && mockupImage ? (
+            <div className="relative aspect-[16/9] w-full overflow-hidden rounded-xl">
+              <img src={mockupUrl} alt="Room Mockup" className="absolute inset-0 w-full h-full object-cover" />
+              <div className="absolute inset-0 flex items-center justify-center p-3 sm:p-6">
+                <div className="scale-75 sm:scale-90 shadow-2xl transition-transform">
+                  <RenderKonvaStage />
+                </div>
               </div>
             </div>
-          </div>
-        ) : (
-          <div className="flex justify-center items-center py-2 w-full overflow-hidden">
-            <div
-              className="origin-center transition-all flex items-center justify-center"
-              style={{
-                width: Math.round(stageWidth * stageScale),
-                height: Math.round(stageHeight * stageScale),
-              }}
-            >
+          ) : (
+            <div className="flex justify-center items-center py-1 w-full overflow-hidden">
               <div
+                className="origin-center transition-all flex items-center justify-center"
                 style={{
-                  width: stageWidth,
-                  height: stageHeight,
-                  transform: `scale(${stageScale})`,
-                  transformOrigin: 'top left',
+                  width: Math.round(stageWidth * stageScale),
+                  height: Math.round(stageHeight * stageScale),
                 }}
               >
-                <RenderKonvaStage />
+                <div
+                  style={{
+                    width: stageWidth,
+                    height: stageHeight,
+                    transform: `scale(${stageScale})`,
+                    transformOrigin: 'top left',
+                  }}
+                >
+                  <RenderKonvaStage />
+                </div>
               </div>
             </div>
+          )}
+        </div>
+
+        {/* Floating Quick Action Toolbar Pinned Directly Under Stage */}
+        <div className="flex items-center justify-between gap-1.5 p-2 rounded-xl bg-surface border border-border shadow-xs text-xs">
+          <div className="flex items-center gap-1 overflow-x-auto pb-0.5 scrollbar-none">
+            <button
+              type="button"
+              onClick={handleRotate90}
+              className="px-3 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-700 text-white font-extrabold text-xs flex items-center gap-1 shrink-0 active:scale-95 transition-all shadow-sm"
+              title="Rotate Photo 90° Clockwise"
+            >
+              <span>↻</span>
+              <span>Rotate 90°</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={handleFitEntirePhoto}
+              className="px-2.5 py-1.5 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 text-amber-700 dark:text-amber-300 font-bold text-xs shrink-0 transition-all border border-amber-500/20"
+              title="Fit Full Photo (Zoom Out)"
+            >
+              📐 Fit Photo
+            </button>
+
+            <button
+              type="button"
+              onClick={handleFillCanvas}
+              className="px-2.5 py-1.5 rounded-lg bg-bg hover:bg-surface-hover font-bold text-xs shrink-0 transition-all border border-border"
+              title="Fill Canvas"
+            >
+              🖼️ Fill Canvas
+            </button>
+
+            <div className="flex items-center gap-1 border-l border-border pl-1.5">
+              <button
+                type="button"
+                onClick={handleZoomOut}
+                className="h-7 w-7 rounded-lg border border-border bg-bg font-bold hover:border-amber-600 active:scale-95 text-xs flex items-center justify-center shrink-0"
+                title="Zoom Out"
+              >
+                −
+              </button>
+              <span className="font-mono text-[11px] font-bold text-amber-600 px-1 shrink-0">
+                {Math.round(zoom * 100)}%
+              </span>
+              <button
+                type="button"
+                onClick={handleZoomIn}
+                className="h-7 w-7 rounded-lg border border-border bg-bg font-bold hover:border-amber-600 active:scale-95 text-xs flex items-center justify-center shrink-0"
+                title="Zoom In"
+              >
+                +
+              </button>
+            </div>
           </div>
-        )}
+
+          <button
+            type="button"
+            onClick={handleResetAll}
+            className="px-2 py-1.5 rounded-lg bg-surface-hover border border-border font-bold text-[11px] text-muted hover:text-text shrink-0 active:scale-95"
+            title="Reset All Adjustments"
+          >
+            ↺ Reset
+          </button>
+        </div>
       </div>
 
       {/* Gallery Photo Editor Panel */}
