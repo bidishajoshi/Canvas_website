@@ -35,7 +35,7 @@ export default async function HomePage() {
   const defaultHeroSlides: HeroSlide[] = [
     {
       id: 'slide-1',
-      title: 'Custom Canvas Wall Art (Rs. 700 – Rs. 3,000)',
+      title: 'Custom Canvas Wall Art',
       subtitle: 'Turn your favorite photos into high-definition 1 to 7 panel canvas wall compositions delivered across Nepal.',
       badge: '🇳🇵 Nepal’s Premier Custom Store • Rs. 700 Onwards',
       imageUrl: 'https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?auto=format&fit=crop&w=1600&q=80',
