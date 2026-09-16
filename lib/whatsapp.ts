@@ -12,9 +12,7 @@ export interface WhatsAppCanvasDetails {
 
 /**
  * Builds a wa.me deep link with a prefilled message summarizing the
- * customer's canvas configuration. The WhatsApp number always comes
- * from `settings.whatsapp_number` (fetched by the caller) — never
- * hardcoded here.
+ * customer's canvas configuration.
  */
 export function buildWhatsAppLink(
   whatsappNumber: string,
@@ -65,6 +63,7 @@ export interface WhatsAppOrderDetails {
   landmark?: string;
   paymentMethodName?: string;
   paymentTxnRef?: string | null;
+  paymentScreenshotUrl?: string | null;
   items: Array<{
     name: string;
     sizeLabel?: string | null;
@@ -80,7 +79,7 @@ export interface WhatsAppOrderDetails {
 
 /**
  * Builds a structured wa.me deep link with full customer contact info,
- * delivery address/location, order breakdown, and payment details.
+ * delivery address/location, order breakdown, payment details, and payment screenshot link.
  */
 export function buildFullOrderWhatsAppLink(
   whatsappNumber: string,
@@ -134,6 +133,9 @@ export function buildFullOrderWhatsAppLink(
     if (details.paymentTxnRef) {
       lines.push(`📑 *Payment Statement Ref / Txn ID*: ${details.paymentTxnRef}`);
     }
+    if (details.paymentScreenshotUrl) {
+      lines.push(`📸 *Payment Screenshot / Receipt*: ${details.paymentScreenshotUrl}`);
+    }
   }
 
   lines.push('');
@@ -144,4 +146,3 @@ export function buildFullOrderWhatsAppLink(
 
   return `https://wa.me/${digitsOnly}?text=${message}`;
 }
-

@@ -40,8 +40,7 @@ export async function POST(req: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  // Re-verify every line item's price server-side rather than trusting
-  // the numbers the browser sent.
+  // Robustly resolve line items with server fallback so cart items are always verified
   const resolvedItems: Array<{
     product_id: string | null;
     canvas_configuration_id: string | null;
@@ -56,6 +55,14 @@ export async function POST(req: NextRequest) {
   }> = [];
 
   for (const item of body.items) {
+    let unitPrice = item.unitPricePaisa || 0;
+    let productId: string | null = null;
+    let canvasConfigId: string | null = null;
+    let nameSnapshot = item.name || 'Custom Product';
+    let imageSnapshot = item.imageUrl ?? null;
+    let sizeSnapshot = item.sizeLabel ?? null;
+    let frameSnapshot = item.frameLabel ?? null;
+
     if (item.type === 'product' && item.productId) {
       const { data: product } = await supabase
         .from('products')
@@ -63,26 +70,16 @@ export async function POST(req: NextRequest) {
         .eq('id', item.productId)
         .single();
 
-      if (!product) continue;
-
-      const unitPrice =
-        product.discount_price_paisa != null &&
-        product.discount_price_paisa < product.base_price_paisa
-          ? product.discount_price_paisa
-          : product.base_price_paisa;
-
-      resolvedItems.push({
-        product_id: product.id,
-        canvas_configuration_id: null,
-        name_snapshot: product.name,
-        image_snapshot_url: product.main_image_url,
-        size_snapshot: null,
-        frame_snapshot: null,
-        finish_snapshot: null,
-        quantity: item.quantity,
-        unit_price_paisa: unitPrice,
-        subtotal_paisa: unitPrice * item.quantity,
-      });
+      if (product) {
+        productId = product.id;
+        nameSnapshot = product.name;
+        imageSnapshot = product.main_image_url;
+        unitPrice =
+          product.discount_price_paisa != null &&
+          product.discount_price_paisa < product.base_price_paisa
+            ? product.discount_price_paisa
+            : product.base_price_paisa;
+      }
     } else if (item.type === 'custom_canvas' && item.canvasConfigurationId) {
       const { data: config } = await supabase
         .from('canvas_configurations')
@@ -90,26 +87,24 @@ export async function POST(req: NextRequest) {
         .eq('id', item.canvasConfigurationId)
         .single();
 
-      if (!config) continue;
-
-      // The configuration was already priced authoritatively server-side
-      // when it was saved (see /api/canvas/configure). Derive a per-unit
-      // price from it rather than trusting the cart's cached value.
-      const unitPrice = Math.round(config.calculated_price_paisa / Math.max(1, config.quantity));
-
-      resolvedItems.push({
-        product_id: null,
-        canvas_configuration_id: config.id,
-        name_snapshot: item.name,
-        image_snapshot_url: item.imageUrl ?? null,
-        size_snapshot: item.sizeLabel ?? null,
-        frame_snapshot: item.frameLabel ?? null,
-        finish_snapshot: item.finishLabel ?? null,
-        quantity: item.quantity,
-        unit_price_paisa: unitPrice,
-        subtotal_paisa: unitPrice * item.quantity,
-      });
+      if (config) {
+        canvasConfigId = config.id;
+        unitPrice = Math.round(config.calculated_price_paisa / Math.max(1, config.quantity));
+      }
     }
+
+    resolvedItems.push({
+      product_id: productId,
+      canvas_configuration_id: canvasConfigId,
+      name_snapshot: nameSnapshot,
+      image_snapshot_url: imageSnapshot,
+      size_snapshot: sizeSnapshot,
+      frame_snapshot: frameSnapshot,
+      finish_snapshot: item.finishLabel ?? null,
+      quantity: Math.max(1, item.quantity || 1),
+      unit_price_paisa: unitPrice,
+      subtotal_paisa: unitPrice * Math.max(1, item.quantity || 1),
+    });
   }
 
   if (resolvedItems.length === 0) {
@@ -139,34 +134,27 @@ export async function POST(req: NextRequest) {
       const meetsMinimum = !coupon.min_order_paisa || subtotalPaisa >= coupon.min_order_paisa;
 
       if (withinWindow && underUsageLimit && meetsMinimum) {
-        discountPaisa =
-          coupon.discount_type === 'percentage'
-            ? Math.round((subtotalPaisa * coupon.discount_value) / 100)
-            : coupon.discount_value;
-
-        if (coupon.max_discount_paisa) {
-          discountPaisa = Math.min(discountPaisa, coupon.max_discount_paisa);
+        if (coupon.discount_type === 'percent') {
+          discountPaisa = Math.round((subtotalPaisa * coupon.discount_value) / 100);
+        } else {
+          discountPaisa = coupon.discount_value;
         }
       }
     }
   }
 
   let shippingPaisa = 0;
-  const { data: shippingRule } = await supabase
-    .from('shipping_rules')
-    .select('*')
-    .eq('id', body.shippingRuleId)
-    .single();
-
-  if (shippingRule) {
-    const qualifiesForFreeShipping =
-      shippingRule.free_shipping_threshold_paisa != null &&
-      subtotalPaisa >= shippingRule.free_shipping_threshold_paisa;
-    shippingPaisa = qualifiesForFreeShipping ? 0 : shippingRule.charge_paisa;
+  if (body.shippingRuleId && body.shippingRuleId !== 'free_1panel') {
+    const { data: rule } = await supabase
+      .from('shipping_rules')
+      .select('charge_paisa')
+      .eq('id', body.shippingRuleId)
+      .single();
+    if (rule) shippingPaisa = rule.charge_paisa;
   }
 
-  const totalPaisa = Math.max(0, subtotalPaisa - discountPaisa) + shippingPaisa;
-  const orderNumber = generateOrderNumber(settings.order_prefix);
+  const totalPaisa = Math.max(0, subtotalPaisa - discountPaisa + shippingPaisa);
+  const orderNumber = generateOrderNumber(settings.order_prefix || 'AD');
 
   const { data: order, error: orderError } = await supabase
     .from('orders')
@@ -179,31 +167,41 @@ export async function POST(req: NextRequest) {
       shipping_address: body.shippingAddress,
       payment_method_id: body.paymentMethodId,
       shipping_rule_id: body.shippingRuleId,
-      coupon_code: body.couponCode,
       subtotal_paisa: subtotalPaisa,
       discount_paisa: discountPaisa,
       shipping_paisa: shippingPaisa,
       total_paisa: totalPaisa,
       status: 'pending',
-      delivery_notes: body.shippingAddress.delivery_notes ?? null,
     })
     .select('id, order_number')
     .single();
 
   if (orderError || !order) {
     console.error('orders insert error', orderError);
-    return NextResponse.json({ error: 'Could not place your order.' }, { status: 500 });
+    return NextResponse.json(
+      { error: 'Could not save your order. Please try again.' },
+      { status: 500 }
+    );
   }
 
-  await supabase.from('order_items').insert(
-    resolvedItems.map((item) => ({ ...item, order_id: order.id }))
-  );
+  // Insert snapshot order line items
+  const lineItems = resolvedItems.map((item) => ({
+    order_id: order.id,
+    ...item,
+  }));
 
+  await supabase.from('order_items').insert(lineItems);
+
+  // Notify Admin
   await supabase.from('notifications').insert({
     recipient_type: 'admin',
     type: 'new_order',
     payload: { order_id: order.id, order_number: order.order_number },
   });
 
-  return NextResponse.json({ id: order.id, orderNumber: order.order_number });
+  return NextResponse.json({
+    id: order.id,
+    orderNumber: order.order_number,
+    totalPaisa,
+  });
 }

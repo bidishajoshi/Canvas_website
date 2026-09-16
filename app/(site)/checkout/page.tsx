@@ -32,6 +32,9 @@ export default function CheckoutPage() {
   const [shippingRuleId, setShippingRuleId] = useState('free_1panel');
   const [bankTxnRef, setBankTxnRef] = useState('');
   const [whatsappNumber, setWhatsappNumber] = useState('9779864029898');
+  
+  // Payment screenshot state
+  const [paymentScreenshotUrl, setPaymentScreenshotUrl] = useState<string | null>(null);
 
   // Promo Code States
   const [couponCode, setCouponCode] = useState('');
@@ -85,7 +88,7 @@ export default function CheckoutPage() {
 
     const supabase = createClient();
 
-    // Check user authentication via session and user
+    // Check user authentication via session
     supabase.auth.getSession().then(({ data: sessionData }) => {
       if (sessionData?.session?.user) {
         setUser(sessionData.session.user);
@@ -189,8 +192,20 @@ export default function CheckoutPage() {
     setItems(getCart());
   }
 
+  function handleScreenshotFile(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (evt) => {
+      if (evt.target?.result) {
+        setPaymentScreenshotUrl(evt.target.result as string);
+      }
+    };
+    reader.readAsDataURL(file);
+  }
+
   const subtotalPaisa = cartSubtotalPaisa(items);
-  // Auto check if 1-panel item is in cart or if free_1panel is selected
   const is1PanelInCart = items.some(
     (i) =>
       i.name?.toLowerCase().includes('1 panel') ||
@@ -258,7 +273,7 @@ export default function CheckoutPage() {
       return;
     }
 
-    const effectiveTxnRef = bankTxnRef.trim() || 'TESTING-FREE-DELIVERY';
+    const effectiveTxnRef = bankTxnRef.trim() || 'PAYMENT-STATEMENT-ATTACHED';
 
     setSubmitting(true);
     setError(null);
@@ -275,6 +290,7 @@ export default function CheckoutPage() {
           shippingAddress: {
             ...address,
             bank_transaction_ref: effectiveTxnRef,
+            payment_screenshot_url: paymentScreenshotUrl ? 'Attached in WhatsApp' : null,
           },
           paymentMethodId,
           shippingRuleId: effectiveShippingRuleId,
@@ -307,6 +323,7 @@ export default function CheckoutPage() {
           landmark: address.landmark,
           paymentMethodName: selectedPayment,
           paymentTxnRef: effectiveTxnRef,
+          paymentScreenshotUrl: paymentScreenshotUrl ? '📷 Screenshot Photo Attached' : null,
           items: items.map((i) => ({
             name: i.name,
             sizeLabel: i.sizeLabel,
@@ -339,7 +356,7 @@ export default function CheckoutPage() {
         </span>
         <h1 className="font-display text-3xl font-extrabold text-text">Checkout &amp; Order Placement</h1>
         <p className="text-xs text-muted">
-          Fill in your delivery address and send your order directly to WhatsApp (**9864029898**).
+          Fill in your delivery address, attach payment screenshot (optional), and send your order directly to WhatsApp (**9864029898**).
         </p>
       </div>
 
@@ -415,11 +432,11 @@ export default function CheckoutPage() {
             </div>
           </fieldset>
 
-          {/* 3. Integrated Payment Options & Admin QR Code */}
+          {/* 3. Integrated Payment Options & QR Code Scan */}
           <fieldset className="rounded-2xl border border-border p-6 bg-surface shadow-sm space-y-4">
             <legend className="mb-3 text-base font-bold text-text flex items-center gap-2">
               <span className="flex h-6 w-6 items-center justify-center rounded-full bg-amber-600 text-white text-xs font-bold">3</span>
-              Payment Method &amp; QR Scan
+              Payment Method, QR Scan &amp; Screenshot Upload
             </legend>
 
             <div className="space-y-3">
@@ -480,13 +497,59 @@ export default function CheckoutPage() {
               })}
             </div>
 
-            {/* Optional Statement / Reference ID Entry for quick testing */}
-            <div className="p-4 rounded-xl border border-amber-500/30 bg-amber-500/10 space-y-2 mt-4 text-xs">
-              <div className="flex items-center gap-2 font-bold text-amber-800 dark:text-amber-300">
-                <span>📑</span> Payment Statement / Transaction Reference (Optional for Testing)
+            {/* Payment Screenshot Upload Box */}
+            <div className="p-4 rounded-xl border border-amber-500/30 bg-amber-500/5 space-y-3 mt-4">
+              <div className="flex items-center justify-between">
+                <label className="font-bold text-xs text-text flex items-center gap-2">
+                  <span>📸</span> Payment Receipt Screenshot Photo (Optional / Recommended)
+                </label>
+                {paymentScreenshotUrl && (
+                  <button
+                    type="button"
+                    onClick={() => setPaymentScreenshotUrl(null)}
+                    className="text-[11px] font-bold text-red-500 hover:underline"
+                  >
+                    Remove Photo
+                  </button>
+                )}
               </div>
               <p className="text-[11px] text-muted leading-relaxed">
-                Enter your payment receipt / eSewa statement ID below, or leave empty to quickly test sending order details directly to WhatsApp.
+                Upload your eSewa payment receipt screenshot or Bank transfer screenshot for instant order verification.
+              </p>
+
+              {paymentScreenshotUrl ? (
+                <div className="relative rounded-xl overflow-hidden border border-amber-500/40 bg-white dark:bg-gray-900 p-2 text-center max-w-xs mx-auto shadow-sm">
+                  <img
+                    src={paymentScreenshotUrl}
+                    alt="Payment Screenshot Receipt"
+                    className="max-h-48 w-auto object-contain mx-auto rounded-lg shadow-sm"
+                  />
+                  <p className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold mt-2">
+                    ✓ Screenshot Receipt Attached
+                  </p>
+                </div>
+              ) : (
+                <label className="flex flex-col items-center justify-center p-4 border-2 border-dashed border-amber-500/30 hover:border-amber-500 rounded-xl cursor-pointer bg-bg hover:bg-surface transition-all text-center">
+                  <span className="text-2xl mb-1">📷</span>
+                  <span className="text-xs font-bold text-amber-600">Click to Select / Upload Payment Screenshot</span>
+                  <span className="text-[10px] text-muted">Supports JPG, PNG, WEBP payment receipts</span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleScreenshotFile}
+                    className="hidden"
+                  />
+                </label>
+              )}
+            </div>
+
+            {/* Transaction Reference ID Entry */}
+            <div className="p-4 rounded-xl border border-amber-500/30 bg-amber-500/10 space-y-2 text-xs">
+              <div className="flex items-center gap-2 font-bold text-amber-800 dark:text-amber-300">
+                <span>📑</span> Payment Statement / Transaction Reference ID
+              </div>
+              <p className="text-[11px] text-muted leading-relaxed">
+                Enter your payment receipt / eSewa statement ID below, or leave empty to test WhatsApp order.
               </p>
               <input
                 type="text"

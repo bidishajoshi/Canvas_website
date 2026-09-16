@@ -36,33 +36,32 @@ function LoginForm() {
     const targetEmail = customEmail || email.trim() || 'user@gmail.com';
 
     try {
-      const supabase = createClient();
-      // Try OAuth with a fast 1s timeout to prevent hanging on placeholder URL
-      const oauthPromise = supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo: `${typeof window !== 'undefined' ? window.location.origin : ''}/account`,
-        },
-      });
+      const rawUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+      const isPlaceholder = !rawUrl || rawUrl.includes('placeholder-project.supabase.co');
 
-      const timeoutPromise = new Promise<{ timeout: boolean }>((resolve) =>
-        setTimeout(() => resolve({ timeout: true }), 900)
-      );
+      if (!isPlaceholder) {
+        const supabase = createClient();
+        const { data } = await supabase.auth.signInWithOAuth({
+          provider: 'google',
+          options: {
+            redirectTo: `${typeof window !== 'undefined' ? window.location.origin : ''}/account`,
+          },
+        });
 
-      const result: any = await Promise.race([oauthPromise, timeoutPromise]);
-
-      if (result?.data?.url) {
-        window.location.href = result.data.url;
-        return;
+        if (data?.url && !data.url.includes('placeholder-project.supabase.co')) {
+          window.location.href = data.url;
+          return;
+        }
       }
     } catch {
-      // Fallthrough to instant login
-    } finally {
-      saveDemoSession(targetEmail);
-      setLoading(false);
-      router.push(redirectTo);
-      router.refresh();
+      // Fallthrough to instant local session
     }
+
+    // Instantly sign in user with Gmail email and redirect to target page
+    saveDemoSession(targetEmail);
+    setLoading(false);
+    router.push(redirectTo);
+    router.refresh();
   }
 
   async function handleSubmit(e: FormEvent) {
@@ -76,30 +75,34 @@ function LoginForm() {
     setError(null);
 
     try {
-      const supabase = createClient();
+      const rawUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+      const isPlaceholder = !rawUrl || rawUrl.includes('placeholder-project.supabase.co');
 
-      if (isSignUp) {
-        const { error: signUpErr } = await supabase.auth.signUp({
-          email,
-          password,
-          options: { data: { full_name: fullName } },
-        });
+      if (!isPlaceholder) {
+        const supabase = createClient();
+        if (isSignUp) {
+          const { error: signUpErr } = await supabase.auth.signUp({
+            email,
+            password,
+            options: { data: { full_name: fullName } },
+          });
 
-        if (signUpErr && !signUpErr.message.includes('fetch')) {
-          setError(signUpErr.message);
-          setLoading(false);
-          return;
-        }
-      } else {
-        const { error: signInError } = await supabase.auth.signInWithPassword({
-          email,
-          password,
-        });
+          if (signUpErr && !signUpErr.message.includes('fetch')) {
+            setError(signUpErr.message);
+            setLoading(false);
+            return;
+          }
+        } else {
+          const { error: signInError } = await supabase.auth.signInWithPassword({
+            email,
+            password,
+          });
 
-        if (signInError && !signInError.message.includes('fetch')) {
-          setError(signInError.message);
-          setLoading(false);
-          return;
+          if (signInError && !signInError.message.includes('fetch')) {
+            setError(signInError.message);
+            setLoading(false);
+            return;
+          }
         }
       }
 
