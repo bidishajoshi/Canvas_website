@@ -210,8 +210,10 @@ export async function POST(req: NextRequest) {
         matched_knowledge_id: matchedKnowledgeId,
         needs_human: needsHuman,
       })
-      .then(() => {})
-      .catch(() => {});
+      .then(
+        () => {},
+        () => {}
+      );
   } catch {
     // Non-blocking log write
   }

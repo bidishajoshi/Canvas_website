@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { ThemeToggle } from './ThemeToggle';
 import { NavbarMobileMenu } from './NavbarMobileMenu';
 import { CartBadge } from './CartBadge';
+import { WishlistBadge } from './WishlistBadge';
 import { CartDrawer } from './CartDrawer';
 import { SearchModal } from './SearchModal';
 import type { MenuItem } from '@/lib/content';
@@ -15,7 +16,7 @@ export function NavbarHeaderControls({ menuItems }: { menuItems: MenuItem[] }) {
 
   return (
     <>
-      <div className="flex items-center gap-2.5 sm:gap-3">
+      <div className="flex items-center gap-2 sm:gap-3">
         {/* Search Icon Button */}
         <button
           type="button"
@@ -26,21 +27,22 @@ export function NavbarHeaderControls({ menuItems }: { menuItems: MenuItem[] }) {
           <SearchIcon className="h-4 w-4" />
         </button>
 
-        {/* Wishlist Button */}
+        {/* Wishlist / Love Button (Always Visible) */}
         <Link
-          href="/account/wishlist"
-          aria-label="Wishlist"
-          className="hidden sm:flex h-10 w-10 items-center justify-center rounded-full border border-border bg-surface text-text transition-all hover:border-amber-600 hover:text-amber-600 shadow-sm"
+          href="/wishlist"
+          aria-label="Wishlist Love Items"
+          className="flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-full border border-border bg-surface text-pink-600 hover:text-pink-700 transition-all hover:border-pink-500 shadow-sm relative"
         >
           <HeartIcon className="h-4 w-4" />
+          <WishlistBadge />
         </Link>
 
-        {/* Cart Drawer Trigger Button */}
+        {/* Cart Drawer Trigger Button (Always Visible) */}
         <button
           type="button"
           onClick={() => setCartOpen(true)}
           aria-label="Open Shopping Cart"
-          className="flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-full border border-border bg-surface text-text transition-all hover:border-amber-600 hover:text-amber-600 shadow-sm relative"
+          className="flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-full border border-border bg-surface text-amber-600 hover:text-amber-700 transition-all hover:border-amber-600 shadow-sm relative"
         >
           <CartIcon className="h-4 w-4" />
           <CartBadge />
@@ -48,11 +50,11 @@ export function NavbarHeaderControls({ menuItems }: { menuItems: MenuItem[] }) {
 
         <ThemeToggle />
 
-        {/* Account Button */}
+        {/* Account Button (Always Visible) */}
         <Link
           href="/account"
-          aria-label="Account"
-          className="hidden sm:flex h-10 w-10 items-center justify-center rounded-full border border-border bg-surface text-text transition-all hover:border-amber-600 hover:text-amber-600 shadow-sm"
+          aria-label="Account & Sign In"
+          className="flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-full border border-border bg-surface text-text transition-all hover:border-amber-600 hover:text-amber-600 shadow-sm"
         >
           <UserIcon className="h-4 w-4" />
         </Link>
@@ -79,13 +81,8 @@ function SearchIcon({ className }: { className?: string }) {
 
 function HeartIcon({ className }: { className?: string }) {
   return (
-    <svg viewBox="0 0 24 24" fill="none" className={className} aria-hidden="true">
-      <path
-        d="M12 20s-7-4.35-9.5-8.5C.7 8.1 2.3 5 5.6 5c1.9 0 3.3 1 4.4 2.4C11.1 6 12.5 5 14.4 5c3.3 0 4.9 3.1 3.1 6.5C19 15.65 12 20 12 20Z"
-        stroke="currentColor"
-        strokeWidth="1.8"
-        strokeLinejoin="round"
-      />
+    <svg viewBox="0 0 24 24" fill="currentColor" className={className} aria-hidden="true">
+      <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
     </svg>
   );
 }
