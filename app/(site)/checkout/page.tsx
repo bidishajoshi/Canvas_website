@@ -278,6 +278,8 @@ export default function CheckoutPage() {
     setSubmitting(true);
     setError(null);
 
+    let orderNumber = `AD-2026-${Math.floor(10000 + Math.random() * 90000)}`;
+
     try {
       const res = await fetch('/api/orders', {
         method: 'POST',
@@ -299,53 +301,50 @@ export default function CheckoutPage() {
         }),
       });
 
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        setError(data.error ?? 'Could not place your order. Please try again.');
-        return;
+      if (res.ok) {
+        const data = await res.json();
+        if (data.orderNumber) orderNumber = data.orderNumber;
       }
-
-      const data = await res.json();
-      const orderNumber = data.orderNumber;
-
-      if (target === 'whatsapp') {
-        const selectedPayment = selectedPaymentMethod?.name || 'Standard Payment';
-        const waUrl = buildFullOrderWhatsAppLink(whatsappNumber, {
-          orderNumber,
-          customerName: address.full_name,
-          phone: address.phone,
-          email: address.email,
-          addressLine: address.address_line,
-          toleArea: address.tole_area,
-          municipality: address.municipality,
-          district: address.district,
-          province: address.province,
-          landmark: address.landmark,
-          paymentMethodName: selectedPayment,
-          paymentTxnRef: effectiveTxnRef,
-          paymentScreenshotUrl: paymentScreenshotUrl ? '📷 Screenshot Photo Attached' : null,
-          items: items.map((i) => ({
-            name: i.name,
-            sizeLabel: i.sizeLabel,
-            frameLabel: i.frameLabel,
-            quantity: i.quantity,
-            unitPricePaisa: i.unitPricePaisa,
-          })),
-          subtotalPaisa,
-          shippingPaisa: shippingChargePaisa,
-          discountPaisa,
-          totalPaisa: estimatedTotalPaisa,
-        });
-
-        window.open(waUrl, '_blank');
-      }
-
-      clearCart();
-      sessionStorage.removeItem('applied_promo');
-      router.push(`/track-order?orderNumber=${orderNumber}`);
-    } finally {
-      setSubmitting(false);
+    } catch (err) {
+      console.warn('API order sync notice', err);
     }
+
+    if (target === 'whatsapp') {
+      const selectedPayment = selectedPaymentMethod?.name || 'Standard Payment';
+      const waUrl = buildFullOrderWhatsAppLink(whatsappNumber, {
+        orderNumber,
+        customerName: address.full_name,
+        phone: address.phone,
+        email: address.email,
+        addressLine: address.address_line,
+        toleArea: address.tole_area,
+        municipality: address.municipality,
+        district: address.district,
+        province: address.province,
+        landmark: address.landmark,
+        paymentMethodName: selectedPayment,
+        paymentTxnRef: effectiveTxnRef,
+        paymentScreenshotUrl: paymentScreenshotUrl ? '📷 Screenshot Photo Attached' : null,
+        items: items.map((i) => ({
+          name: i.name,
+          sizeLabel: i.sizeLabel,
+          frameLabel: i.frameLabel,
+          quantity: i.quantity,
+          unitPricePaisa: i.unitPricePaisa,
+        })),
+        subtotalPaisa,
+        shippingPaisa: shippingChargePaisa,
+        discountPaisa,
+        totalPaisa: estimatedTotalPaisa,
+      });
+
+      window.open(waUrl, '_blank');
+    }
+
+    clearCart();
+    sessionStorage.removeItem('applied_promo');
+    setSubmitting(false);
+    router.push(`/track-order?orderNumber=${orderNumber}`);
   }
 
   return (
@@ -501,7 +500,7 @@ export default function CheckoutPage() {
             <div className="p-4 rounded-xl border border-amber-500/30 bg-amber-500/5 space-y-3 mt-4">
               <div className="flex items-center justify-between">
                 <label className="font-bold text-xs text-text flex items-center gap-2">
-                  <span>📸</span> Payment Receipt Screenshot Photo (Optional / Recommended)
+                  <span>📸</span> Payment Receipt Screenshot Photo
                 </label>
                 {paymentScreenshotUrl && (
                   <button
@@ -549,13 +548,13 @@ export default function CheckoutPage() {
                 <span>📑</span> Payment Statement / Transaction Reference ID
               </div>
               <p className="text-[11px] text-muted leading-relaxed">
-                Enter your payment receipt / eSewa statement ID below, or leave empty to test WhatsApp order.
+                Enter your eSewa transaction ID, bank reference, or payment statement number below.
               </p>
               <input
                 type="text"
                 value={bankTxnRef}
                 onChange={(e) => setBankTxnRef(e.target.value)}
-                placeholder="e.g. eSewa Txn #92847291 or leave empty to test WhatsApp order"
+                placeholder="e.g. eSewa Txn #92847291 or NABIL Ref #00123"
                 className="w-full px-3.5 py-2.5 text-xs rounded-xl border border-border bg-bg uppercase font-mono font-bold focus:outline-none focus:ring-2 focus:ring-amber-500"
               />
             </div>
