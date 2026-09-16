@@ -75,7 +75,7 @@ export function ChatWidget() {
           role: 'assistant',
           text: "Namaste! 🙏 Thank you for reaching out. If you would like to know more or inquire further details, we would be delighted to assist you directly on WhatsApp! Please click below to connect with us.",
           needsHuman: true,
-          whatsappUrl: 'https://wa.me/9779800000000',
+          whatsappUrl: 'https://wa.me/9779864029898',
         },
       ]);
     } finally {
@@ -132,7 +132,7 @@ export function ChatWidget() {
                 {m.needsHuman && (
                   <div className="mt-3 pt-2 border-t border-border/50 flex flex-col gap-2">
                     <a
-                      href={m.whatsappUrl || 'https://wa.me/9779800000000'}
+                      href={m.whatsappUrl || 'https://wa.me/9779864029898'}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 px-3.5 py-2 text-xs font-bold text-white shadow-sm transition-all"

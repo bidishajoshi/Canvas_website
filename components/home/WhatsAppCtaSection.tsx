@@ -4,7 +4,7 @@ import type { HomepageSection } from '@/lib/types';
 
 export async function WhatsAppCtaSection({ section }: { section?: HomepageSection }) {
   const settings = await getSettings();
-  const whatsappNum = settings.whatsapp_number || '9779800000000';
+  const whatsappNum = settings.whatsapp_number || '9779864029898';
   const digitsOnly = whatsappNum.replace(/[^\d]/g, '');
   const message = encodeURIComponent(
     `Hello ${settings.business_name}, I'd like to place a custom order or inquire about photo canvas sizes.`

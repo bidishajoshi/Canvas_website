@@ -28,6 +28,10 @@ export function SalesInquiryForm() {
       });
 
       if (!res.ok) throw new Error('Failed to submit sales inquiry');
+      const data = await res.json();
+      if (data.whatsappUrl) {
+        window.open(data.whatsappUrl, '_blank');
+      }
       setSubmitted(true);
       form.reset();
     } catch {

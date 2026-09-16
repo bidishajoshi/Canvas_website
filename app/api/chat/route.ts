@@ -145,7 +145,7 @@ export async function POST(req: NextRequest) {
   }
 
   const settings = await getSettings();
-  const whatsappNumber = settings.whatsapp_number || '9779800000000';
+  const whatsappNumber = settings.whatsapp_number || '9779864029898';
   const whatsappUrl = `https://wa.me/${whatsappNumber.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(
     `Namaste! I have an inquiry from your website regarding: "${message}"`
   )}`;

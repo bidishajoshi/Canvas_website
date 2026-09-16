@@ -31,7 +31,7 @@ export async function Footer() {
 
   const waHref = settings.whatsapp_number
     ? `https://wa.me/${settings.whatsapp_number}?text=${encodeURIComponent('Hello Affordable Decoration, I have an inquiry about custom canvas or wall decor...')}`
-    : 'https://wa.me/9779800000000';
+    : 'https://wa.me/9779864029898';
 
   return (
     <footer className="border-t border-border bg-surface transition-colors">

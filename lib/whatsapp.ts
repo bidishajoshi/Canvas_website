@@ -47,7 +47,7 @@ export function buildWhatsAppLink(
   lines.push('', 'Please confirm my canvas.');
 
   const message = encodeURIComponent(lines.join('\n'));
-  const digitsOnly = whatsappNumber.replace(/[^\d]/g, '') || '9779800000000';
+  const digitsOnly = whatsappNumber.replace(/[^\d]/g, '') || '9779864029898';
 
   return `https://wa.me/${digitsOnly}?text=${message}`;
 }
@@ -64,6 +64,7 @@ export interface WhatsAppOrderDetails {
   province?: string;
   landmark?: string;
   paymentMethodName?: string;
+  paymentTxnRef?: string | null;
   items: Array<{
     name: string;
     sizeLabel?: string | null;
@@ -130,13 +131,16 @@ export function buildFullOrderWhatsAppLink(
   if (details.paymentMethodName) {
     lines.push('');
     lines.push(`💳 *Payment Method*: ${details.paymentMethodName}`);
+    if (details.paymentTxnRef) {
+      lines.push(`📑 *Payment Statement Ref / Txn ID*: ${details.paymentTxnRef}`);
+    }
   }
 
   lines.push('');
   lines.push('Please confirm my order and let me know the estimated delivery timeframe. Thank you!');
 
   const message = encodeURIComponent(lines.join('\n'));
-  const digitsOnly = whatsappNumber.replace(/[^\d]/g, '') || '9779800000000';
+  const digitsOnly = whatsappNumber.replace(/[^\d]/g, '') || '9779864029898';
 
   return `https://wa.me/${digitsOnly}?text=${message}`;
 }

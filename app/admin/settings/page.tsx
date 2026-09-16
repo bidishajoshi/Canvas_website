@@ -45,7 +45,7 @@ export default async function AdminSettingsPage() {
             <Field label="Support Email" name="email" defaultValue={settings.email ?? ''} type="email" />
             <Field label="Phone Number" name="phone" defaultValue={settings.phone ?? ''} />
             <Field
-              label="WhatsApp Number (e.g. 9779800000000)"
+              label="WhatsApp Number (e.g. 9779864029898)"
               name="whatsapp_number"
               defaultValue={settings.whatsapp_number ?? ''}
             />

@@ -367,8 +367,11 @@ export function CanvasBuilderClient({
       }
 
       const data = await res.json();
+      if (data.whatsappUrl) {
+        window.open(data.whatsappUrl, '_blank');
+      }
       setFeedback(
-        `✓ Your custom canvas request has been sent! Reference ID: ${data.inquiryNumber}`
+        `✓ Your custom canvas request has been sent to Admin and opened in WhatsApp! (Ref: ${data.inquiryNumber})`
       );
       setShowInquiryForm(false);
     } finally {

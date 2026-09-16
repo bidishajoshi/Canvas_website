@@ -4,7 +4,7 @@ import { useEffect, useState, type FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
-import { cartSubtotalPaisa, clearCart, getCart, type CartItem } from '@/lib/cart';
+import { cartSubtotalPaisa, clearCart, getCart, removeFromCart, type CartItem } from '@/lib/cart';
 import { formatPaisa } from '@/lib/utils';
 import { buildFullOrderWhatsAppLink } from '@/lib/whatsapp';
 
@@ -13,6 +13,9 @@ interface PaymentMethod {
   name: string;
   code: string;
   instructions: string | null;
+  config?: {
+    qr_code_url?: string;
+  } | null;
 }
 interface ShippingRule {
   id: string;
@@ -28,7 +31,7 @@ export default function CheckoutPage() {
   const [paymentMethodId, setPaymentMethodId] = useState('cod');
   const [shippingRuleId, setShippingRuleId] = useState('');
   const [bankTxnRef, setBankTxnRef] = useState('');
-  const [whatsappNumber, setWhatsappNumber] = useState('9779800000000');
+  const [whatsappNumber, setWhatsappNumber] = useState('9779864029898');
 
   // Promo Code States
   const [couponCode, setCouponCode] = useState('');
@@ -60,6 +63,12 @@ export default function CheckoutPage() {
   useEffect(() => {
     const cartItems = getCart();
     setItems(cartItems);
+
+    // Listen to cart updates
+    const handleCartUpdate = () => {
+      setItems(getCart());
+    };
+    window.addEventListener('cart-updated', handleCartUpdate);
 
     // Read stored promo from cart page if present
     const stored = sessionStorage.getItem('applied_promo');
@@ -94,25 +103,25 @@ export default function CheckoutPage() {
         id: 'cod',
         name: 'Cash on Delivery (COD)',
         code: 'cod',
-        instructions: 'Pay cash when your order is delivered to your address in Nepal.',
+        instructions: 'Pay cash when your order arrives. Advance delivery charge payment via eSewa QR below is required.',
       },
       {
         id: 'esewa',
         name: 'eSewa Mobile Wallet (Online Pay / QR)',
         code: 'esewa',
-        instructions: 'Scan eSewa QR or send to eSewa ID: 9800000000 (Affordable Decoration Nepal).',
+        instructions: 'Scan official eSewa QR code below to pay directly to Affordable Decoration.',
       },
       {
         id: 'bank_transfer',
         name: 'Direct Bank Transfer (NABIL / NIC Asia)',
         code: 'bank_transfer',
-        instructions: 'NABIL Bank A/C: 0101017500001 (Affordable Decoration Pvt Ltd). Enter transaction reference below.',
+        instructions: 'Scan Bank QR below or send to NABIL Bank A/C: 0101017500001 (Affordable Decoration Pvt Ltd).',
       },
     ];
 
     supabase
       .from('payment_methods')
-      .select('id, name, code, instructions')
+      .select('id, name, code, instructions, config')
       .eq('active', true)
       .order('sort_order', { ascending: true })
       .then(({ data }) => {
@@ -153,11 +162,22 @@ export default function CheckoutPage() {
           setWhatsappNumber(data.whatsapp_number);
         }
       });
+
+    return () => {
+      window.removeEventListener('cart-updated', handleCartUpdate);
+    };
   }, []);
+
+  function handleRemoveItem(id: string) {
+    removeFromCart(id);
+    setItems(getCart());
+  }
 
   const subtotalPaisa = cartSubtotalPaisa(items);
   const shippingChargePaisa = shippingRules.find((r) => r.id === shippingRuleId)?.charge_paisa ?? 0;
   const estimatedTotalPaisa = Math.max(0, subtotalPaisa - discountPaisa + shippingChargePaisa);
+
+  const selectedPaymentMethod = paymentMethods.find((p) => p.id === paymentMethodId);
 
   async function handleApplyPromoCode(e: React.FormEvent) {
     e.preventDefault();
@@ -217,8 +237,12 @@ export default function CheckoutPage() {
       return;
     }
 
-    if ((paymentMethodId === 'bank_transfer' || paymentMethodId === 'esewa') && !bankTxnRef.trim()) {
-      setError('Please enter your Bank / eSewa transaction reference ID.');
+    if (!bankTxnRef.trim()) {
+      setError(
+        paymentMethodId === 'cod'
+          ? 'Please enter your delivery fee payment statement / transaction reference ID to confirm COD.'
+          : 'Please enter your payment statement / transaction reference ID.'
+      );
       return;
     }
 
@@ -236,7 +260,7 @@ export default function CheckoutPage() {
           guestEmail: address.email || null,
           shippingAddress: {
             ...address,
-            bank_transaction_ref: bankTxnRef || null,
+            bank_transaction_ref: bankTxnRef,
           },
           paymentMethodId,
           shippingRuleId,
@@ -255,7 +279,7 @@ export default function CheckoutPage() {
       const orderNumber = data.orderNumber;
 
       if (target === 'whatsapp') {
-        const selectedPayment = paymentMethods.find((p) => p.id === paymentMethodId)?.name;
+        const selectedPayment = selectedPaymentMethod?.name || 'Standard Payment';
         const waUrl = buildFullOrderWhatsAppLink(whatsappNumber, {
           orderNumber,
           customerName: address.full_name,
@@ -268,6 +292,7 @@ export default function CheckoutPage() {
           province: address.province,
           landmark: address.landmark,
           paymentMethodName: selectedPayment,
+          paymentTxnRef: bankTxnRef,
           items: items.map((i) => ({
             name: i.name,
             sizeLabel: i.sizeLabel,
@@ -300,7 +325,7 @@ export default function CheckoutPage() {
         </span>
         <h1 className="font-display text-3xl font-extrabold text-text">Checkout &amp; Order Placement</h1>
         <p className="text-xs text-muted">
-          Complete your delivery address and choose your payment method (eSewa, Bank Transfer, or COD).
+          Complete your delivery address, verify shipping charge, scan payment QR code, and send order directly to WhatsApp.
         </p>
       </div>
 
@@ -324,7 +349,7 @@ export default function CheckoutPage() {
         </div>
       )}
 
-      <form onSubmit={(e) => handlePlaceOrder('whatsapp', e)} className="grid gap-8 lg:grid-cols-[1fr_360px]">
+      <form onSubmit={(e) => handlePlaceOrder('whatsapp', e)} className="grid gap-8 lg:grid-cols-[1fr_380px]">
         <div className="space-y-8">
           {/* 1. Address Form */}
           <fieldset className="grid gap-4 sm:grid-cols-2 rounded-2xl border border-border p-6 bg-surface shadow-sm">
@@ -348,11 +373,11 @@ export default function CheckoutPage() {
           <fieldset className="rounded-2xl border border-border p-6 bg-surface shadow-sm space-y-3">
             <legend className="mb-3 text-base font-bold text-text flex items-center gap-2">
               <span className="flex h-6 w-6 items-center justify-center rounded-full bg-amber-600 text-white text-xs font-bold">2</span>
-              Shipping &amp; Delivery Zone
+              Shipping &amp; Delivery Zone (Admin Configured)
             </legend>
             <div className="space-y-2.5">
               {shippingRules.map((rule) => (
-                <label key={rule.id} className="flex items-center justify-between p-3.5 rounded-xl border border-border bg-bg hover:border-amber-600 cursor-pointer text-xs font-semibold">
+                <label key={rule.id} className="flex items-center justify-between p-3.5 rounded-xl border border-border bg-bg hover:border-amber-600 cursor-pointer text-xs font-semibold transition-colors">
                   <div className="flex items-center gap-2.5">
                     <input
                       type="radio"
@@ -371,34 +396,42 @@ export default function CheckoutPage() {
             </div>
           </fieldset>
 
-          {/* 3. Integrated Payment Options (eSewa & Bank Transfer) */}
+          {/* 3. Integrated Payment Options & Admin QR Code */}
           <fieldset className="rounded-2xl border border-border p-6 bg-surface shadow-sm space-y-4">
             <legend className="mb-3 text-base font-bold text-text flex items-center gap-2">
               <span className="flex h-6 w-6 items-center justify-center rounded-full bg-amber-600 text-white text-xs font-bold">3</span>
-              Payment Method (eSewa, Bank Transfer, COD)
+              Payment Method &amp; QR Scan
             </legend>
 
             <div className="space-y-3">
               {paymentMethods.map((method) => {
                 const isSelected = paymentMethodId === method.id;
                 return (
-                  <label
+                  <div
                     key={method.id}
+                    onClick={() => setPaymentMethodId(method.id)}
                     className={`flex flex-col p-4 rounded-xl border transition-all cursor-pointer text-xs ${
                       isSelected
                         ? 'border-amber-500 ring-2 ring-amber-500/20 bg-amber-500/5 font-semibold'
                         : 'border-border bg-bg hover:border-text/30'
                     }`}
                   >
-                    <div className="flex items-center gap-2.5">
-                      <input
-                        type="radio"
-                        name="payment"
-                        checked={isSelected}
-                        onChange={() => setPaymentMethodId(method.id)}
-                        className="accent-amber-600"
-                      />
-                      <span className="font-bold text-sm text-text">{method.name}</span>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2.5">
+                        <input
+                          type="radio"
+                          name="payment"
+                          checked={isSelected}
+                          onChange={() => setPaymentMethodId(method.id)}
+                          className="accent-amber-600"
+                        />
+                        <span className="font-bold text-sm text-text">{method.name}</span>
+                      </div>
+                      {method.config?.qr_code_url && (
+                        <span className="text-[10px] font-bold text-amber-600 bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20">
+                          📷 QR Available
+                        </span>
+                      )}
                     </div>
 
                     {method.instructions && (
@@ -406,35 +439,57 @@ export default function CheckoutPage() {
                         {method.instructions}
                       </p>
                     )}
-                  </label>
+
+                    {/* QR Code Display if Admin uploaded one */}
+                    {isSelected && method.config?.qr_code_url && (
+                      <div className="mt-4 p-4 bg-white dark:bg-gray-900 rounded-xl border border-amber-500/30 text-center max-w-xs mx-auto shadow-md">
+                        <p className="text-xs font-bold text-gray-800 dark:text-gray-200 mb-2">
+                          📲 Scan QR Code to Pay ({method.name})
+                        </p>
+                        <img
+                          src={method.config.qr_code_url}
+                          alt={`${method.name} QR Code`}
+                          className="w-48 h-48 object-contain mx-auto rounded-lg border border-gray-200 dark:border-gray-800 shadow-sm"
+                        />
+                        <p className="text-[10px] text-gray-500 dark:text-gray-400 mt-2">
+                          Scan using your eSewa, Mobile Banking, or Fonepay App
+                        </p>
+                      </div>
+                    )}
+                  </div>
                 );
               })}
             </div>
 
-            {/* If Bank Transfer / eSewa is selected, prompt transaction ref */}
-            {(paymentMethodId === 'bank_transfer' || paymentMethodId === 'esewa') && (
-              <div className="p-4 rounded-xl border border-amber-500/30 bg-amber-500/10 space-y-2 mt-4 text-xs">
-                <label className="font-bold text-amber-800 dark:text-amber-300 block">
-                  Transaction Reference / Bank Ref ID *
-                </label>
-                <p className="text-[11px] text-muted">
-                  After completing your eSewa / Bank transfer, enter your transaction ID or reference number below:
-                </p>
-                <input
-                  type="text"
-                  value={bankTxnRef}
-                  onChange={(e) => setBankTxnRef(e.target.value)}
-                  placeholder="e.g. eSewa Txn #92847291 or NABIL Ref #00123"
-                  className="w-full px-3 py-2 text-xs rounded-lg border border-border bg-bg uppercase font-mono font-bold focus:outline-none focus:ring-2 focus:ring-amber-500"
-                />
+            {/* Payment Statement / Reference ID Entry */}
+            <div className="p-4 rounded-xl border border-amber-500/30 bg-amber-500/10 space-y-2.5 mt-4 text-xs">
+              <div className="flex items-center gap-2 font-bold text-amber-800 dark:text-amber-300">
+                <span>📑</span> Payment Statement &amp; Transaction Reference ID *
               </div>
-            )}
+              {paymentMethodId === 'cod' ? (
+                <p className="text-[11px] text-muted leading-relaxed">
+                  For Cash on Delivery (COD), please pay the advance delivery charge ({shippingChargePaisa === 0 ? 'FREE' : formatPaisa(shippingChargePaisa)}) via the QR code above, then enter your transaction statement reference ID below to finalize your order.
+                </p>
+              ) : (
+                <p className="text-[11px] text-muted leading-relaxed">
+                  After completing your eSewa / Bank payment via QR code, enter your transaction ID or payment statement reference below:
+                </p>
+              )}
+              <input
+                type="text"
+                required
+                value={bankTxnRef}
+                onChange={(e) => setBankTxnRef(e.target.value)}
+                placeholder="e.g. eSewa Txn #92847291 or NABIL Ref #00123"
+                className="w-full px-3.5 py-2.5 text-xs rounded-xl border border-border bg-bg uppercase font-mono font-bold focus:outline-none focus:ring-2 focus:ring-amber-500"
+              />
+            </div>
           </fieldset>
 
           {/* Promo Code Input on Checkout */}
           <div className="rounded-2xl border border-border p-6 bg-surface shadow-sm space-y-3">
             <h3 className="text-sm font-bold text-text flex items-center gap-1.5">
-              <span>🎟️</span> Promo Code
+              <span>🎟️</span> Apply Promo Code
             </h3>
             {appliedPromoMsg ? (
               <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-xs font-bold text-emerald-700 dark:text-emerald-300">
@@ -447,13 +502,13 @@ export default function CheckoutPage() {
                   value={couponCode}
                   onChange={(e) => setCouponCode(e.target.value)}
                   placeholder="Enter code"
-                  className="flex-1 px-3 py-2 text-xs rounded-xl border border-border bg-bg uppercase font-mono font-bold"
+                  className="flex-1 px-3.5 py-2 text-xs rounded-xl border border-border bg-bg uppercase font-mono font-bold"
                 />
                 <button
                   type="button"
                   onClick={handleApplyPromoCode}
                   disabled={applyingPromo || !couponCode.trim()}
-                  className="px-4 py-2 rounded-xl bg-amber-500 text-white font-bold text-xs hover:bg-amber-600 disabled:opacity-50"
+                  className="px-4 py-2 rounded-xl bg-amber-500 text-white font-bold text-xs hover:bg-amber-600 disabled:opacity-50 transition-colors"
                 >
                   {applyingPromo ? 'Validating...' : 'Apply Code'}
                 </button>
@@ -465,19 +520,36 @@ export default function CheckoutPage() {
 
         {/* Order Summary sidebar */}
         <div className="h-fit space-y-4 rounded-2xl border border-border p-6 bg-surface shadow-sm sticky top-24">
-          <h3 className="text-base font-bold text-text border-b border-border pb-3">Final Order Summary</h3>
-
-          <div className="space-y-3">
-            {items.map((item, idx) => (
-              <div key={idx} className="flex justify-between items-start text-xs border-b border-border/50 pb-2">
-                <div>
-                  <p className="font-bold text-text line-clamp-1">{item.name}</p>
-                  <p className="text-muted text-[11px]">{item.sizeLabel || 'Standard'} × {item.quantity}</p>
-                </div>
-                <span className="font-extrabold text-amber-600">{formatPaisa(item.unitPricePaisa * item.quantity)}</span>
-              </div>
-            ))}
+          <div className="flex items-center justify-between border-b border-border pb-3">
+            <h3 className="text-base font-bold text-text">Final Order Summary</h3>
+            <span className="text-xs text-muted font-semibold">{items.length} {items.length === 1 ? 'item' : 'items'}</span>
           </div>
+
+          {items.length === 0 ? (
+            <p className="text-xs text-muted py-4 text-center">Your cart is empty. Add items to proceed.</p>
+          ) : (
+            <div className="space-y-3 max-h-72 overflow-y-auto pr-1">
+              {items.map((item) => (
+                <div key={item.id} className="flex justify-between items-start text-xs border-b border-border/50 pb-2.5 gap-2">
+                  <div className="flex-1">
+                    <p className="font-bold text-text line-clamp-1">{item.name}</p>
+                    <p className="text-muted text-[11px]">{item.sizeLabel || 'Standard'} × {item.quantity}</p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="font-extrabold text-amber-600">{formatPaisa(item.unitPricePaisa * item.quantity)}</span>
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveItem(item.id)}
+                      title="Remove from cart"
+                      className="text-red-500 hover:text-red-700 p-1 text-xs font-bold rounded hover:bg-red-500/10 transition-colors"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
 
           <div className="pt-2 space-y-2 text-xs">
             <div className="flex justify-between text-muted">
@@ -509,7 +581,7 @@ export default function CheckoutPage() {
             </div>
           </div>
 
-          {error && <p className="text-xs text-red-600 font-semibold p-2.5 rounded-xl bg-red-500/10 border border-red-500/20">{error}</p>}
+          {error && <p className="text-xs text-red-600 font-semibold p-3 rounded-xl bg-red-500/10 border border-red-500/20">{error}</p>}
 
           {user ? (
             <div className="space-y-2.5">
