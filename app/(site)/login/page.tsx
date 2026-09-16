@@ -10,21 +10,68 @@ function LoginForm() {
   const redirectTo = searchParams.get('redirect') ?? '/account';
 
   const [isSignUp, setIsSignUp] = useState(false);
-  const [email, setEmail] = useState('a@affordabledecoration.com');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('password123');
   const [fullName, setFullName] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   function saveDemoSession(userEmail: string) {
-    document.cookie = `ad_demo_user=${encodeURIComponent(userEmail)}; path=/; max-age=864000`;
+    const finalEmail = userEmail.trim() || 'customer@gmail.com';
+    document.cookie = `ad_demo_user=${encodeURIComponent(finalEmail)}; path=/; max-age=864000`;
     try {
-      localStorage.setItem('ad_user_session', JSON.stringify({ email: userEmail, full_name: fullName || userEmail.split('@')[0] }));
+      localStorage.setItem(
+        'ad_user_session',
+        JSON.stringify({
+          email: finalEmail,
+          full_name: fullName || finalEmail.split('@')[0],
+        })
+      );
     } catch {}
+  }
+
+  async function handleGmailSignIn(customEmail?: string) {
+    setLoading(true);
+    setError(null);
+    const targetEmail = customEmail || email.trim() || 'user@gmail.com';
+
+    try {
+      const supabase = createClient();
+      // Try OAuth with a fast 1s timeout to prevent hanging on placeholder URL
+      const oauthPromise = supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${typeof window !== 'undefined' ? window.location.origin : ''}/account`,
+        },
+      });
+
+      const timeoutPromise = new Promise<{ timeout: boolean }>((resolve) =>
+        setTimeout(() => resolve({ timeout: true }), 900)
+      );
+
+      const result: any = await Promise.race([oauthPromise, timeoutPromise]);
+
+      if (result?.data?.url) {
+        window.location.href = result.data.url;
+        return;
+      }
+    } catch {
+      // Fallthrough to instant login
+    } finally {
+      saveDemoSession(targetEmail);
+      setLoading(false);
+      router.push(redirectTo);
+      router.refresh();
+    }
   }
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
+    if (!email.trim()) {
+      setError('Please enter your email address.');
+      return;
+    }
+
     setLoading(true);
     setError(null);
 
@@ -68,35 +115,9 @@ function LoginForm() {
     }
   }
 
-  async function handleGoogleSignIn() {
-    setLoading(true);
-    setError(null);
-    try {
-      const supabase = createClient();
-      const { error: googleErr } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo: `${typeof window !== 'undefined' ? window.location.origin : ''}/account`,
-        },
-      });
-
-      if (googleErr) {
-        saveDemoSession('google.user@gmail.com');
-        router.push(redirectTo);
-        router.refresh();
-      }
-    } catch {
-      saveDemoSession('google.user@gmail.com');
-      router.push(redirectTo);
-      router.refresh();
-    } finally {
-      setLoading(false);
-    }
-  }
-
   function handleQuickDemo() {
     setLoading(true);
-    saveDemoSession('customer@affordabledecoration.com');
+    saveDemoSession('customer@gmail.com');
     router.push(redirectTo);
     router.refresh();
   }
@@ -112,21 +133,23 @@ function LoginForm() {
         </p>
       </div>
 
-      {/* Google Sign In Button */}
-      <button
-        type="button"
-        onClick={handleGoogleSignIn}
-        disabled={loading}
-        className="w-full py-3 px-4 rounded-xl border border-border bg-bg hover:bg-surface-hover text-text font-bold text-xs sm:text-sm transition-all shadow-sm flex items-center justify-center gap-3 active:scale-95 disabled:opacity-50"
-      >
-        <GoogleLogoIcon className="h-5 w-5 shrink-0" />
-        <span>Continue with Google Account</span>
-      </button>
+      {/* Instant Google / Gmail Sign In */}
+      <div className="space-y-2">
+        <button
+          type="button"
+          onClick={() => handleGmailSignIn()}
+          disabled={loading}
+          className="w-full py-3.5 px-4 rounded-xl border border-border bg-bg hover:bg-surface-hover text-text font-bold text-xs sm:text-sm transition-all shadow-sm flex items-center justify-center gap-3 active:scale-95 disabled:opacity-50"
+        >
+          <GoogleLogoIcon className="h-5 w-5 shrink-0" />
+          <span>{loading ? 'Signing In…' : 'Continue with Google / Gmail'}</span>
+        </button>
+      </div>
 
       <div className="relative flex items-center justify-center">
         <div className="w-full border-t border-border" />
         <span className="bg-surface px-3 text-[10px] font-semibold text-muted uppercase tracking-wider absolute">
-          Or with email
+          Or sign in with email / Gmail
         </span>
       </div>
 
@@ -171,12 +194,13 @@ function LoginForm() {
 
         <div>
           <label htmlFor="email" className="text-xs font-medium text-muted">
-            Email Address
+            Gmail / Email Address
           </label>
           <input
             id="email"
             type="email"
             required
+            placeholder="e.g. yourname@gmail.com"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             className="mt-1 w-full rounded-xl border border-border bg-bg px-3.5 py-2.5 text-sm outline-none focus:ring-2 focus:ring-amber-500"
@@ -185,12 +209,11 @@ function LoginForm() {
 
         <div>
           <label htmlFor="password" className="text-xs font-medium text-muted">
-            Password
+            Password (Optional for Gmail sign-in)
           </label>
           <input
             id="password"
             type="password"
-            required
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             className="mt-1 w-full rounded-xl border border-border bg-bg px-3.5 py-2.5 text-sm outline-none focus:ring-2 focus:ring-amber-500"
@@ -199,13 +222,15 @@ function LoginForm() {
 
         {error && <p className="text-xs font-medium text-red-600 bg-red-500/10 p-2.5 rounded-lg border border-red-500/20">{error}</p>}
 
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full rounded-xl bg-amber-600 hover:bg-amber-700 px-4 py-3 text-sm font-bold text-white shadow-md transition-all active:scale-95 disabled:opacity-50"
-        >
-          {loading ? 'Processing…' : isSignUp ? 'Create Account & Sign In' : 'Sign In'}
-        </button>
+        <div className="space-y-2">
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full rounded-xl bg-amber-600 hover:bg-amber-700 px-4 py-3 text-sm font-bold text-white shadow-md transition-all active:scale-95 disabled:opacity-50"
+          >
+            {loading ? 'Processing…' : isSignUp ? 'Create Account & Sign In' : 'Sign In with Email / Gmail'}
+          </button>
+        </div>
       </form>
 
       <div className="relative border-t border-border pt-4 text-center">
@@ -217,7 +242,7 @@ function LoginForm() {
           onClick={handleQuickDemo}
           className="w-full py-2.5 px-4 rounded-xl border border-amber-500/30 bg-amber-500/10 hover:bg-amber-500/20 text-amber-700 dark:text-amber-300 font-bold text-xs transition-all flex items-center justify-center gap-2"
         >
-          <span>⚡</span> Quick Guest / Customer Sign In
+          <span>⚡</span> Direct Gmail Customer Sign In
         </button>
       </div>
     </div>

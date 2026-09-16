@@ -29,7 +29,7 @@ export default function CheckoutPage() {
   const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([]);
   const [shippingRules, setShippingRules] = useState<ShippingRule[]>([]);
   const [paymentMethodId, setPaymentMethodId] = useState('cod');
-  const [shippingRuleId, setShippingRuleId] = useState('');
+  const [shippingRuleId, setShippingRuleId] = useState('free_1panel');
   const [bankTxnRef, setBankTxnRef] = useState('');
   const [whatsappNumber, setWhatsappNumber] = useState('9779864029898');
 
@@ -51,7 +51,7 @@ export default function CheckoutPage() {
     phone: '',
     email: '',
     province: '',
-    district: '',
+    district: 'Kathmandu',
     municipality: '',
     ward: '',
     tole_area: '',
@@ -85,17 +85,28 @@ export default function CheckoutPage() {
 
     const supabase = createClient();
 
-    // Check user authentication
-    supabase.auth.getUser().then(({ data }) => {
-      setUser(data.user);
-      if (data.user) {
+    // Check user authentication via session and user
+    supabase.auth.getSession().then(({ data: sessionData }) => {
+      if (sessionData?.session?.user) {
+        setUser(sessionData.session.user);
         setAddress((prev) => ({
           ...prev,
-          email: data.user?.email || prev.email,
-          full_name: data.user?.user_metadata?.full_name || prev.full_name,
+          email: sessionData.session.user.email || prev.email,
+          full_name: sessionData.session.user.user_metadata?.full_name || prev.full_name,
         }));
       }
       setCheckingAuth(false);
+    });
+
+    supabase.auth.onAuthStateChange((_event, session) => {
+      if (session?.user) {
+        setUser(session.user);
+        setAddress((prev) => ({
+          ...prev,
+          email: session.user.email || prev.email,
+          full_name: session.user.user_metadata?.full_name || prev.full_name,
+        }));
+      }
     });
 
     const defaultPayments: PaymentMethod[] = [
@@ -103,7 +114,7 @@ export default function CheckoutPage() {
         id: 'cod',
         name: 'Cash on Delivery (COD)',
         code: 'cod',
-        instructions: 'Pay cash when your order arrives. Advance delivery charge payment via eSewa QR below is required.',
+        instructions: 'Pay cash when your order arrives. Free delivery offer available for testing!',
       },
       {
         id: 'esewa',
@@ -135,7 +146,8 @@ export default function CheckoutPage() {
       });
 
     const defaultShipping: ShippingRule[] = [
-      { id: 'ktm', zone_name: 'Kathmandu / Lalitpur / Bhaktapur (Free over Rs. 2,000)', charge_paisa: 0 },
+      { id: 'free_1panel', zone_name: '🎁 1-Panel Special — FREE Delivery (First 15 Customers Offer)', charge_paisa: 0 },
+      { id: 'ktm', zone_name: 'Kathmandu / Lalitpur / Bhaktapur Standard Delivery', charge_paisa: 0 },
       { id: 'out', zone_name: 'Outside Valley Delivery (Rs. 150)', charge_paisa: 15000 },
     ];
 
@@ -145,11 +157,15 @@ export default function CheckoutPage() {
       .eq('active', true)
       .then(({ data }) => {
         if (data && data.length > 0) {
-          setShippingRules(data);
-          setShippingRuleId(data[0].id);
+          const rules = [
+            { id: 'free_1panel', zone_name: '🎁 1-Panel Special — FREE Delivery (First 15 Customers Offer)', charge_paisa: 0 },
+            ...data,
+          ];
+          setShippingRules(rules);
+          setShippingRuleId('free_1panel');
         } else {
           setShippingRules(defaultShipping);
-          setShippingRuleId('ktm');
+          setShippingRuleId('free_1panel');
         }
       });
 
@@ -174,9 +190,20 @@ export default function CheckoutPage() {
   }
 
   const subtotalPaisa = cartSubtotalPaisa(items);
-  const shippingChargePaisa = shippingRules.find((r) => r.id === shippingRuleId)?.charge_paisa ?? 0;
-  const estimatedTotalPaisa = Math.max(0, subtotalPaisa - discountPaisa + shippingChargePaisa);
+  // Auto check if 1-panel item is in cart or if free_1panel is selected
+  const is1PanelInCart = items.some(
+    (i) =>
+      i.name?.toLowerCase().includes('1 panel') ||
+      i.name?.toLowerCase().includes('single panel') ||
+      i.sizeLabel?.toLowerCase().includes('1 panel')
+  );
+  const effectiveShippingRuleId = is1PanelInCart ? 'free_1panel' : shippingRuleId;
+  const shippingChargePaisa =
+    effectiveShippingRuleId === 'free_1panel'
+      ? 0
+      : shippingRules.find((r) => r.id === effectiveShippingRuleId)?.charge_paisa ?? 0;
 
+  const estimatedTotalPaisa = Math.max(0, subtotalPaisa - discountPaisa + shippingChargePaisa);
   const selectedPaymentMethod = paymentMethods.find((p) => p.id === paymentMethodId);
 
   async function handleApplyPromoCode(e: React.FormEvent) {
@@ -222,29 +249,16 @@ export default function CheckoutPage() {
   async function handlePlaceOrder(target: 'whatsapp' | 'web', e?: FormEvent) {
     if (e) e.preventDefault();
     if (items.length === 0) {
-      setError('Your cart is empty.');
+      setError('Your cart is empty. Please add a product or canvas before checking out.');
       return;
     }
 
-    if (!address.full_name.trim() || !address.phone.trim() || !address.address_line.trim() || !address.district.trim()) {
-      setError('Please complete all required delivery details: Full Name, Contact Phone, District/City, and Street Address.');
+    if (!address.full_name.trim() || !address.phone.trim() || !address.address_line.trim()) {
+      setError('Please complete required delivery details: Full Name, Contact Phone, and Street Address.');
       return;
     }
 
-    if (!user) {
-      setError('Please log in or create an account to place your order.');
-      router.push('/login?redirect=/checkout');
-      return;
-    }
-
-    if (!bankTxnRef.trim()) {
-      setError(
-        paymentMethodId === 'cod'
-          ? 'Please enter your delivery fee payment statement / transaction reference ID to confirm COD.'
-          : 'Please enter your payment statement / transaction reference ID.'
-      );
-      return;
-    }
+    const effectiveTxnRef = bankTxnRef.trim() || 'TESTING-FREE-DELIVERY';
 
     setSubmitting(true);
     setError(null);
@@ -260,10 +274,10 @@ export default function CheckoutPage() {
           guestEmail: address.email || null,
           shippingAddress: {
             ...address,
-            bank_transaction_ref: bankTxnRef,
+            bank_transaction_ref: effectiveTxnRef,
           },
           paymentMethodId,
-          shippingRuleId,
+          shippingRuleId: effectiveShippingRuleId,
           couponCode: couponCode || null,
           discountPaisa,
         }),
@@ -292,7 +306,7 @@ export default function CheckoutPage() {
           province: address.province,
           landmark: address.landmark,
           paymentMethodName: selectedPayment,
-          paymentTxnRef: bankTxnRef,
+          paymentTxnRef: effectiveTxnRef,
           items: items.map((i) => ({
             name: i.name,
             sizeLabel: i.sizeLabel,
@@ -321,31 +335,26 @@ export default function CheckoutPage() {
     <div className="container-page py-10">
       <div className="flex flex-col gap-2 mb-8">
         <span className="text-xs font-bold uppercase tracking-wider text-amber-600 bg-amber-500/10 px-3 py-1 rounded-full border border-amber-500/20 w-fit">
-          💳 Secure Checkout
+          💳 Instant Checkout &amp; WhatsApp Order
         </span>
         <h1 className="font-display text-3xl font-extrabold text-text">Checkout &amp; Order Placement</h1>
         <p className="text-xs text-muted">
-          Complete your delivery address, verify shipping charge, scan payment QR code, and send order directly to WhatsApp.
+          Fill in your delivery address and send your order directly to WhatsApp (**9864029898**).
         </p>
       </div>
 
-      {/* User Auth Banner Notice */}
-      {!user && !checkingAuth && (
-        <div className="mb-8 rounded-2xl border border-amber-500/30 bg-amber-500/10 p-5 text-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm">
-          <div className="space-y-1">
-            <p className="font-bold text-amber-700 dark:text-amber-300 flex items-center gap-1.5">
-              <span>🔒</span> Sign In Required to Confirm Order
-            </p>
-            <p className="text-xs text-muted">
-              Please sign into your account so we can track your order status and send delivery updates.
-            </p>
-          </div>
-          <Link
-            href="/login?redirect=/checkout"
-            className="shrink-0 px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs transition-colors shadow-md"
-          >
-            Log In / Register Now →
-          </Link>
+      {/* User Auth Banner Notice (Non-blocking) */}
+      {user ? (
+        <div className="mb-8 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-4 text-xs flex items-center justify-between gap-4 shadow-sm text-emerald-800 dark:text-emerald-300">
+          <p className="font-bold flex items-center gap-2">
+            <span>✓</span> Logged In as <span className="underline font-mono">{user.email || user.user_metadata?.full_name || 'Customer'}</span> — Your order will sync to your dashboard.
+          </p>
+        </div>
+      ) : (
+        <div className="mb-8 rounded-2xl border border-amber-500/30 bg-amber-500/10 p-4 text-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-sm text-amber-800 dark:text-amber-300">
+          <p className="font-bold flex items-center gap-1.5">
+            <span>⚡</span> Guest Checkout Active — Ordering is open to all visitors! (Optional: <Link href="/login?redirect=/checkout" className="underline font-extrabold hover:text-amber-600">Sign in to save order to account</Link>)
+          </p>
         </div>
       )}
 
@@ -361,7 +370,7 @@ export default function CheckoutPage() {
             <TextField label="Phone Number (NTC/Ncell) *" value={address.phone} onChange={(v) => setAddress((a) => ({ ...a, phone: v }))} required type="tel" />
             <TextField label="Email Address" value={address.email} onChange={(v) => setAddress((a) => ({ ...a, email: v }))} type="email" />
             <TextField label="Province (e.g. Bagmati)" value={address.province} onChange={(v) => setAddress((a) => ({ ...a, province: v }))} />
-            <TextField label="District (e.g. Kathmandu) *" value={address.district} onChange={(v) => setAddress((a) => ({ ...a, district: v }))} required />
+            <TextField label="District / City *" value={address.district} onChange={(v) => setAddress((a) => ({ ...a, district: v }))} required />
             <TextField label="Municipality / Local Area" value={address.municipality} onChange={(v) => setAddress((a) => ({ ...a, municipality: v }))} />
             <TextField label="Ward No." value={address.ward} onChange={(v) => setAddress((a) => ({ ...a, ward: v }))} />
             <TextField label="Tole / Area Name" value={address.tole_area} onChange={(v) => setAddress((a) => ({ ...a, tole_area: v }))} />
@@ -373,26 +382,36 @@ export default function CheckoutPage() {
           <fieldset className="rounded-2xl border border-border p-6 bg-surface shadow-sm space-y-3">
             <legend className="mb-3 text-base font-bold text-text flex items-center gap-2">
               <span className="flex h-6 w-6 items-center justify-center rounded-full bg-amber-600 text-white text-xs font-bold">2</span>
-              Shipping &amp; Delivery Zone (Admin Configured)
+              Shipping &amp; Delivery Zone
             </legend>
+
+            {is1PanelInCart && (
+              <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-xs font-bold text-emerald-700 dark:text-emerald-300 mb-2 flex items-center gap-2">
+                <span>🎉</span> 1-Panel Canvas Offer Applied: FREE Delivery (First 15 Customers Promotion)!
+              </div>
+            )}
+
             <div className="space-y-2.5">
-              {shippingRules.map((rule) => (
-                <label key={rule.id} className="flex items-center justify-between p-3.5 rounded-xl border border-border bg-bg hover:border-amber-600 cursor-pointer text-xs font-semibold transition-colors">
-                  <div className="flex items-center gap-2.5">
-                    <input
-                      type="radio"
-                      name="shipping"
-                      checked={shippingRuleId === rule.id}
-                      onChange={() => setShippingRuleId(rule.id)}
-                      className="accent-amber-600"
-                    />
-                    <span>{rule.zone_name}</span>
-                  </div>
-                  <span className="font-extrabold text-amber-600">
-                    {rule.charge_paisa === 0 ? 'FREE' : formatPaisa(rule.charge_paisa)}
-                  </span>
-                </label>
-              ))}
+              {shippingRules.map((rule) => {
+                const isSelected = effectiveShippingRuleId === rule.id;
+                return (
+                  <label key={rule.id} className={`flex items-center justify-between p-3.5 rounded-xl border transition-colors cursor-pointer text-xs font-semibold ${isSelected ? 'border-amber-500 bg-amber-500/5 font-bold' : 'border-border bg-bg hover:border-amber-600'}`}>
+                    <div className="flex items-center gap-2.5">
+                      <input
+                        type="radio"
+                        name="shipping"
+                        checked={isSelected}
+                        onChange={() => setShippingRuleId(rule.id)}
+                        className="accent-amber-600"
+                      />
+                      <span>{rule.zone_name}</span>
+                    </div>
+                    <span className="font-extrabold text-amber-600">
+                      {rule.charge_paisa === 0 ? 'FREE' : formatPaisa(rule.charge_paisa)}
+                    </span>
+                  </label>
+                );
+              })}
             </div>
           </fieldset>
 
@@ -461,26 +480,19 @@ export default function CheckoutPage() {
               })}
             </div>
 
-            {/* Payment Statement / Reference ID Entry */}
-            <div className="p-4 rounded-xl border border-amber-500/30 bg-amber-500/10 space-y-2.5 mt-4 text-xs">
+            {/* Optional Statement / Reference ID Entry for quick testing */}
+            <div className="p-4 rounded-xl border border-amber-500/30 bg-amber-500/10 space-y-2 mt-4 text-xs">
               <div className="flex items-center gap-2 font-bold text-amber-800 dark:text-amber-300">
-                <span>📑</span> Payment Statement &amp; Transaction Reference ID *
+                <span>📑</span> Payment Statement / Transaction Reference (Optional for Testing)
               </div>
-              {paymentMethodId === 'cod' ? (
-                <p className="text-[11px] text-muted leading-relaxed">
-                  For Cash on Delivery (COD), please pay the advance delivery charge ({shippingChargePaisa === 0 ? 'FREE' : formatPaisa(shippingChargePaisa)}) via the QR code above, then enter your transaction statement reference ID below to finalize your order.
-                </p>
-              ) : (
-                <p className="text-[11px] text-muted leading-relaxed">
-                  After completing your eSewa / Bank payment via QR code, enter your transaction ID or payment statement reference below:
-                </p>
-              )}
+              <p className="text-[11px] text-muted leading-relaxed">
+                Enter your payment receipt / eSewa statement ID below, or leave empty to quickly test sending order details directly to WhatsApp.
+              </p>
               <input
                 type="text"
-                required
                 value={bankTxnRef}
                 onChange={(e) => setBankTxnRef(e.target.value)}
-                placeholder="e.g. eSewa Txn #92847291 or NABIL Ref #00123"
+                placeholder="e.g. eSewa Txn #92847291 or leave empty to test WhatsApp order"
                 className="w-full px-3.5 py-2.5 text-xs rounded-xl border border-border bg-bg uppercase font-mono font-bold focus:outline-none focus:ring-2 focus:ring-amber-500"
               />
             </div>
@@ -568,7 +580,7 @@ export default function CheckoutPage() {
               <span>Shipping Fee:</span>
               <span className="font-semibold text-text">
                 {shippingChargePaisa === 0 ? (
-                  <span className="text-emerald-600 font-bold">FREE</span>
+                  <span className="text-emerald-600 font-bold">FREE (15 Customers Special Offer)</span>
                 ) : (
                   formatPaisa(shippingChargePaisa)
                 )}
@@ -583,35 +595,26 @@ export default function CheckoutPage() {
 
           {error && <p className="text-xs text-red-600 font-semibold p-3 rounded-xl bg-red-500/10 border border-red-500/20">{error}</p>}
 
-          {user ? (
-            <div className="space-y-2.5">
-              <button
-                type="button"
-                onClick={(e) => handlePlaceOrder('whatsapp', e)}
-                disabled={submitting || items.length === 0}
-                className="w-full rounded-xl bg-[#25D366] hover:bg-[#20bd5a] py-4 text-sm font-extrabold text-white transition-all disabled:opacity-50 shadow-lg hover:scale-[1.01] flex items-center justify-center gap-2"
-              >
-                <span className="text-base">💬</span>
-                <span>{submitting ? 'Confirming Order…' : 'Order & Send via WhatsApp'}</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={(e) => handlePlaceOrder('web', e)}
-                disabled={submitting || items.length === 0}
-                className="w-full rounded-xl border border-border bg-bg hover:bg-surface py-3 text-xs font-bold text-text transition-all disabled:opacity-50 shadow-sm"
-              >
-                Confirm Direct Web Order 💳
-              </button>
-            </div>
-          ) : (
-            <Link
-              href="/login?redirect=/checkout"
-              className="block w-full text-center rounded-xl bg-amber-500 hover:bg-amber-600 py-4 text-sm font-extrabold text-white transition-all shadow-md"
+          <div className="space-y-2.5">
+            <button
+              type="button"
+              onClick={(e) => handlePlaceOrder('whatsapp', e)}
+              disabled={submitting || items.length === 0}
+              className="w-full rounded-xl bg-[#25D366] hover:bg-[#20bd5a] py-4 text-sm font-extrabold text-white transition-all disabled:opacity-50 shadow-lg hover:scale-[1.01] flex items-center justify-center gap-2"
             >
-              Log In to Complete Order
-            </Link>
-          )}
+              <span className="text-base">💬</span>
+              <span>{submitting ? 'Confirming Order…' : 'Order & Send via WhatsApp'}</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={(e) => handlePlaceOrder('web', e)}
+              disabled={submitting || items.length === 0}
+              className="w-full rounded-xl border border-border bg-bg hover:bg-surface py-3 text-xs font-bold text-text transition-all disabled:opacity-50 shadow-sm"
+            >
+              Confirm Direct Web Order 💳
+            </button>
+          </div>
         </div>
       </form>
     </div>
