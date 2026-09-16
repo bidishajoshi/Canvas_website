@@ -209,6 +209,8 @@ const FALLBACK_FINISHES: Finish[] = [
   { id: 'fn2', name: 'Satin Gloss Finish (Vibrant Color Pop)', sort_order: 2, status: 'published', description: null, price_paisa: 0 },
 ];
 
+import { getCustomCanvasCategories, filterDeleted } from '@/lib/adminStore';
+
 export default async function CustomCanvasPage() {
   const settings = await getSettings();
 
@@ -216,10 +218,11 @@ export default async function CustomCanvasPage() {
   let sizes = FALLBACK_SIZES;
   let frames = FALLBACK_FRAMES;
   let finishes = FALLBACK_FINISHES;
+  let categories: { id: string; name: string; icon?: string }[] = [];
 
   try {
     const supabase = createClient();
-    const [panelTypesRes, sizesRes, framesRes, finishesRes] = await Promise.all([
+    const [panelTypesRes, sizesRes, framesRes, finishesRes, categoriesRes] = await Promise.all([
       supabase
         .from('panel_types')
         .select('*')
@@ -228,14 +231,24 @@ export default async function CustomCanvasPage() {
       supabase.from('canvas_sizes').select('*').eq('active', true).order('sort_order', { ascending: true }),
       supabase.from('frames').select('*').eq('status', 'published').order('sort_order', { ascending: true }),
       supabase.from('finishes').select('*').eq('status', 'published').order('sort_order', { ascending: true }),
+      supabase.from('categories').select('*').eq('status', 'published').order('sort_order', { ascending: true }),
     ]);
 
     panelTypes = panelTypesRes.data && panelTypesRes.data.length > 0 ? panelTypesRes.data : FALLBACK_PANELS;
     sizes = sizesRes.data && sizesRes.data.length > 0 ? sizesRes.data : FALLBACK_SIZES;
     frames = framesRes.data && framesRes.data.length > 0 ? framesRes.data : FALLBACK_FRAMES;
     finishes = finishesRes.data && finishesRes.data.length > 0 ? finishesRes.data : FALLBACK_FINISHES;
+
+    const customCats = getCustomCanvasCategories();
+    const dbCats = (categoriesRes?.data ?? []).map((c: any) => ({
+      id: c.id,
+      name: c.name,
+      icon: c.description?.includes('|') ? c.description.split('|')[0] : undefined,
+    }));
+
+    categories = filterDeleted([...customCats, ...dbCats]);
   } catch {
-    // Fallbacks active
+    categories = filterDeleted(getCustomCanvasCategories());
   }
 
   return (
@@ -260,6 +273,7 @@ export default async function CustomCanvasPage() {
         frames={frames}
         finishes={finishes}
         settings={settings}
+        categories={categories}
       />
     </div>
   );

@@ -25,6 +25,12 @@ const CanvasEditor = dynamic(
   { ssr: false, loading: () => <PreviewPlaceholder /> }
 );
 
+export interface CanvasCategoryProp {
+  id: string;
+  name: string;
+  icon?: string;
+}
+
 interface CanvasBuilderClientProps {
   panelTypes: PanelType[];
   sizes: CanvasSize[];
@@ -32,18 +38,31 @@ interface CanvasBuilderClientProps {
   finishes: Finish[];
   settings: Settings;
   sizeChartItems?: SizeChartItem[];
+  categories?: CanvasCategoryProp[];
 }
 
-const CANVAS_TYPES = [
+const DEFAULT_CANVAS_TYPES = [
   { id: 'vastu_horses', name: '7 Running Horses (Vastu)', icon: '🐎' },
   { id: 'buddha', name: 'Buddha & Spiritual', icon: '🪷' },
-  { id: 'portrait', name: 'Personal Portrait', icon: '👤' },
+  { id: 'portrait', name: 'Personal Portrait', icon: '🖼️' },
   { id: 'family', name: 'Family & Memories', icon: '👨‍👩‍👧‍👦' },
   { id: 'couple', name: 'Couple & Romance', icon: '❤️' },
   { id: 'landscape', name: 'Landscape & Nature', icon: '🏞️' },
   { id: 'abstract', name: 'Modern Abstract', icon: '🎨' },
   { id: 'other', name: 'Custom Design', icon: '✨' },
 ];
+
+function getIconForCategory(name: string): string {
+  const lower = name.toLowerCase();
+  if (lower.includes('horse') || lower.includes('vastu')) return '🐎';
+  if (lower.includes('buddha') || lower.includes('spiritual')) return '🪷';
+  if (lower.includes('portrait') || lower.includes('personal')) return '🖼️';
+  if (lower.includes('family') || lower.includes('memory')) return '👨‍👩‍👧‍👦';
+  if (lower.includes('couple') || lower.includes('romance') || lower.includes('love')) return '❤️';
+  if (lower.includes('landscape') || lower.includes('nature') || lower.includes('mountain')) return '🏞️';
+  if (lower.includes('abstract') || lower.includes('art')) return '🎨';
+  return '✨';
+}
 
 const DEMO_ARTWORKS = [
   {
@@ -111,8 +130,20 @@ export function CanvasBuilderClient({
   finishes,
   settings,
   sizeChartItems,
+  categories,
 }: CanvasBuilderClientProps) {
   const activePanels = panelTypes.length > 0 ? panelTypes : FALLBACK_PANELS;
+
+  const categoriesList = useMemo(() => {
+    if (categories && categories.length > 0) {
+      return categories.map((c) => ({
+        id: c.id,
+        name: c.name,
+        icon: c.icon || getIconForCategory(c.name),
+      }));
+    }
+    return DEFAULT_CANVAS_TYPES;
+  }, [categories]);
 
   const defaultDemoUrl =
     settings.demo_photo_url || DEMO_ARTWORKS[0].url;
@@ -376,7 +407,7 @@ export function CanvasBuilderClient({
               <h2 className="text-base font-semibold">Choose Canvas Category</h2>
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-              {CANVAS_TYPES.map((type) => (
+              {categoriesList.map((type) => (
                 <button
                   key={type.id}
                   type="button"
