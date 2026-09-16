@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
 import { cartSubtotalPaisa, clearCart, getCart, type CartItem } from '@/lib/cart';
 import { formatPaisa } from '@/lib/utils';
+import { buildFullOrderWhatsAppLink } from '@/lib/whatsapp';
 
 interface PaymentMethod {
   id: string;
@@ -27,6 +28,7 @@ export default function CheckoutPage() {
   const [paymentMethodId, setPaymentMethodId] = useState('cod');
   const [shippingRuleId, setShippingRuleId] = useState('');
   const [bankTxnRef, setBankTxnRef] = useState('');
+  const [whatsappNumber, setWhatsappNumber] = useState('9779800000000');
 
   // Promo Code States
   const [couponCode, setCouponCode] = useState('');
@@ -141,6 +143,16 @@ export default function CheckoutPage() {
           setShippingRuleId('ktm');
         }
       });
+
+    supabase
+      .from('settings')
+      .select('whatsapp_number')
+      .single()
+      .then(({ data }) => {
+        if (data?.whatsapp_number) {
+          setWhatsappNumber(data.whatsapp_number);
+        }
+      });
   }, []);
 
   const subtotalPaisa = cartSubtotalPaisa(items);
@@ -187,10 +199,15 @@ export default function CheckoutPage() {
     }
   }
 
-  async function handleSubmit(e: FormEvent) {
-    e.preventDefault();
+  async function handlePlaceOrder(target: 'whatsapp' | 'web', e?: FormEvent) {
+    if (e) e.preventDefault();
     if (items.length === 0) {
       setError('Your cart is empty.');
+      return;
+    }
+
+    if (!address.full_name.trim() || !address.phone.trim() || !address.address_line.trim() || !address.district.trim()) {
+      setError('Please complete all required delivery details: Full Name, Contact Phone, District/City, and Street Address.');
       return;
     }
 
@@ -200,7 +217,7 @@ export default function CheckoutPage() {
       return;
     }
 
-    if (paymentMethodId === 'bank_transfer' && !bankTxnRef.trim()) {
+    if ((paymentMethodId === 'bank_transfer' || paymentMethodId === 'esewa') && !bankTxnRef.trim()) {
       setError('Please enter your Bank / eSewa transaction reference ID.');
       return;
     }
@@ -235,9 +252,41 @@ export default function CheckoutPage() {
       }
 
       const data = await res.json();
+      const orderNumber = data.orderNumber;
+
+      if (target === 'whatsapp') {
+        const selectedPayment = paymentMethods.find((p) => p.id === paymentMethodId)?.name;
+        const waUrl = buildFullOrderWhatsAppLink(whatsappNumber, {
+          orderNumber,
+          customerName: address.full_name,
+          phone: address.phone,
+          email: address.email,
+          addressLine: address.address_line,
+          toleArea: address.tole_area,
+          municipality: address.municipality,
+          district: address.district,
+          province: address.province,
+          landmark: address.landmark,
+          paymentMethodName: selectedPayment,
+          items: items.map((i) => ({
+            name: i.name,
+            sizeLabel: i.sizeLabel,
+            frameLabel: i.frameLabel,
+            quantity: i.quantity,
+            unitPricePaisa: i.unitPricePaisa,
+          })),
+          subtotalPaisa,
+          shippingPaisa: shippingChargePaisa,
+          discountPaisa,
+          totalPaisa: estimatedTotalPaisa,
+        });
+
+        window.open(waUrl, '_blank');
+      }
+
       clearCart();
       sessionStorage.removeItem('applied_promo');
-      router.push(`/track-order?orderNumber=${data.orderNumber}`);
+      router.push(`/track-order?orderNumber=${orderNumber}`);
     } finally {
       setSubmitting(false);
     }
@@ -275,7 +324,7 @@ export default function CheckoutPage() {
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="grid gap-8 lg:grid-cols-[1fr_360px]">
+      <form onSubmit={(e) => handlePlaceOrder('whatsapp', e)} className="grid gap-8 lg:grid-cols-[1fr_360px]">
         <div className="space-y-8">
           {/* 1. Address Form */}
           <fieldset className="grid gap-4 sm:grid-cols-2 rounded-2xl border border-border p-6 bg-surface shadow-sm">
@@ -287,11 +336,11 @@ export default function CheckoutPage() {
             <TextField label="Phone Number (NTC/Ncell) *" value={address.phone} onChange={(v) => setAddress((a) => ({ ...a, phone: v }))} required type="tel" />
             <TextField label="Email Address" value={address.email} onChange={(v) => setAddress((a) => ({ ...a, email: v }))} type="email" />
             <TextField label="Province (e.g. Bagmati)" value={address.province} onChange={(v) => setAddress((a) => ({ ...a, province: v }))} />
-            <TextField label="District (e.g. Kathmandu)" value={address.district} onChange={(v) => setAddress((a) => ({ ...a, district: v }))} />
+            <TextField label="District (e.g. Kathmandu) *" value={address.district} onChange={(v) => setAddress((a) => ({ ...a, district: v }))} required />
             <TextField label="Municipality / Local Area" value={address.municipality} onChange={(v) => setAddress((a) => ({ ...a, municipality: v }))} />
             <TextField label="Ward No." value={address.ward} onChange={(v) => setAddress((a) => ({ ...a, ward: v }))} />
             <TextField label="Tole / Area Name" value={address.tole_area} onChange={(v) => setAddress((a) => ({ ...a, tole_area: v }))} />
-            <TextField label="Street Address" value={address.address_line} onChange={(v) => setAddress((a) => ({ ...a, address_line: v }))} className="sm:col-span-2" />
+            <TextField label="Street Address *" value={address.address_line} onChange={(v) => setAddress((a) => ({ ...a, address_line: v }))} required className="sm:col-span-2" />
             <TextField label="Nearby Landmark" value={address.landmark} onChange={(v) => setAddress((a) => ({ ...a, landmark: v }))} className="sm:col-span-2" />
           </fieldset>
 
@@ -463,13 +512,26 @@ export default function CheckoutPage() {
           {error && <p className="text-xs text-red-600 font-semibold p-2.5 rounded-xl bg-red-500/10 border border-red-500/20">{error}</p>}
 
           {user ? (
-            <button
-              type="submit"
-              disabled={submitting || items.length === 0}
-              className="w-full rounded-xl bg-amber-500 hover:bg-amber-600 py-4 text-sm font-extrabold text-white transition-all disabled:opacity-50 shadow-md hover:scale-[1.01]"
-            >
-              {submitting ? 'Confirming Order…' : 'Confirm & Place Order →'}
-            </button>
+            <div className="space-y-2.5">
+              <button
+                type="button"
+                onClick={(e) => handlePlaceOrder('whatsapp', e)}
+                disabled={submitting || items.length === 0}
+                className="w-full rounded-xl bg-[#25D366] hover:bg-[#20bd5a] py-4 text-sm font-extrabold text-white transition-all disabled:opacity-50 shadow-lg hover:scale-[1.01] flex items-center justify-center gap-2"
+              >
+                <span className="text-base">💬</span>
+                <span>{submitting ? 'Confirming Order…' : 'Order & Send via WhatsApp'}</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={(e) => handlePlaceOrder('web', e)}
+                disabled={submitting || items.length === 0}
+                className="w-full rounded-xl border border-border bg-bg hover:bg-surface py-3 text-xs font-bold text-text transition-all disabled:opacity-50 shadow-sm"
+              >
+                Confirm Direct Web Order 💳
+              </button>
+            </div>
           ) : (
             <Link
               href="/login?redirect=/checkout"
