@@ -1,3 +1,4 @@
+import { cache } from 'react';
 import { createClient } from './supabase/server';
 import type { Settings, HomepageSection } from './types';
 
@@ -36,15 +37,19 @@ const FALLBACK_SETTINGS: Settings = {
     'https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?auto=format&fit=crop&w=1200&q=80',
 };
 
-export async function getSettings(): Promise<Settings> {
+export const getSettings = cache(async (): Promise<Settings> => {
   try {
     const supabase = createClient();
-    const { data } = await supabase.from('settings').select('*').single();
-    return (data as Settings) ?? FALLBACK_SETTINGS;
+    const fetchPromise = supabase.from('settings').select('*').single();
+    const timeoutPromise = new Promise<{ data: null }>((resolve) =>
+      setTimeout(() => resolve({ data: null }), 120)
+    );
+    const res = await Promise.race([fetchPromise, timeoutPromise]);
+    return (res.data as Settings) ?? FALLBACK_SETTINGS;
   } catch {
     return FALLBACK_SETTINGS;
   }
-}
+});
 
 export interface MenuItem {
   id: string;
@@ -64,21 +69,25 @@ const DEFAULT_MENU_ITEMS: MenuItem[] = [
   { id: '7', label: 'Contact', href: '/contact', sort_order: 8 },
 ];
 
-export async function getMenuItems(menuGroup = 'main'): Promise<MenuItem[]> {
+export const getMenuItems = cache(async (menuGroup = 'main'): Promise<MenuItem[]> => {
   try {
     const supabase = createClient();
-    const { data } = await supabase
+    const fetchPromise = supabase
       .from('menu_items')
       .select('id, label, href, sort_order')
       .eq('menu_group', menuGroup)
       .eq('visible', true)
       .order('sort_order', { ascending: true });
 
-    return data && data.length > 0 ? data : DEFAULT_MENU_ITEMS;
+    const timeoutPromise = new Promise<{ data: null }>((resolve) =>
+      setTimeout(() => resolve({ data: null }), 120)
+    );
+    const res = await Promise.race([fetchPromise, timeoutPromise]);
+    return res.data && res.data.length > 0 ? res.data : DEFAULT_MENU_ITEMS;
   } catch {
     return DEFAULT_MENU_ITEMS;
   }
-}
+});
 
 const DEFAULT_HOMEPAGE_SECTIONS: HomepageSection[] = [
   {

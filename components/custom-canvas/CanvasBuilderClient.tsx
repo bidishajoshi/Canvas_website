@@ -619,7 +619,7 @@ export function CanvasBuilderClient({
             </div>
 
             <div className="flex justify-between items-center mb-1">
-              <span className="text-xs font-semibold text-muted uppercase tracking-wider">Item Price Range: Rs. 700 – Rs. 3,000+</span>
+              <span className="text-xs font-semibold text-muted uppercase tracking-wider">Item Price Range: Rs. 700 – Rs. 3,500</span>
             </div>
 
             <OptionSelector

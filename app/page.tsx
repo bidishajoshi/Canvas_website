@@ -47,7 +47,7 @@ export default async function HomePage() {
     {
       id: 'slide-2',
       title: 'Pinterest Aesthetic Bedroom Photo Canvas',
-      subtitle: 'Cozy memory wall galleries and multi-panel photo splits starting from Rs. 700 to Rs. 3,000.',
+      subtitle: 'Cozy memory wall galleries and multi-panel photo splits starting from Rs. 700 to Rs. 3,500.',
       badge: '✨ Aesthetic Room Decor • Rs. 1,900',
       imageUrl: 'https://images.unsplash.com/photo-1582562124811-c09040d0a901?auto=format&fit=crop&w=1600&q=80',
       ctaText: 'Create Your Photo Wall 🖼️',
