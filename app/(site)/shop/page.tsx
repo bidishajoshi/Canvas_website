@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server';
 import { ProductCard } from '@/components/shop/ProductCard';
 import { ShopFilters } from '@/components/shop/ShopFilters';
 import type { Product, Category } from '@/lib/types';
+import { DEFAULT_PRODUCTS, DEFAULT_CATEGORIES } from '@/lib/defaultProducts';
 
 export const metadata: Metadata = { title: 'Shop' };
 
@@ -23,18 +24,19 @@ const SORT_OPTIONS: Record<string, { column: string; ascending: boolean }> = {
 export default async function ShopPage({ searchParams }: ShopPageProps) {
   const supabase = createClient();
 
-  const { data: categories } = await supabase
+  const { data: dbCategories } = await supabase
     .from('categories')
     .select('*')
     .eq('status', 'published')
     .order('sort_order', { ascending: true });
 
+  const categories: Category[] =
+    dbCategories && dbCategories.length > 0 ? (dbCategories as Category[]) : DEFAULT_CATEGORIES;
+
   let query = supabase.from('products').select('*').eq('status', 'published');
 
   if (searchParams.category) {
-    const category = (categories as Category[] | null)?.find(
-      (c) => c.slug === searchParams.category
-    );
+    const category = categories.find((c) => c.slug === searchParams.category);
     if (category) query = query.eq('category_id', category.id);
   }
 
@@ -45,7 +47,33 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
   const sort = SORT_OPTIONS[searchParams.sort ?? 'newest'] ?? SORT_OPTIONS.newest;
   query = query.order(sort.column, { ascending: sort.ascending });
 
-  const { data: products } = await query;
+  const { data: dbProducts } = await query;
+
+  let products: Product[];
+
+  if (dbProducts && dbProducts.length > 0) {
+    products = dbProducts as Product[];
+  } else {
+    // Fallback to default products catalog if database is empty or unconnected
+    products = [...DEFAULT_PRODUCTS];
+
+    if (searchParams.category) {
+      const cat = categories.find((c) => c.slug === searchParams.category);
+      if (cat) {
+        products = products.filter((p) => p.category_id === cat.id);
+      }
+    }
+
+    if (searchParams.featured === 'true') {
+      products = products.filter((p) => p.is_featured);
+    }
+
+    if (searchParams.sort === 'price_low') {
+      products.sort((a, b) => a.base_price_paisa - b.base_price_paisa);
+    } else if (searchParams.sort === 'price_high') {
+      products.sort((a, b) => b.base_price_paisa - a.base_price_paisa);
+    }
+  }
 
   return (
     <div className="container-page py-10">
@@ -53,7 +81,7 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
 
       <div className="mt-8 grid gap-8 lg:grid-cols-[240px_1fr]">
         <ShopFilters
-          categories={(categories as Category[]) ?? []}
+          categories={categories}
           activeCategory={searchParams.category}
           activeSort={searchParams.sort}
         />
@@ -61,7 +89,7 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
         <div>
           {products && products.length > 0 ? (
             <div className="grid grid-cols-2 gap-5 sm:grid-cols-3 xl:grid-cols-4">
-              {(products as Product[]).map((product) => (
+              {products.map((product) => (
                 <ProductCard key={product.id} product={product} />
               ))}
             </div>

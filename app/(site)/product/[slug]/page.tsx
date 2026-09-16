@@ -7,6 +7,7 @@ import { formatPaisa } from '@/lib/utils';
 import { ProductCard } from '@/components/shop/ProductCard';
 import { ProductActions } from '@/components/shop/ProductActions';
 import type { Product, ProductImage } from '@/lib/types';
+import { DEFAULT_PRODUCTS } from '@/lib/defaultProducts';
 
 interface ProductPageProps {
   params: { slug: string };
@@ -14,11 +15,23 @@ interface ProductPageProps {
 
 export async function generateMetadata({ params }: ProductPageProps): Promise<Metadata> {
   const supabase = createClient();
-  const { data: product } = await supabase
+  let { data: product } = await supabase
     .from('products')
     .select('name, seo_title, seo_description, short_description')
     .eq('slug', params.slug)
     .single();
+
+  if (!product) {
+    const found = DEFAULT_PRODUCTS.find((p) => p.slug === params.slug);
+    if (found) {
+      product = {
+        name: found.name,
+        seo_title: found.seo_title,
+        seo_description: found.seo_description,
+        short_description: found.short_description,
+      };
+    }
+  }
 
   if (!product) return {};
 
@@ -31,16 +44,19 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
 export default async function ProductPage({ params }: ProductPageProps) {
   const supabase = createClient();
 
-  const { data: product } = await supabase
+  let { data: dbProduct } = await supabase
     .from('products')
     .select('*')
     .eq('slug', params.slug)
     .eq('status', 'published')
     .single();
 
+  const product =
+    dbProduct ?? DEFAULT_PRODUCTS.find((p) => p.slug === params.slug) ?? null;
+
   if (!product) notFound();
 
-  const [{ data: images }, { data: reviews }, { data: related }, settings] = await Promise.all([
+  const [{ data: images }, { data: reviews }, { data: dbRelated }, settings] = await Promise.all([
     supabase
       .from('product_images')
       .select('*')
@@ -60,6 +76,13 @@ export default async function ProductPage({ params }: ProductPageProps) {
       .limit(4),
     getSettings(),
   ]);
+
+  const related =
+    dbRelated && dbRelated.length > 0
+      ? dbRelated
+      : DEFAULT_PRODUCTS.filter(
+          (p) => p.category_id === product.category_id && p.id !== product.id
+        ).slice(0, 4);
 
   const typedProduct = product as Product;
   const hasDiscount =
