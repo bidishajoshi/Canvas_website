@@ -73,7 +73,7 @@ export function ChatWidget() {
         ...prev,
         {
           role: 'assistant',
-          text: "Namaste! 🙏 We couldn't connect right now. Please message our support team directly on WhatsApp for instant assistance!",
+          text: "Namaste! 🙏 Thank you for reaching out. If you would like to know more or inquire further details, we would be delighted to assist you directly on WhatsApp! Please click below to connect with us.",
           needsHuman: true,
           whatsappUrl: 'https://wa.me/9779800000000',
         },

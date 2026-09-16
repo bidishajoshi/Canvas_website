@@ -4,7 +4,7 @@ import { getSettings } from '@/lib/content';
 import { formatPaisa } from '@/lib/utils';
 
 const RESPECTFUL_WHATSAPP_FALLBACK =
-  "Namaste & thank you for reaching out to Affordable Decoration! 🙏 We don't have an automated answer for your specific query right now, but our team is ready to assist you personally. Please click below to chat with us directly on WhatsApp for instant assistance.";
+  "Namaste! 🙏 Thank you for reaching out to Affordable Decoration. If you would like to know more or inquire further details about our custom wall art, canvas sizes, or pricing, we would be delighted to assist you directly on WhatsApp! Please click below to connect with us.";
 
 const DEFAULT_KNOWLEDGE = [
   {
