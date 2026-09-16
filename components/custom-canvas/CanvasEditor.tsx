@@ -38,8 +38,16 @@ export function CanvasEditor({
   const containerRef = useRef<HTMLDivElement>(null);
   const [stageScale, setStageScale] = useState(1);
 
+  // Zoom & Transform states (Zoom allowed down to 0.3 = 30% zoom out up to 3.0 = 300% zoom in)
   const [zoom, setZoom] = useState(1);
   const [pos, setPos] = useState({ x: 0, y: 0 });
+
+  // Photo adjustment states (Brightness, Contrast, Saturation, Filter, Rotation)
+  const [brightness, setBrightness] = useState(0);
+  const [contrast, setContrast] = useState(0);
+  const [saturation, setSaturation] = useState(0);
+  const [filterPreset, setFilterPreset] = useState<string>('original');
+  const [rotation, setRotation] = useState<number>(0);
 
   const stageWidth = PREVIEW_WIDTH;
   const stageHeight = Math.round(PREVIEW_WIDTH / Math.max(aspectRatio, 0.01));
@@ -69,15 +77,12 @@ export function CanvasEditor({
       case 3:
         return [0.85, 1.0, 0.85];
       case 5:
-        // Classic Pentaptych Chevron (Outer: 75%, Mid: 87.5%, Center: 100%)
         return [0.75, 0.875, 1.0, 0.875, 0.75];
       case 6:
         return [0.8, 0.92, 1.0, 1.0, 0.92, 0.8];
       case 7:
-        // Panoramic stepped composition
         return [0.7, 0.82, 0.92, 1.0, 0.92, 0.82, 0.7];
       default:
-        // Uniform height for 1, 2, 4 panels
         return Array(panelCount).fill(1.0);
     }
   }, [panelCount]);
@@ -87,18 +92,10 @@ export function CanvasEditor({
     if (!frameName) return null;
     const lower = frameName.toLowerCase();
 
-    if (lower.includes('black')) {
-      return { stroke: '#18181b', strokeWidth: 4 };
-    }
-    if (lower.includes('white')) {
-      return { stroke: '#e2e8f0', strokeWidth: 4 };
-    }
-    if (lower.includes('wood') || lower.includes('natural')) {
-      return { stroke: '#78350f', strokeWidth: 5 };
-    }
-    if (lower.includes('gold') || lower.includes('golden')) {
-      return { stroke: '#d97706', strokeWidth: 5 };
-    }
+    if (lower.includes('black')) return { stroke: '#18181b', strokeWidth: 4 };
+    if (lower.includes('white')) return { stroke: '#e2e8f0', strokeWidth: 4 };
+    if (lower.includes('wood') || lower.includes('natural')) return { stroke: '#78350f', strokeWidth: 5 };
+    if (lower.includes('gold') || lower.includes('golden')) return { stroke: '#d97706', strokeWidth: 5 };
     return null;
   }, [frameName]);
 
@@ -111,6 +108,22 @@ export function CanvasEditor({
   const imageWidth = image ? image.width * scale : 0;
   const imageHeight = image ? image.height * scale : 0;
 
+  // Build live CSS filter string
+  const cssFilter = useMemo(() => {
+    const parts: string[] = [];
+    if (brightness !== 0) parts.push(`brightness(${100 + brightness}%)`);
+    if (contrast !== 0) parts.push(`contrast(${100 + contrast}%)`);
+    if (saturation !== 0) parts.push(`saturate(${100 + saturation}%)`);
+
+    if (filterPreset === 'grayscale') parts.push('grayscale(100%)');
+    if (filterPreset === 'sepia') parts.push('sepia(80%)');
+    if (filterPreset === 'vivid') parts.push('saturate(180%) contrast(110%)');
+    if (filterPreset === 'vintage') parts.push('sepia(40%) contrast(110%) brightness(95%)');
+    if (filterPreset === 'high_contrast') parts.push('contrast(160%) brightness(105%)');
+
+    return parts.join(' ');
+  }, [brightness, contrast, saturation, filterPreset]);
+
   // Re-center whenever image or layout changes
   useEffect(() => {
     setPos({
@@ -120,7 +133,7 @@ export function CanvasEditor({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [imageUrl, panelCount, aspectRatio, baseScale]);
 
-  // Report crop data
+  // Report crop and photo adjustment data
   useEffect(() => {
     if (!image || imageWidth === 0 || imageHeight === 0) return;
 
@@ -132,43 +145,87 @@ export function CanvasEditor({
       offsetX,
       offsetY,
       zoom,
+      brightness,
+      contrast,
+      saturation,
+      filterPreset,
+      rotation,
     }));
     onChange(cropData);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pos, zoom, panelCount, image]);
+  }, [pos, zoom, panelCount, image, brightness, contrast, saturation, filterPreset, rotation]);
 
   function handleDragMove(e: Konva.KonvaEventObject<DragEvent>) {
     const node = e.target;
     const minX = stageWidth - imageWidth;
     const minY = stageHeight - imageHeight;
-    const x = Math.min(0, Math.max(minX, node.x()));
-    const y = Math.min(0, Math.max(minY, node.y()));
+
+    const x = imageWidth >= stageWidth
+      ? Math.min(0, Math.max(minX, node.x()))
+      : Math.max(0, Math.min(stageWidth - imageWidth, node.x()));
+
+    const y = imageHeight >= stageHeight
+      ? Math.min(0, Math.max(minY, node.y()))
+      : Math.max(0, Math.min(stageHeight - imageHeight, node.y()));
+
     node.position({ x, y });
     setPos({ x, y });
   }
 
-  // 5mm fine nudge adjustment (5mm ≈ 18px on screen preview)
   function nudge5mm(dx: number, dy: number) {
     setPos((prev) => {
       const minX = stageWidth - imageWidth;
       const minY = stageHeight - imageHeight;
-      return {
-        x: Math.min(0, Math.max(minX, Math.round(prev.x + dx))),
-        y: Math.min(0, Math.max(minY, Math.round(prev.y + dy))),
-      };
+
+      const x = imageWidth >= stageWidth
+        ? Math.min(0, Math.max(minX, Math.round(prev.x + dx)))
+        : Math.round(prev.x + dx);
+
+      const y = imageHeight >= stageHeight
+        ? Math.min(0, Math.max(minY, Math.round(prev.y + dy)))
+        : Math.round(prev.y + dy);
+
+      return { x, y };
     });
   }
 
   function handleZoomIn() {
-    setZoom((z) => Math.min(2.5, z + 0.15));
+    setZoom((z) => Math.min(3.0, z + 0.15));
   }
 
   function handleZoomOut() {
-    setZoom((z) => Math.max(1, z - 0.15));
+    setZoom((z) => Math.max(0.3, z - 0.15));
   }
 
-  function handleResetTransform() {
+  function handleFitEntirePhoto() {
+    if (!image) return;
+    const containScale = Math.min(stageWidth / image.width, stageHeight / image.height);
+    const fitZoom = Math.max(0.3, containScale / baseScale);
+    setZoom(fitZoom);
+
+    const fitW = image.width * baseScale * fitZoom;
+    const fitH = image.height * baseScale * fitZoom;
+    setPos({
+      x: Math.round((stageWidth - fitW) / 2),
+      y: Math.round((stageHeight - fitH) / 2),
+    });
+  }
+
+  function handleFillCanvas() {
     setZoom(1);
+    setPos({
+      x: Math.round((stageWidth - imageWidth) / 2),
+      y: Math.round((stageHeight - imageHeight) / 2),
+    });
+  }
+
+  function handleResetAll() {
+    setZoom(1);
+    setBrightness(0);
+    setContrast(0);
+    setSaturation(0);
+    setFilterPreset('original');
+    setRotation(0);
     setPos({
       x: Math.round((stageWidth - imageWidth) / 2),
       y: Math.round((stageHeight - imageHeight) / 2),
@@ -215,23 +272,163 @@ export function CanvasEditor({
         )}
       </div>
 
-      {/* Fine 5mm Positioning & Zoom Control Panel */}
-      <div className="rounded-2xl border border-border bg-surface p-3 sm:p-4 space-y-4 text-xs">
-        <div className="flex items-center justify-between border-b border-border pb-2">
+      {/* Advanced Photo Adjustments, Filters, Zoom Out & Positioning Controls */}
+      <div className="rounded-2xl border border-border bg-surface p-4 space-y-5 text-xs shadow-sm">
+        <div className="flex items-center justify-between border-b border-border pb-3">
           <span className="font-bold text-text flex items-center gap-1.5 text-xs sm:text-sm">
-            <span>📐</span> Fine 5mm Positioning &amp; Image Adjustment
+            <span>✨</span> Photo Adjustments, Filters &amp; Zoom Tools
           </span>
           <button
             type="button"
-            onClick={handleResetTransform}
-            className="px-2.5 py-1 rounded-lg bg-surface-hover border border-border hover:border-amber-600 font-bold text-xs transition-all active:scale-95"
+            onClick={handleResetAll}
+            className="px-3 py-1 rounded-lg bg-surface-hover border border-border hover:border-amber-600 font-bold text-xs transition-all active:scale-95 text-muted hover:text-text"
           >
-            ↺ Center Reset
+            ↺ Reset All Adjustments
           </button>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {/* 5mm Directional Nudge Grid */}
+        {/* 1. Quick Zoom Presets & Zoom Out/In Slider */}
+        <div className="p-3.5 rounded-xl border border-border bg-surface/60 space-y-3">
+          <div className="flex items-center justify-between">
+            <span className="font-bold text-text flex items-center gap-1">
+              <span>🔍</span> Zoom Out &amp; Zoom In Controls
+            </span>
+            <span className="text-amber-600 font-mono font-bold">{Math.round(zoom * 100)}%</span>
+          </div>
+
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={handleFitEntirePhoto}
+              className="flex-1 px-3 py-1.5 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-500/30 font-bold text-xs transition-all shadow-xs"
+            >
+              📐 Fit Entire Photo (Zoom Out)
+            </button>
+            <button
+              type="button"
+              onClick={handleFillCanvas}
+              className="flex-1 px-3 py-1.5 rounded-lg bg-surface border border-border hover:border-amber-600 text-text font-bold text-xs transition-all shadow-xs"
+            >
+              🖼️ Fill Canvas (Zoom In)
+            </button>
+          </div>
+
+          <div className="flex items-center gap-2 pt-1">
+            <button
+              type="button"
+              onClick={handleZoomOut}
+              className="h-8 w-10 rounded-lg border border-border bg-bg font-bold hover:border-amber-600 active:scale-95 text-xs flex items-center justify-center"
+              title="Zoom Out"
+            >
+              −
+            </button>
+            <input
+              type="range"
+              min={0.3}
+              max={3.0}
+              step={0.05}
+              value={zoom}
+              onChange={(e) => setZoom(parseFloat(e.target.value))}
+              className="flex-1 accent-amber-600 h-2 rounded-lg cursor-pointer"
+            />
+            <button
+              type="button"
+              onClick={handleZoomIn}
+              className="h-8 w-10 rounded-lg border border-border bg-bg font-bold hover:border-amber-600 active:scale-95 text-xs flex items-center justify-center"
+              title="Zoom In"
+            >
+              +
+            </button>
+          </div>
+        </div>
+
+        {/* 2. Photo Tone Adjustments (Brightness, Contrast, Saturation) */}
+        <div className="p-3.5 rounded-xl border border-border bg-surface/60 space-y-3">
+          <span className="font-bold text-text flex items-center gap-1">
+            <span>☀️</span> Tone &amp; Color Sliders
+          </span>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div>
+              <div className="flex justify-between font-semibold text-muted text-[11px] mb-1">
+                <span>Brightness</span>
+                <span className="font-mono text-amber-600">{brightness > 0 ? `+${brightness}` : brightness}</span>
+              </div>
+              <input
+                type="range"
+                min={-50}
+                max={50}
+                value={brightness}
+                onChange={(e) => setBrightness(parseInt(e.target.value))}
+                className="w-full accent-amber-600 h-1.5 rounded cursor-pointer"
+              />
+            </div>
+
+            <div>
+              <div className="flex justify-between font-semibold text-muted text-[11px] mb-1">
+                <span>Contrast</span>
+                <span className="font-mono text-amber-600">{contrast > 0 ? `+${contrast}` : contrast}</span>
+              </div>
+              <input
+                type="range"
+                min={-50}
+                max={50}
+                value={contrast}
+                onChange={(e) => setContrast(parseInt(e.target.value))}
+                className="w-full accent-amber-600 h-1.5 rounded cursor-pointer"
+              />
+            </div>
+
+            <div>
+              <div className="flex justify-between font-semibold text-muted text-[11px] mb-1">
+                <span>Saturation</span>
+                <span className="font-mono text-amber-600">{saturation > 0 ? `+${saturation}` : saturation}</span>
+              </div>
+              <input
+                type="range"
+                min={-50}
+                max={50}
+                value={saturation}
+                onChange={(e) => setSaturation(parseInt(e.target.value))}
+                className="w-full accent-amber-600 h-1.5 rounded cursor-pointer"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* 3. Photo Filter Presets */}
+        <div className="p-3.5 rounded-xl border border-border bg-surface/60 space-y-2.5">
+          <span className="font-bold text-text flex items-center gap-1">
+            <span>🪄</span> Quick Photo Filter Presets
+          </span>
+
+          <div className="flex flex-wrap gap-2">
+            {[
+              { id: 'original', label: 'Original 🖼️' },
+              { id: 'grayscale', label: 'B&W Grayscale 🖤' },
+              { id: 'sepia', label: 'Warm Sepia 📜' },
+              { id: 'vivid', label: 'Vivid Pop 🌈' },
+              { id: 'vintage', label: 'Vintage Tone 🎞️' },
+              { id: 'high_contrast', label: 'High Contrast ⚡' },
+            ].map((preset) => (
+              <button
+                key={preset.id}
+                type="button"
+                onClick={() => setFilterPreset(preset.id)}
+                className={`px-3 py-1.5 rounded-lg border text-xs font-semibold transition-all ${
+                  filterPreset === preset.id
+                    ? 'border-amber-500 bg-amber-500/10 text-amber-700 dark:text-amber-300 font-bold shadow-xs'
+                    : 'border-border bg-bg text-muted hover:text-text'
+                }`}
+              >
+                {preset.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* 4. Fine 5mm Positioning & Rotation */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
           <div>
             <label className="font-semibold text-muted mb-2 block uppercase tracking-wider text-[10px]">
               5mm Step Directional Nudge
@@ -257,7 +454,7 @@ export function CanvasEditor({
               </button>
               <button
                 type="button"
-                onClick={handleResetTransform}
+                onClick={handleFillCanvas}
                 className="h-9 w-9 rounded-lg border border-border bg-amber-500/10 text-amber-600 font-bold text-center active:scale-95 text-[10px] flex items-center justify-center"
                 title="Center"
               >
@@ -284,41 +481,30 @@ export function CanvasEditor({
             </div>
           </div>
 
-          {/* Zoom Slider & Numeric Inputs */}
           <div className="space-y-3">
             <div>
-              <div className="flex items-center justify-between font-semibold text-muted mb-1 text-xs">
-                <span>Zoom Scale</span>
-                <span className="text-amber-600 font-mono font-bold">{Math.round(zoom * 100)}%</span>
-              </div>
-              <div className="flex items-center gap-2">
+              <label className="font-semibold text-muted mb-1.5 block uppercase tracking-wider text-[10px]">
+                Photo Rotation Angle
+              </label>
+              <div className="flex gap-2">
                 <button
                   type="button"
-                  onClick={handleZoomOut}
-                  className="h-8 w-8 rounded-lg border border-border bg-bg font-bold hover:border-amber-600 active:scale-95"
+                  onClick={() => setRotation((r) => (r + 90) % 360)}
+                  className="flex-1 py-2 rounded-lg border border-border bg-bg hover:border-amber-600 text-xs font-bold transition-all flex items-center justify-center gap-1"
                 >
-                  -
+                  <span>↻</span> Rotate 90°
                 </button>
-                <input
-                  type="range"
-                  min={1}
-                  max={2.5}
-                  step={0.05}
-                  value={zoom}
-                  onChange={(e) => setZoom(parseFloat(e.target.value))}
-                  className="flex-1 accent-amber-600 h-2 rounded-lg cursor-pointer"
-                />
                 <button
                   type="button"
-                  onClick={handleZoomIn}
-                  className="h-8 w-8 rounded-lg border border-border bg-bg font-bold hover:border-amber-600 active:scale-95"
+                  onClick={() => setRotation(0)}
+                  className="px-3 py-2 rounded-lg border border-border bg-bg text-xs font-semibold hover:border-amber-600"
                 >
-                  +
+                  Reset
                 </button>
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-2 pt-1">
+            <div className="grid grid-cols-2 gap-2">
               <div>
                 <label className="text-[10px] font-bold text-muted uppercase block mb-0.5">X Offset</label>
                 <input
@@ -348,7 +534,13 @@ export function CanvasEditor({
     return (
       <div
         className="relative shadow-2xl rounded-sm overflow-hidden bg-surface-hover/20"
-        style={{ width: stageWidth, height: stageHeight }}
+        style={{
+          width: stageWidth,
+          height: stageHeight,
+          filter: cssFilter || undefined,
+          transform: rotation ? `rotate(${rotation}deg)` : undefined,
+          transition: 'filter 0.15s ease, transform 0.2s ease',
+        }}
       >
         <Stage width={stageWidth} height={stageHeight}>
           <Layer>
