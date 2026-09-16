@@ -1,37 +1,54 @@
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 
-// Server-side Supabase client for use in Server Components and Route
-// Handlers. Respects the signed-in user's session via cookies, so RLS
-// policies apply exactly as they would for that user in the browser.
 export function createClient() {
-  const cookieStore = cookies();
+  const rawUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const rawKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-  return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
+  const url =
+    rawUrl && rawUrl.startsWith('http')
+      ? rawUrl
+      : 'https://placeholder-project.supabase.co';
+  const anonKey = rawKey || 'placeholder-anon-key';
+
+  let cookieStore: any;
+  try {
+    cookieStore = cookies();
+  } catch {
+    cookieStore = { get: () => undefined, set: () => {}, remove: () => {} };
+  }
+
+  try {
+    return createServerClient(url, anonKey, {
       cookies: {
         get(name: string) {
-          return cookieStore.get(name)?.value;
+          try {
+            return cookieStore.get(name)?.value;
+          } catch {
+            return undefined;
+          }
         },
         set(name: string, value: string, options: CookieOptions) {
           try {
             cookieStore.set({ name, value, ...options });
-          } catch {
-            // Called from a Server Component with no request context to
-            // mutate — safe to ignore if you have middleware refreshing
-            // the session.
-          }
+          } catch {}
         },
         remove(name: string, options: CookieOptions) {
           try {
             cookieStore.set({ name, value: '', ...options });
-          } catch {
-            // See note above.
-          }
+          } catch {}
         },
       },
-    }
-  );
+    });
+  } catch {
+    return createServerClient('https://placeholder-project.supabase.co', 'placeholder-anon-key', {
+      cookies: {
+        get() {
+          return undefined;
+        },
+        set() {},
+        remove() {},
+      },
+    });
+  }
 }

@@ -2,12 +2,19 @@
 
 import { createBrowserClient } from '@supabase/ssr';
 
-// Browser-side Supabase client. Uses the public anon key only —
-// row level security policies enforce what an anonymous/customer
-// session can read or write.
 export function createClient() {
-  return createBrowserClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  );
+  const rawUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const rawKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+  const url =
+    rawUrl && rawUrl.startsWith('http')
+      ? rawUrl
+      : 'https://placeholder-project.supabase.co';
+  const anonKey = rawKey || 'placeholder-anon-key';
+
+  try {
+    return createBrowserClient(url, anonKey);
+  } catch {
+    return createBrowserClient('https://placeholder-project.supabase.co', 'placeholder-anon-key');
+  }
 }

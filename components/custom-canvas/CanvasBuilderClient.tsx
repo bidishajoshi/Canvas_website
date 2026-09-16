@@ -152,6 +152,7 @@ export function CanvasBuilderClient({
   const [selectedDemoId, setSelectedDemoId] = useState('horses-7');
   const [uploadedPhoto, setUploadedPhoto] = useState<UploadedPhoto | null>(null);
   const [isUsingDemo, setIsUsingDemo] = useState(true);
+  const [orientation, setOrientation] = useState<'landscape' | 'portrait'>('landscape');
 
   const [panelTypeId, setPanelTypeId] = useState<string | null>(activePanels[0]?.id ?? null);
   const [panelGapMm, setPanelGapMm] = useState<number>(settings.default_panel_gap_mm || 20);
@@ -185,7 +186,18 @@ export function CanvasBuilderClient({
   const selectedFinish = finishes.find((f) => f.id === finishId) ?? null;
   const selectedMockup = ROOM_MOCKUPS.find((m) => m.id === selectedMockupId)?.url || null;
 
-  const aspectRatio = selectedSize ? selectedSize.width / selectedSize.height : 4 / 3;
+  const effectiveWidth = selectedSize
+    ? orientation === 'portrait'
+      ? Math.min(selectedSize.width, selectedSize.height)
+      : Math.max(selectedSize.width, selectedSize.height)
+    : 24;
+  const effectiveHeight = selectedSize
+    ? orientation === 'portrait'
+      ? Math.max(selectedSize.width, selectedSize.height)
+      : Math.min(selectedSize.width, selectedSize.height)
+    : 36;
+
+  const aspectRatio = effectiveWidth / effectiveHeight;
 
   const qualityRating = useMemo(() => {
     if (!uploadedPhoto || !selectedSize) return null;
@@ -565,6 +577,40 @@ export function CanvasBuilderClient({
               </div>
             )}
 
+            {/* Orientation Mode Selector (Landscape vs Portrait) */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 rounded-xl border border-amber-500/30 bg-amber-500/5">
+              <div className="space-y-0.5">
+                <span className="text-xs font-bold text-text flex items-center gap-1.5">
+                  <span>🔄</span> Canvas Orientation Mode
+                </span>
+                <p className="text-[11px] text-muted">Choose Horizontal (Landscape) or Vertical (Portrait) for your wall space.</p>
+              </div>
+              <div className="flex rounded-xl bg-surface p-1 border border-border text-xs font-semibold shrink-0">
+                <button
+                  type="button"
+                  onClick={() => setOrientation('landscape')}
+                  className={`px-3.5 py-1.5 rounded-lg transition-all flex items-center gap-1.5 ${
+                    orientation === 'landscape'
+                      ? 'bg-amber-600 text-white font-bold shadow-sm'
+                      : 'text-text hover:bg-surface-hover'
+                  }`}
+                >
+                  <span>↔️</span> Landscape
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setOrientation('portrait')}
+                  className={`px-3.5 py-1.5 rounded-lg transition-all flex items-center gap-1.5 ${
+                    orientation === 'portrait'
+                      ? 'bg-amber-600 text-white font-bold shadow-sm'
+                      : 'text-text hover:bg-surface-hover'
+                  }`}
+                >
+                  <span>↕️</span> Portrait
+                </button>
+              </div>
+            </div>
+
             {/* Size Options & Breakdown */}
             <div className="space-y-3">
               <div className="flex items-center justify-between">
@@ -593,7 +639,7 @@ export function CanvasBuilderClient({
               {selectedSize && (
                 <div className="p-4 rounded-xl border border-amber-500/30 bg-amber-500/5 text-xs space-y-2">
                   <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-1 font-bold text-amber-700 dark:text-amber-300">
-                    <span>📏 TOTAL ARTWORK SIZE: {selectedSize.width}" × {selectedSize.height}" ({Math.round(selectedSize.width * 2.54)}cm × {Math.round(selectedSize.height * 2.54)}cm)</span>
+                    <span>📏 TOTAL ARTWORK SIZE: {effectiveWidth}" × {effectiveHeight}" ({Math.round(effectiveWidth * 2.54)}cm × {Math.round(effectiveHeight * 2.54)}cm) — {orientation === 'portrait' ? '↕️ Portrait Mode' : '↔️ Landscape Mode'}</span>
                   </div>
                   {selectedSize.each_panel_size && (
                     <div className="text-muted font-medium flex items-center gap-1">

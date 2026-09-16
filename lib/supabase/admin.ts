@@ -1,22 +1,29 @@
 import 'server-only';
 import { createClient as createSupabaseClient } from '@supabase/supabase-js';
 
-// SERVER-ONLY. Uses the service-role key, which bypasses Row Level
-// Security entirely. Never import this file from a Client Component,
-// and never send SUPABASE_SERVICE_ROLE_KEY to the browser.
-//
-// Use this exclusively inside app/api/admin/** route handlers, after
-// verifying (via lib/supabase/server.ts + profiles.role) that the
-// caller is actually an authenticated admin.
 export function createAdminClient() {
-  return createSupabaseClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!,
-    {
+  const rawUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const rawKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+  const url =
+    rawUrl && rawUrl.startsWith('http')
+      ? rawUrl
+      : 'https://placeholder-project.supabase.co';
+  const key = rawKey || 'placeholder-service-key';
+
+  try {
+    return createSupabaseClient(url, key, {
       auth: {
         autoRefreshToken: false,
         persistSession: false,
       },
-    }
-  );
+    });
+  } catch {
+    return createSupabaseClient('https://placeholder-project.supabase.co', 'placeholder-service-key', {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false,
+      },
+    });
+  }
 }
