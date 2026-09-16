@@ -2,6 +2,8 @@ import { requireAdminUser } from '@/lib/adminAuth';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { formatPaisa } from '@/lib/utils';
 import {
+  createCanvasCategory,
+  deleteCanvasCategory,
   createPanelType,
   deletePanelType,
   createCanvasSize,
@@ -11,22 +13,54 @@ import {
   createFinish,
   deleteFinish,
 } from './actions';
-import { filterDeleted } from '@/lib/adminStore';
+import { filterDeleted, getCustomCanvasCategories } from '@/lib/adminStore';
+
+const DEFAULT_CANVAS_TYPES = [
+  { id: 'vastu_horses', name: '7 Running Horses (Vastu)', icon: '🐎' },
+  { id: 'buddha', name: 'Buddha & Spiritual', icon: '🪷' },
+  { id: 'portrait', name: 'Personal Portrait', icon: '🖼️' },
+  { id: 'family', name: 'Family & Memories', icon: '👨‍👩‍👧‍👦' },
+  { id: 'couple', name: 'Couple & Romance', icon: '❤️' },
+  { id: 'landscape', name: 'Landscape & Nature', icon: '🏞️' },
+  { id: 'abstract', name: 'Modern Abstract', icon: '🎨' },
+  { id: 'other', name: 'Custom Design', icon: '✨' },
+];
 
 export default async function CanvasBuilderAdminPage() {
   await requireAdminUser();
   const supabase = createAdminClient();
 
-  const [{ data: rawPanelTypes }, { data: rawSizes }, { data: rawFrames }, { data: rawFinishes }] =
-    await Promise.all([
-      supabase.from('panel_types').select('*').order('sort_order', { ascending: true }),
-      supabase
-        .from('canvas_sizes')
-        .select('*, panel_types(name)')
-        .order('sort_order', { ascending: true }),
-      supabase.from('frames').select('*').order('sort_order', { ascending: true }),
-      supabase.from('finishes').select('*').order('sort_order', { ascending: true }),
-    ]);
+  const [
+    { data: rawCategories },
+    { data: rawPanelTypes },
+    { data: rawSizes },
+    { data: rawFrames },
+    { data: rawFinishes },
+  ] = await Promise.all([
+    supabase.from('categories').select('*').order('sort_order', { ascending: true }),
+    supabase.from('panel_types').select('*').order('sort_order', { ascending: true }),
+    supabase
+      .from('canvas_sizes')
+      .select('*, panel_types(name)')
+      .order('sort_order', { ascending: true }),
+    supabase.from('frames').select('*').order('sort_order', { ascending: true }),
+    supabase.from('finishes').select('*').order('sort_order', { ascending: true }),
+  ]);
+
+  const customCats = getCustomCanvasCategories();
+  const dbCats = (rawCategories ?? []).map((c: any) => ({
+    id: c.id,
+    name: c.name,
+    icon: c.description?.includes('|') ? c.description.split('|')[0] : '🖼️',
+    description: c.description?.includes('|') ? c.description.split('|')[1] : c.description,
+  }));
+
+  // Combine default categories with custom & database categories
+  const categoriesMap = new Map<string, { id: string; name: string; icon: string; description?: string }>();
+  for (const item of [...DEFAULT_CANVAS_TYPES, ...customCats, ...dbCats]) {
+    categoriesMap.set(item.id, item);
+  }
+  const categoriesList = filterDeleted(Array.from(categoriesMap.values()));
 
   const panelTypes = filterDeleted(rawPanelTypes ?? []);
   const sizes = filterDeleted(rawSizes ?? []);
@@ -43,9 +77,61 @@ export default async function CanvasBuilderAdminPage() {
           Canvas Builder Configuration CMS
         </h1>
         <p className="text-xs text-muted mt-1">
-          Manage 1 to 7 Panel layouts, canvas size rules, total vs per-panel dimensions, floating frames, and canvas finishes.
+          Manage Canvas Categories, 1 to 7 Panel layouts, canvas sizes, floating frames, and finishes.
         </p>
       </div>
+
+      {/* CANVAS CATEGORIES MANAGEMENT */}
+      <section className="rounded-xl border border-border bg-surface/50 p-6 space-y-4">
+        <div className="flex items-center justify-between border-b border-border pb-3">
+          <div>
+            <h2 className="font-bold text-lg text-text flex items-center gap-2">
+              <span>🖼️</span> Canvas Builder Categories
+            </h2>
+            <p className="text-xs text-muted">
+              Add new categories with custom icons to be chosen by customers in Step 1 of the Custom Canvas Builder.
+            </p>
+          </div>
+          <span className="text-xs font-bold text-amber-600 bg-amber-500/10 px-2.5 py-1 rounded-md">
+            {categoriesList.length} Categories
+          </span>
+        </div>
+
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          {categoriesList.map((cat) => (
+            <div
+              key={cat.id}
+              className="flex items-center justify-between rounded-xl border border-border bg-surface p-3 text-sm shadow-sm"
+            >
+              <div className="flex items-center gap-2.5 overflow-hidden">
+                <span className="text-xl shrink-0">{cat.icon}</span>
+                <span className="font-bold text-text truncate">{cat.name}</span>
+              </div>
+              <form action={deleteCanvasCategory.bind(null, cat.id)}>
+                <button
+                  type="submit"
+                  className="text-xs text-red-600 hover:text-red-700 font-semibold hover:underline shrink-0 ml-1"
+                >
+                  Delete
+                </button>
+              </form>
+            </div>
+          ))}
+        </div>
+
+        {/* Add Canvas Category Form */}
+        <div className="mt-4 pt-4 border-t border-border">
+          <h3 className="text-xs font-bold uppercase tracking-wider text-muted mb-3">
+            Add New Canvas Category
+          </h3>
+          <form action={createCanvasCategory} className="flex flex-wrap items-end gap-3">
+            <LabeledInput label="Category Name" name="name" placeholder="e.g. Vintage Floral Art" required />
+            <LabeledInput label="Emoji / Icon" name="icon" defaultValue="🖼️" placeholder="e.g. 🌸" required />
+            <LabeledInput label="Description (Optional)" name="description" placeholder="e.g. Classic retro floral decor" />
+            <SubmitButton>+ Add Category</SubmitButton>
+          </form>
+        </div>
+      </section>
 
       {/* PANEL TYPES (1, 2, 3, 4, 5, 7 Panels) */}
       <section className="rounded-xl border border-border bg-surface/50 p-6 space-y-4">

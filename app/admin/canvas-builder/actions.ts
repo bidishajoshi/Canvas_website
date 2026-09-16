@@ -3,10 +3,50 @@
 import { revalidatePath } from 'next/cache';
 import { requireAdminUser } from '@/lib/adminAuth';
 import { createAdminClient } from '@/lib/supabase/admin';
+import { markIdAsDeleted, addCustomCanvasCategory } from '@/lib/adminStore';
 
 function toPaisa(value: FormDataEntryValue | null): number {
   const n = parseFloat(String(value ?? '0'));
   return Math.round((Number.isFinite(n) ? n : 0) * 100);
+}
+
+export async function createCanvasCategory(formData: FormData) {
+  await requireAdminUser();
+  const supabase = createAdminClient();
+  const name = String(formData.get('name'));
+  const icon = String(formData.get('icon') || '🖼️');
+  const description = String(formData.get('description') || '');
+  const id = `cat-${Date.now()}`;
+  const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+
+  addCustomCanvasCategory({ id, name, icon, slug, description });
+
+  try {
+    await supabase.from('categories').insert({
+      name,
+      slug,
+      description: `${icon}|${description}`,
+      status: 'published',
+    });
+  } catch {
+    // Graceful fallback to adminStore
+  }
+
+  revalidatePath('/admin/canvas-builder');
+  revalidatePath('/custom-canvas');
+}
+
+export async function deleteCanvasCategory(id: string) {
+  await requireAdminUser();
+  const supabase = createAdminClient();
+  markIdAsDeleted(id);
+  try {
+    await supabase.from('categories').delete().eq('id', id);
+  } catch {
+    // Fallback
+  }
+  revalidatePath('/admin/canvas-builder');
+  revalidatePath('/custom-canvas');
 }
 
 export async function createPanelType(formData: FormData) {
@@ -21,8 +61,6 @@ export async function createPanelType(formData: FormData) {
   revalidatePath('/admin/canvas-builder');
   revalidatePath('/custom-canvas');
 }
-
-import { markIdAsDeleted } from '@/lib/adminStore';
 
 export async function deletePanelType(id: string) {
   await requireAdminUser();
