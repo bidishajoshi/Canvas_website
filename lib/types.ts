@@ -194,6 +194,11 @@ export interface PanelCropData {
   offsetX: number; // 0-1, fraction of image width
   offsetY: number; // 0-1, fraction of image height
   zoom: number; // 1 = fit, >1 = zoomed in
+  brightness?: number;
+  contrast?: number;
+  saturation?: number;
+  filterPreset?: string;
+  rotation?: number;
 }
 
 export interface MockupBackground {
