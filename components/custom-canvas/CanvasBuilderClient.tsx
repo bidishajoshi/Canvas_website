@@ -66,10 +66,16 @@ function getIconForCategory(name: string): string {
 
 const DEMO_ARTWORKS = [
   {
+    id: 'shiva-parvati-5p',
+    name: 'Shiva & Parvati Himalayan 5-Panel Vastu Art',
+    url: '/images/shiva-parvati-5panel.png',
+    badge: '🔥 5-Panel Featured',
+  },
+  {
     id: 'horses-7',
     name: '7 Running Horses (Vastu / Feng Shui)',
     url: 'https://images.unsplash.com/photo-1553284965-83fd3e82fa5a?auto=format&fit=crop&w=1200&q=80',
-    badge: '🔥 7 Horses Demo',
+    badge: '7 Horses',
   },
   {
     id: 'abstract-gold',

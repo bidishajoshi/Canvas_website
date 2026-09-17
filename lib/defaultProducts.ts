@@ -16,7 +16,7 @@ export const DEFAULT_CATEGORIES: Category[] = [
     name: 'Multi-Panel & Splits',
     slug: 'multi-panel-splits',
     description: 'Stunning 3, 5, and 7 panel multi-piece canvas compositions that transform single images into wall statements.',
-    image_url: 'https://images.unsplash.com/photo-1553284965-83fd3e82fa5a?auto=format&fit=crop&w=800&q=80',
+    image_url: '/images/shiva-parvati-5panel.png',
     parent_id: null,
     status: 'published',
     sort_order: 2,
@@ -26,7 +26,7 @@ export const DEFAULT_CATEGORIES: Category[] = [
     name: 'Aesthetic & Vastu Wall Art',
     slug: 'aesthetic-vastu-wall-art',
     description: 'Pinterest-inspired cozy decor & traditional Vastu art for positive energy in homes & offices across Nepal.',
-    image_url: 'https://images.unsplash.com/photo-1582562124811-c09040d0a901?auto=format&fit=crop&w=800&q=80',
+    image_url: '/images/shiva-parvati-5panel.png',
     parent_id: null,
     status: 'published',
     sort_order: 3,
@@ -64,6 +64,32 @@ export const DEFAULT_CATEGORIES: Category[] = [
 ];
 
 export const DEFAULT_PRODUCTS: Product[] = [
+  {
+    id: 'p-shiva-parvati-5panel',
+    name: 'Lord Shiva & Parvati Himalayan 5-Panel Vastu Wall Canvas (60" × 32")',
+    slug: 'shiva-parvati-himalayan-5-panel-vastu-wall-canvas',
+    sku: 'AD-CAN-SHIVA-5P',
+    description:
+      'Breathtaking 5-piece staggered divine Shiva & Parvati Himalayan Vastu canvas print. Printed on archival cotton canvas with Trishul, Om aura, lotus, and peacock details. Stretched over handcrafted solid pine wood stretchers for living rooms and prayer spaces.',
+    short_description:
+      'Divine 5-panel staggered split canvas artwork for living room & temple walls.',
+    main_image_url: '/images/shiva-parvati-5panel.png',
+    category_id: 'cat-multi',
+    tags: ['shiva', 'parvati', 'vastu', '5-panel', 'staggered-split', 'himalaya', 'best-seller'],
+    base_price_paisa: 350000,
+    discount_price_paisa: 285000,
+    stock: 45,
+    material: '5-Piece Staggered Archival Cotton Canvas Split',
+    weight_grams: 2300,
+    dimensions: '60" × 32" Total (5-Piece Staggered Height)',
+    is_featured: true,
+    is_best_seller: true,
+    is_new_arrival: true,
+    status: 'published',
+    seo_title: 'Lord Shiva & Parvati Himalayan 5-Panel Vastu Wall Canvas',
+    seo_description:
+      'Order 5-panel staggered Shiva Parvati Vastu canvas art in Nepal with cash on delivery.',
+  },
   {
     id: 'p-classic-canvas',
     name: 'Classic Studio Gallery Canvas Wall Art',
@@ -286,13 +312,22 @@ export const DEFAULT_PRODUCTS: Product[] = [
 
 export const DEFAULT_GALLERY_ITEMS: GalleryItem[] = [
   {
+    id: 'gal-shiva-5p',
+    image_url: '/images/shiva-parvati-5panel.png',
+    caption: 'Shiva & Parvati Himalayan 5-Panel Staggered Split Vastu Canvas',
+    category: 'Multi-Panel & Splits',
+    is_featured: true,
+    status: 'published',
+    sort_order: 1,
+  },
+  {
     id: 'gal-1',
     image_url: 'https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?auto=format&fit=crop&w=800&q=80',
     caption: 'Classic Studio Gallery Canvas - Single Panel Wrap',
     category: 'Single Canvas Prints',
     is_featured: true,
     status: 'published',
-    sort_order: 1,
+    sort_order: 2,
   },
   {
     id: 'gal-2',
@@ -301,7 +336,7 @@ export const DEFAULT_GALLERY_ITEMS: GalleryItem[] = [
     category: 'Multi-Panel & Splits',
     is_featured: true,
     status: 'published',
-    sort_order: 2,
+    sort_order: 3,
   },
   {
     id: 'gal-3',
@@ -310,7 +345,7 @@ export const DEFAULT_GALLERY_ITEMS: GalleryItem[] = [
     category: 'Aesthetic & Vastu Wall Art',
     is_featured: true,
     status: 'published',
-    sort_order: 3,
+    sort_order: 4,
   },
   {
     id: 'gal-4',
@@ -319,7 +354,7 @@ export const DEFAULT_GALLERY_ITEMS: GalleryItem[] = [
     category: 'Customized T-Shirts & Apparel',
     is_featured: true,
     status: 'published',
-    sort_order: 4,
+    sort_order: 5,
   },
   {
     id: 'gal-5',
@@ -328,7 +363,7 @@ export const DEFAULT_GALLERY_ITEMS: GalleryItem[] = [
     category: 'Personal & Family Photo Portraits',
     is_featured: true,
     status: 'published',
-    sort_order: 5,
+    sort_order: 6,
   },
   {
     id: 'gal-6',
@@ -337,7 +372,7 @@ export const DEFAULT_GALLERY_ITEMS: GalleryItem[] = [
     category: 'Multi-Panel & Splits',
     is_featured: false,
     status: 'published',
-    sort_order: 6,
+    sort_order: 7,
   },
   {
     id: 'gal-7',
@@ -346,7 +381,7 @@ export const DEFAULT_GALLERY_ITEMS: GalleryItem[] = [
     category: 'Aesthetic & Vastu Wall Art',
     is_featured: false,
     status: 'published',
-    sort_order: 7,
+    sort_order: 8,
   },
   {
     id: 'gal-8',
@@ -355,6 +390,6 @@ export const DEFAULT_GALLERY_ITEMS: GalleryItem[] = [
     category: 'Framed Art & Wall Decor',
     is_featured: true,
     status: 'published',
-    sort_order: 8,
+    sort_order: 9,
   },
 ];

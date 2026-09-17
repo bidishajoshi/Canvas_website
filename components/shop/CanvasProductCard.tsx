@@ -1,10 +1,11 @@
+'use me';
 'use client';
 
 import { useState } from 'react';
-import Image from 'next/image';
 import Link from 'next/link';
 import { formatPaisa } from '@/lib/utils';
 import { addToCart } from '@/lib/cart';
+import { MultiPanelCanvasPreview } from '@/components/common/MultiPanelCanvasPreview';
 import type { CanvasProduct } from '@/lib/types';
 
 export function CanvasProductCard({ item }: { item: CanvasProduct }) {
@@ -16,7 +17,6 @@ export function CanvasProductCard({ item }: { item: CanvasProduct }) {
 
   const currentPricePaisa = hasDiscount ? item.discount_price_paisa! : item.original_price_paisa;
 
-  // Calculate discount percentage if not explicitly passed
   const discountPercent =
     item.discount_percentage ||
     (hasDiscount
@@ -49,21 +49,19 @@ export function CanvasProductCard({ item }: { item: CanvasProduct }) {
   return (
     <div className="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-border bg-surface shadow-sm hover:shadow-xl hover:border-pink-500/40 transition-all duration-300">
       <Link href={`/product/${item.slug}`} className="block">
-        {/* Main Artwork / Wall Mockup Image */}
-        <div className="relative aspect-[4/3] w-full overflow-hidden bg-surface-hover">
-          <Image
-            src={item.main_image_url}
+        {/* Main Artwork / Wall Mockup Image with MultiPanel Split View */}
+        <div className="relative aspect-[4/3] w-full overflow-hidden bg-neutral-950">
+          <MultiPanelCanvasPreview
+            imageUrl={item.main_image_url}
+            panelCount={item.panel_count}
             alt={item.name}
-            fill
-            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-            className="object-cover transition-transform duration-500 group-hover:scale-105"
+            isPreRendered={item.main_image_url.includes('shiva-parvati-5panel')}
           />
 
           {/* Badges Overlay */}
           <div className="absolute left-3 top-3 flex flex-col gap-1.5 z-10">
-            {/* Panel Count Badge */}
             <span className="rounded-lg bg-pink-600 px-2.5 py-1 text-[11px] font-extrabold uppercase tracking-wider text-white shadow-md">
-              {item.panel_count} {item.panel_count === 1 ? 'Piece' : 'Pieces Split'}
+              {item.panel_count} {item.panel_count === 1 ? 'Piece' : 'Pieces Staggered Split'}
             </span>
 
             {item.is_best_seller && (
