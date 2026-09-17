@@ -1,69 +1,129 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import { requireAdminUser } from '@/lib/adminAuth';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { formatPaisa } from '@/lib/utils';
 import { deleteProduct } from './actions';
-import { filterDeleted } from '@/lib/adminStore';
+import { filterDeleted, getProductsStore, getCategoriesStore } from '@/lib/adminStore';
+import type { Product, Category } from '@/lib/types';
 
 export default async function AdminProductsPage() {
   await requireAdminUser();
   const supabase = createAdminClient();
-  const { data: rawProducts } = await supabase
-    .from('products')
-    .select('*')
-    .order('created_at', { ascending: false });
 
-  const products = filterDeleted(rawProducts ?? []);
+  const [{ data: dbProducts }, { data: dbCategories }] = await Promise.all([
+    supabase.from('products').select('*').order('created_at', { ascending: false }),
+    supabase.from('categories').select('*').order('sort_order', { ascending: true }),
+  ]);
+
+  const rawProducts = dbProducts && dbProducts.length > 0 ? (dbProducts as Product[]) : getProductsStore();
+  const rawCategories = dbCategories && dbCategories.length > 0 ? (dbCategories as Category[]) : getCategoriesStore();
+
+  const products = filterDeleted(rawProducts);
+  const categories = filterDeleted(rawCategories);
+  const categoryMap = new Map(categories.map((c) => [c.id, c.name]));
 
   return (
-    <div>
+    <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="font-display text-2xl font-semibold">Products</h1>
+        <div>
+          <h1 className="font-display text-2xl font-bold">Products & Photos</h1>
+          <p className="text-sm text-muted">Manage store catalog, product photos, prices, and status.</p>
+        </div>
         <Link
           href="/admin/products/new"
-          className="rounded-card bg-accent-yellow px-4 py-2 text-sm font-semibold text-[color:var(--color-accent-yellow-contrast)]"
+          className="rounded-xl bg-amber-500 px-5 py-2.5 text-xs font-bold text-black hover:bg-amber-400 shadow-md transition-all"
         >
-          Add Product
+          + Add Product
         </Link>
       </div>
 
-      <div className="mt-6 overflow-x-auto rounded-card border border-border">
+      <div className="overflow-x-auto rounded-2xl border border-border bg-surface shadow-sm">
         <table className="w-full text-left text-sm">
-          <thead className="bg-surface">
+          <thead className="bg-bg border-b border-border text-xs uppercase tracking-wider text-muted">
             <tr>
-              <th className="p-3">Name</th>
-              <th className="p-3">Price</th>
-              <th className="p-3">Stock</th>
-              <th className="p-3">Status</th>
-              <th className="p-3" />
+              <th className="p-4">Photo</th>
+              <th className="p-4">Product Name</th>
+              <th className="p-4">Category</th>
+              <th className="p-4">Price</th>
+              <th className="p-4">Stock</th>
+              <th className="p-4">Status</th>
+              <th className="p-4 text-right">Actions</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody className="divide-y divide-border/60">
             {products.map((product) => (
-              <tr key={product.id} className="border-t border-border">
-                <td className="p-3">{product.name}</td>
-                <td className="p-3">{formatPaisa(product.base_price_paisa)}</td>
-                <td className="p-3">{product.stock ?? '—'}</td>
-                <td className="p-3 capitalize">{product.status}</td>
-                <td className="p-3 text-right">
-                  <Link
-                    href={`/admin/products/${product.id}`}
-                    className="mr-3 text-accent-yellow underline"
+              <tr key={product.id} className="hover:bg-bg/50 transition-colors">
+                <td className="p-4">
+                  <div className="relative h-12 w-12 overflow-hidden rounded-lg bg-neutral-900 border border-border shrink-0">
+                    {product.main_image_url ? (
+                      <Image
+                        src={product.main_image_url}
+                        alt={product.name}
+                        fill
+                        className="object-cover"
+                        sizes="48px"
+                      />
+                    ) : (
+                      <div className="flex h-full w-full items-center justify-center text-xs text-muted">
+                        📷
+                      </div>
+                    )}
+                  </div>
+                </td>
+                <td className="p-4 font-semibold text-text">
+                  <div>{product.name}</div>
+                  <div className="text-xs font-mono font-normal text-muted">{product.sku || product.slug}</div>
+                </td>
+                <td className="p-4">
+                  <span className="inline-block rounded-md bg-amber-500/10 px-2.5 py-1 text-xs font-semibold text-amber-600">
+                    {categoryMap.get(product.category_id || '') || 'Unassigned'}
+                  </span>
+                </td>
+                <td className="p-4 font-bold text-amber-600">
+                  {formatPaisa(product.base_price_paisa)}
+                  {product.discount_price_paisa && (
+                    <span className="block text-xs font-normal text-muted line-through">
+                      {formatPaisa(product.discount_price_paisa)}
+                    </span>
+                  )}
+                </td>
+                <td className="p-4">{product.stock ?? '—'}</td>
+                <td className="p-4">
+                  <span
+                    className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-semibold capitalize ${
+                      product.status === 'published'
+                        ? 'bg-emerald-500/10 text-emerald-600'
+                        : 'bg-neutral-500/10 text-neutral-500'
+                    }`}
                   >
-                    Edit
-                  </Link>
-                  <form action={deleteProduct.bind(null, product.id)} className="inline">
-                    <button type="submit" className="text-red-600 underline">
-                      Delete
-                    </button>
-                  </form>
+                    {product.status}
+                  </span>
+                </td>
+                <td className="p-4 text-right">
+                  <div className="flex items-center justify-end gap-3">
+                    <Link
+                      href={`/admin/products/${product.id}`}
+                      className="rounded-lg bg-amber-500/10 px-3 py-1.5 text-xs font-semibold text-amber-600 hover:bg-amber-500 hover:text-white transition-colors"
+                    >
+                      ✏️ Edit Photo &amp; Product
+                    </Link>
+                    <form action={deleteProduct.bind(null, product.id)} className="inline">
+                      <button
+                        type="submit"
+                        className="rounded-lg bg-red-500/10 px-3 py-1.5 text-xs font-semibold text-red-600 hover:bg-red-600 hover:text-white transition-colors"
+                      >
+                        Delete
+                      </button>
+                    </form>
+                  </div>
                 </td>
               </tr>
             ))}
             {products.length === 0 && (
               <tr>
-                <td colSpan={5} className="p-6 text-center text-muted">
-                  No products yet.
+                <td colSpan={7} className="p-8 text-center text-sm text-muted">
+                  No products found in catalog. Click &apos;+ Add Product&apos; to create one.
                 </td>
               </tr>
             )}
