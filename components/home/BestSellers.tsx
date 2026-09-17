@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { ProductCard } from '@/components/shop/ProductCard';
 import type { HomepageSection, Product } from '@/lib/types';
-import { DEFAULT_PRODUCTS } from '@/lib/defaultProducts';
+import { filterDeleted, getProductsStore } from '@/lib/adminStore';
 
 export async function BestSellers({ section }: { section: HomepageSection }) {
   const supabase = createClient();
@@ -12,7 +12,8 @@ export async function BestSellers({ section }: { section: HomepageSection }) {
     .eq('is_best_seller', true)
     .limit(8);
 
-  const products = data && data.length > 0 ? (data as Product[]) : DEFAULT_PRODUCTS;
+  const rawProducts = data && data.length > 0 ? (data as Product[]) : getProductsStore();
+  const products = filterDeleted(rawProducts).filter((p) => p.is_best_seller || p.is_featured);
 
   return (
     <section className="container-page py-14 border-t border-border">

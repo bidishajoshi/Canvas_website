@@ -79,15 +79,39 @@ const DEMO_ARTWORKS = [
   },
   {
     id: 'buddha-lotus',
-    name: 'Serene Temple Lotus',
+    name: 'Serene Temple Lotus Buddha',
     url: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80',
     badge: 'Spiritual',
   },
   {
     id: 'himalayan-nature',
-    name: 'Mountain Sunrise Panorama',
+    name: 'Everest Mountain Sunrise Panorama',
     url: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1200&q=80',
     badge: 'Nature',
+  },
+  {
+    id: 'family-portrait',
+    name: 'Cherished Family Portrait Gallery',
+    url: 'https://images.unsplash.com/photo-1513519245088-0e12902e5a38?auto=format&fit=crop&w=1200&q=80',
+    badge: 'Family',
+  },
+  {
+    id: 'pinterest-bedroom',
+    name: 'Pinterest Aesthetic Bedroom Decor',
+    url: 'https://images.unsplash.com/photo-1582562124811-c09040d0a901?auto=format&fit=crop&w=1200&q=80',
+    badge: 'Aesthetic',
+  },
+  {
+    id: 'floating-black-frame',
+    name: 'Modern Floating Black Frame Artwork',
+    url: 'https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&w=1200&q=80',
+    badge: 'Framed',
+  },
+  {
+    id: 'custom-tshirt-art',
+    name: 'Custom Graphic Tee Design Print',
+    url: 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=1200&q=80',
+    badge: 'Apparel',
   },
 ];
 

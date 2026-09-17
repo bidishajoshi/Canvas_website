@@ -1,3 +1,4 @@
+'use me';
 'use client';
 
 import { useState } from 'react';
@@ -15,8 +16,8 @@ const DEMO_READY_CANVASES: CanvasProduct[] = [
     panel_count: 5,
     size_label: '60" × 32" Total (5 @ 12×32" max)',
     frame_label: 'Black Floating Frame',
-    original_price_paisa: 690000, // Rs. 6900
-    discount_price_paisa: 552000, // Rs. 5520 (20% OFF)
+    original_price_paisa: 690000,
+    discount_price_paisa: 552000,
     discount_percentage: 20,
     is_best_seller: true,
     is_featured: true,
@@ -34,8 +35,8 @@ const DEMO_READY_CANVASES: CanvasProduct[] = [
     panel_count: 3,
     size_label: '48" × 24" Total (3 @ 16×24" each)',
     frame_label: 'Natural Wood Frame',
-    original_price_paisa: 480000, // Rs. 4800
-    discount_price_paisa: 399000, // Rs. 3990 (17% OFF)
+    original_price_paisa: 480000,
+    discount_price_paisa: 399000,
     discount_percentage: 17,
     is_best_seller: true,
     is_featured: true,
@@ -53,8 +54,8 @@ const DEMO_READY_CANVASES: CanvasProduct[] = [
     panel_count: 1,
     size_label: '24" × 36" Single Canvas',
     frame_label: 'Luxury Gold Frame',
-    original_price_paisa: 450000, // Rs. 4500
-    discount_price_paisa: 382500, // Rs. 3825 (15% OFF)
+    original_price_paisa: 450000,
+    discount_price_paisa: 382500,
     discount_percentage: 15,
     is_best_seller: false,
     is_featured: true,
@@ -71,8 +72,8 @@ const DEMO_READY_CANVASES: CanvasProduct[] = [
     main_image_url: 'https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?auto=format&fit=crop&w=800&q=80',
     panel_count: 7,
     size_label: '84" × 36" Total (7 @ 12×36" each)',
-    original_price_paisa: 1190000, // Rs. 11900
-    discount_price_paisa: 892500, // Rs. 8925 (25% OFF)
+    original_price_paisa: 1190000,
+    discount_price_paisa: 892500,
     discount_percentage: 25,
     is_best_seller: true,
     is_featured: true,
@@ -83,15 +84,15 @@ const DEMO_READY_CANVASES: CanvasProduct[] = [
   },
   {
     id: 'rp-5',
-    name: 'Custom Normal Photo Canvas (12" × 18")',
-    slug: 'custom-normal-photo-canvas-12x18',
+    name: 'Custom Family Portrait Photo Canvas (12" × 18")',
+    slug: 'custom-family-portrait-photo-canvas-12x18',
     description: 'Personalized high-definition photo canvas print on premium cotton canvas.',
     main_image_url: 'https://images.unsplash.com/photo-1513519245088-0e12902e5a38?auto=format&fit=crop&w=800&q=80',
     panel_count: 1,
     size_label: '12" × 18" Single Canvas',
     frame_label: 'Unframed Canvas',
-    original_price_paisa: 100000, // Rs. 1000
-    discount_price_paisa: 95000, // Rs. 950 (5% OFF)
+    original_price_paisa: 100000,
+    discount_price_paisa: 95000,
     discount_percentage: 5,
     is_best_seller: true,
     is_featured: true,
@@ -99,6 +100,25 @@ const DEMO_READY_CANVASES: CanvasProduct[] = [
     show_on_homepage: true,
     status: 'published',
     sort_order: 5,
+  },
+  {
+    id: 'rp-6',
+    name: 'Pinterest Aesthetic Bedroom Decor Canvas',
+    slug: 'pinterest-aesthetic-bedroom-decor-canvas',
+    description: 'Cozy pastel memory wall canvas split for bedroom walls.',
+    main_image_url: 'https://images.unsplash.com/photo-1582562124811-c09040d0a901?auto=format&fit=crop&w=800&q=80',
+    panel_count: 3,
+    size_label: '36" × 24" Triptych',
+    frame_label: 'White Floating Frame',
+    original_price_paisa: 200000,
+    discount_price_paisa: 190000,
+    discount_percentage: 5,
+    is_best_seller: true,
+    is_featured: true,
+    is_new_arrival: false,
+    show_on_homepage: true,
+    status: 'published',
+    sort_order: 6,
   },
 ];
 

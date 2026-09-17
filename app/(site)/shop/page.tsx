@@ -3,9 +3,13 @@ import { createClient } from '@/lib/supabase/server';
 import { ProductCard } from '@/components/shop/ProductCard';
 import { ShopFilters } from '@/components/shop/ShopFilters';
 import type { Product, Category } from '@/lib/types';
-import { DEFAULT_PRODUCTS, DEFAULT_CATEGORIES } from '@/lib/defaultProducts';
+import { filterDeleted, getCategoriesStore, getProductsStore } from '@/lib/adminStore';
 
-export const metadata: Metadata = { title: 'Shop' };
+export const metadata: Metadata = {
+  title: 'Shop All Wall Canvas & Decor - Affordable Decoration',
+  description:
+    'Browse our full collection of custom photo canvases, multi-panel splits, Vastu art, framed decor, and customized t-shirts in Nepal.',
+};
 
 interface ShopPageProps {
   searchParams: {
@@ -30,8 +34,12 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
     .eq('status', 'published')
     .order('sort_order', { ascending: true });
 
-  const categories: Category[] =
-    dbCategories && dbCategories.length > 0 ? (dbCategories as Category[]) : DEFAULT_CATEGORIES;
+  const rawCategories =
+    dbCategories && dbCategories.length > 0
+      ? (dbCategories as Category[])
+      : getCategoriesStore();
+
+  const categories = filterDeleted(rawCategories);
 
   let query = supabase.from('products').select('*').eq('status', 'published');
 
@@ -54,8 +62,8 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
   if (dbProducts && dbProducts.length > 0) {
     products = dbProducts as Product[];
   } else {
-    // Fallback to default products catalog if database is empty or unconnected
-    products = [...DEFAULT_PRODUCTS];
+    // Fallback to store products catalog merged with admin edits
+    products = filterDeleted(getProductsStore());
 
     if (searchParams.category) {
       const cat = categories.find((c) => c.slug === searchParams.category);
@@ -77,7 +85,7 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
 
   return (
     <div className="container-page py-10">
-      <h1 className="font-display text-3xl font-semibold">Shop</h1>
+      <h1 className="font-display text-3xl font-semibold">Shop All Collections</h1>
 
       <div className="mt-8 grid gap-8 lg:grid-cols-[240px_1fr]">
         <ShopFilters
@@ -95,7 +103,7 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
             </div>
           ) : (
             <p className="text-sm text-muted">
-              No products found. Try a different category or check back soon.
+              No products found in this selection. Try a different category filter or search query.
             </p>
           )}
         </div>

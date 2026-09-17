@@ -1,56 +1,20 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { createClient } from '@/lib/supabase/server';
+import { filterDeleted, getCategoriesStore } from '@/lib/adminStore';
+import type { Category } from '@/lib/types';
 
 export const metadata = {
   title: 'Explore Categories - Affordable Decoration Nepal',
   description: 'Browse our collection of Canvas Prints, Multi-Panel Canvas Art, Personalised Wall Decor, and Customised T-Shirts.',
 };
 
-interface CategoryItem {
-  id: string;
-  name: string;
-  slug?: string;
-  description?: string;
-  image_url?: string;
-}
-
 export default async function CategoriesPage() {
   const supabase = createClient();
-  const { data } = await supabase.from('categories').select('*');
-  const dbCategories: CategoryItem[] = (data as CategoryItem[]) || [];
-
-  // Curated categories if DB list is empty
-  const displayCategories: CategoryItem[] = dbCategories.length > 0 ? dbCategories : [
-    {
-      id: 'cat-1',
-      name: 'Single Canvas Prints',
-      slug: 'single-canvas-prints',
-      description: 'High-resolution premium canvas art wrapped over durable pine wood stretchers.',
-      image_url: 'https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?auto=format&fit=crop&w=800&q=80',
-    },
-    {
-      id: 'cat-2',
-      name: 'Multi-Panel Canvas Splits',
-      slug: 'multi-panel-canvas-splits',
-      description: 'Dramatic 3, 5, or 7 panel wall statements continuous across staggered heights.',
-      image_url: 'https://images.unsplash.com/photo-1513519245088-0e12902e5a38?auto=format&fit=crop&w=800&q=80',
-    },
-    {
-      id: 'cat-3',
-      name: 'Personalized Photo Canvas',
-      slug: 'personalized-photo-canvas',
-      description: 'Turn your family photos, wedding moments, and travel memories into canvas gallery walls.',
-      image_url: 'https://images.unsplash.com/photo-1582562124811-c09040d0a901?auto=format&fit=crop&w=800&q=80',
-    },
-    {
-      id: 'cat-4',
-      name: 'Customized T-Shirts',
-      slug: 'customized-t-shirts',
-      description: 'Premium cotton t-shirts customized with photo prints, typography, and graphic logos.',
-      image_url: 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=800&q=80',
-    },
-  ];
+  const { data } = await supabase.from('categories').select('*').eq('status', 'published').order('sort_order', { ascending: true });
+  
+  const rawCategories = (data && data.length > 0) ? (data as Category[]) : getCategoriesStore();
+  const displayCategories = filterDeleted(rawCategories);
 
   return (
     <div className="container-page py-10 sm:py-16">
@@ -69,7 +33,7 @@ export default async function CategoriesPage() {
 
       {/* Grid of Categories */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        {displayCategories.map((cat: CategoryItem) => (
+        {displayCategories.map((cat: Category) => (
           <Link
             key={cat.id}
             href={`/shop?category=${encodeURIComponent(cat.slug || cat.name)}`}
