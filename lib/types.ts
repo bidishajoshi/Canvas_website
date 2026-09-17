@@ -382,3 +382,16 @@ export interface TShirtConfiguration {
   calculated_price_paisa: number;
   quantity: number;
 }
+
+export interface GalleryItem {
+  id: string;
+  image_url: string;
+  caption: string | null;
+  category: string | null;
+  is_featured: boolean;
+  status: ContentStatus;
+  sort_order: number;
+  created_at?: string;
+}
+
+
