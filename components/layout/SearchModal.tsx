@@ -1,3 +1,4 @@
+'use me';
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
@@ -15,12 +16,12 @@ export function SearchModal({ open, onClose }: { open: boolean; onClose: () => v
   useEffect(() => {
     if (open) {
       document.body.style.overflow = 'hidden';
-      setTimeout(() => inputRef.current?.focus(), 50);
+      setTimeout(() => inputRef.current?.focus(), 30);
     } else {
-      document.body.style.overflow = 'unset';
+      document.body.style.overflow = '';
     }
     return () => {
-      document.body.style.overflow = 'unset';
+      document.body.style.overflow = '';
     };
   }, [open]);
 
@@ -43,7 +44,7 @@ export function SearchModal({ open, onClose }: { open: boolean; onClose: () => v
       } finally {
         setLoading(false);
       }
-    }, 200);
+    }, 120);
 
     return () => clearTimeout(timer);
   }, [query]);
@@ -51,15 +52,15 @@ export function SearchModal({ open, onClose }: { open: boolean; onClose: () => v
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto">
-      {/* Light Hardware Backdrop Overlay */}
+    <div className="fixed inset-0 z-50 overflow-y-auto gpu-layer">
+      {/* Hardware Backdrop Overlay */}
       <div
-        className="fixed inset-0 bg-black/60 transition-opacity duration-200"
+        className="fixed inset-0 bg-black/60 transition-opacity duration-150 backdrop-blur-sm"
         onClick={onClose}
       />
 
       <div className="relative min-h-screen flex items-start justify-center p-4 sm:p-6 pt-14 sm:pt-20">
-        <div className="relative w-full max-w-2xl bg-bg border border-border rounded-3xl shadow-2xl overflow-hidden z-10 animate-scaleUp">
+        <div className="relative w-full max-w-2xl bg-bg border border-border rounded-3xl shadow-2xl overflow-hidden z-10 transform transition-all duration-150 ease-out gpu-layer">
           {/* Search Header */}
           <div className="p-4 sm:p-5 border-b border-border bg-surface flex items-center gap-3">
             <span className="text-xl text-amber-600">🔍</span>
@@ -75,7 +76,7 @@ export function SearchModal({ open, onClose }: { open: boolean; onClose: () => v
               <button
                 type="button"
                 onClick={() => setQuery('')}
-                className="text-xs text-muted hover:text-text px-2.5 py-1 rounded-lg bg-surface-hover active:scale-95 transition-all"
+                className="text-xs text-muted hover:text-text px-2.5 py-1 rounded-lg bg-surface-hover active:scale-90 transition-all duration-100"
               >
                 Clear
               </button>
@@ -83,7 +84,7 @@ export function SearchModal({ open, onClose }: { open: boolean; onClose: () => v
             <button
               type="button"
               onClick={onClose}
-              className="h-8 w-8 rounded-full border border-border flex items-center justify-center text-muted hover:text-text hover:border-amber-600 transition-colors active:scale-95"
+              className="h-8 w-8 rounded-full border border-border flex items-center justify-center text-muted hover:text-text hover:border-amber-600 transition-all duration-100 active:scale-90"
             >
               ✕
             </button>
@@ -103,6 +104,7 @@ export function SearchModal({ open, onClose }: { open: boolean; onClose: () => v
                 <div className="mt-3">
                   <Link
                     href="/custom-canvas"
+                    prefetch={true}
                     onClick={onClose}
                     className="inline-block px-4 py-2 rounded-xl bg-amber-600 text-white font-bold text-xs active:scale-95 transition-all"
                   >
@@ -124,7 +126,7 @@ export function SearchModal({ open, onClose }: { open: boolean; onClose: () => v
                         key={tag}
                         type="button"
                         onClick={() => setQuery(tag)}
-                        className="px-3 py-1.5 rounded-full border border-border bg-surface text-xs font-semibold text-text hover:border-amber-600 hover:text-amber-600 active:scale-95 transition-all"
+                        className="px-3 py-1.5 rounded-full border border-border bg-surface text-xs font-semibold text-text hover:border-amber-600 hover:text-amber-600 active:scale-90 transition-all duration-100"
                       >
                         🏷️ {tag}
                       </button>
@@ -143,8 +145,9 @@ export function SearchModal({ open, onClose }: { open: boolean; onClose: () => v
                   <Link
                     key={product.id}
                     href={`/product/${product.slug}`}
+                    prefetch={true}
                     onClick={onClose}
-                    className="flex items-center gap-4 p-3 rounded-2xl border border-border bg-surface hover:border-amber-600/60 hover:shadow-md active:scale-[0.99] transition-all group"
+                    className="flex items-center gap-4 p-3 rounded-2xl border border-border bg-surface hover:border-amber-600/60 hover:shadow-md active:scale-[0.99] transition-all duration-100 group"
                   >
                     <div className="relative h-14 w-14 shrink-0 rounded-xl overflow-hidden bg-neutral-900 border border-border">
                       {product.main_image_url && (
@@ -153,7 +156,7 @@ export function SearchModal({ open, onClose }: { open: boolean; onClose: () => v
                           alt={product.name}
                           fill
                           sizes="56px"
-                          className="object-cover group-hover:scale-105 transition-transform"
+                          className="object-cover group-hover:scale-105 transition-transform duration-200"
                         />
                       )}
                     </div>
