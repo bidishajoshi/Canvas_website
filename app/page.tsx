@@ -113,9 +113,6 @@ export default async function HomePage() {
       {/* Best Sellers */}
       <BestSellers section={{ id: 'sec-best', section_key: 'best_sellers', title: 'Best Selling Ready-Made Canvases', subtitle: 'Customer favorite wall art and multi-panel decor handcrafted in Nepal.', body: null, cta_label: null, cta_href: null, secondary_cta_label: null, secondary_cta_href: null, media: {}, settings: {}, enabled: true, sort_order: 2 }} />
 
-      {/* Pinterest-Inspired Cozy Decor & Girl Room Collections */}
-      <PinterestCozyGallery />
-
       {/* Cozy Ready Made Canvas Gallery */}
       <CozyCanvasCollection />
 
