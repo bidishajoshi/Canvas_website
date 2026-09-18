@@ -1,21 +1,30 @@
+'use me';
 'use client';
 
 import Link from 'next/link';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import type { MenuItem } from '@/lib/content';
 
 export function NavbarMobileMenu({ menuItems }: { menuItems: MenuItem[] }) {
   const [open, setOpen] = useState(false);
 
-  // Prevent scroll when mobile menu is open
+  const toggleOpen = useCallback(() => {
+    setOpen((v) => !v);
+  }, []);
+
+  const closeMenu = useCallback(() => {
+    setOpen(false);
+  }, []);
+
+  // Prevent background scroll when mobile menu is open
   useEffect(() => {
     if (open) {
       document.body.style.overflow = 'hidden';
     } else {
-      document.body.style.overflow = 'unset';
+      document.body.style.overflow = '';
     }
     return () => {
-      document.body.style.overflow = 'unset';
+      document.body.style.overflow = '';
     };
   }, [open]);
 
@@ -25,8 +34,8 @@ export function NavbarMobileMenu({ menuItems }: { menuItems: MenuItem[] }) {
         type="button"
         aria-label={open ? 'Close menu' : 'Open menu'}
         aria-expanded={open}
-        onClick={() => setOpen((v) => !v)}
-        className="flex h-10 w-10 items-center justify-center rounded-full border border-border bg-surface text-text hover:border-amber-600 transition-all shadow-sm"
+        onClick={toggleOpen}
+        className="flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-full border border-border bg-surface text-text hover:border-amber-600 active:scale-90 transition-all duration-100 shadow-sm gpu-layer"
       >
         <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5" aria-hidden="true">
           {open ? (
@@ -48,33 +57,35 @@ export function NavbarMobileMenu({ menuItems }: { menuItems: MenuItem[] }) {
       </button>
 
       {open && (
-        <div className="fixed inset-0 top-16 z-50 bg-black/50 backdrop-blur-sm animate-fadeIn">
-          <div className="absolute right-0 top-0 bottom-0 w-[85%] max-w-sm border-l border-border bg-bg p-6 shadow-2xl overflow-y-auto flex flex-col justify-between">
+        <div className="fixed inset-0 top-16 z-50 bg-black/60 backdrop-blur-sm transition-opacity duration-150 gpu-layer">
+          <div className="absolute right-0 top-0 bottom-0 w-[85%] max-w-sm border-l border-border bg-bg p-6 shadow-2xl overflow-y-auto flex flex-col justify-between transform transition-transform duration-150 ease-out gpu-layer">
             <div>
               {/* Header inside mobile drawer */}
               <div className="flex items-center justify-between border-b border-border pb-4 mb-4">
                 <span className="font-display font-bold text-lg text-text">Navigation</span>
-                <span className="text-xs font-semibold text-amber-600 uppercase tracking-wider px-2 py-0.5 rounded bg-amber-500/10">
+                <span className="text-[10px] font-bold text-amber-600 uppercase tracking-widest px-2.5 py-1 rounded bg-amber-500/10 border border-amber-500/20">
                   Affordable Decoration
                 </span>
               </div>
 
               {/* Quick Builder Banner Buttons */}
-              <div className="grid grid-cols-2 gap-2 mb-6">
+              <div className="grid grid-cols-2 gap-2.5 mb-6">
                 <Link
                   href="/custom-canvas"
-                  onClick={() => setOpen(false)}
-                  className="flex flex-col items-center justify-center p-3 rounded-xl border border-amber-500/30 bg-amber-500/10 text-amber-600 font-bold text-xs text-center transition-transform active:scale-95 shadow-sm"
+                  prefetch={true}
+                  onClick={closeMenu}
+                  className="flex flex-col items-center justify-center p-3.5 rounded-xl border border-amber-500/30 bg-amber-500/10 text-amber-600 font-bold text-xs text-center transition-all active:scale-95 shadow-sm hover:bg-amber-500/20"
                 >
-                  <span className="text-xl mb-1">🖼️</span>
+                  <span className="text-2xl mb-1">🖼️</span>
                   <span>Custom Canvas</span>
                 </Link>
                 <Link
-                  href="/customize-tshirt"
-                  onClick={() => setOpen(false)}
-                  className="flex flex-col items-center justify-center p-3 rounded-xl border border-border bg-surface text-text font-bold text-xs text-center transition-transform active:scale-95 shadow-sm"
+                  href="/custom-t-shirt"
+                  prefetch={true}
+                  onClick={closeMenu}
+                  className="flex flex-col items-center justify-center p-3.5 rounded-xl border border-border bg-surface text-text font-bold text-xs text-center transition-all active:scale-95 shadow-sm hover:border-amber-600"
                 >
-                  <span className="text-xl mb-1">👕</span>
+                  <span className="text-2xl mb-1">👕</span>
                   <span>Customize T-Shirt</span>
                 </Link>
               </div>
@@ -85,8 +96,9 @@ export function NavbarMobileMenu({ menuItems }: { menuItems: MenuItem[] }) {
                   <Link
                     key={item.id}
                     href={item.href}
-                    onClick={() => setOpen(false)}
-                    className="flex items-center justify-between px-3 py-3 rounded-lg text-sm font-semibold text-text hover:bg-surface-hover hover:text-amber-600 transition-colors"
+                    prefetch={true}
+                    onClick={closeMenu}
+                    className="flex items-center justify-between px-3.5 py-3 rounded-xl text-sm font-semibold text-text hover:bg-surface-hover hover:text-amber-600 active:scale-[0.98] transition-all duration-100"
                   >
                     <span>{item.label}</span>
                     <span className="text-muted text-xs">→</span>
@@ -100,23 +112,26 @@ export function NavbarMobileMenu({ menuItems }: { menuItems: MenuItem[] }) {
               <div className="grid grid-cols-2 gap-2 text-xs font-semibold">
                 <Link
                   href="/search"
-                  onClick={() => setOpen(false)}
-                  className="flex items-center justify-center gap-2 py-2.5 rounded-lg border border-border bg-surface text-text hover:border-amber-600"
+                  prefetch={true}
+                  onClick={closeMenu}
+                  className="flex items-center justify-center gap-2 py-2.5 rounded-xl border border-border bg-surface text-text hover:border-amber-600 active:scale-95 transition-all"
                 >
                   <span>🔍</span> Search
                 </Link>
                 <Link
-                  href="/account/wishlist"
-                  onClick={() => setOpen(false)}
-                  className="flex items-center justify-center gap-2 py-2.5 rounded-lg border border-border bg-surface text-text hover:border-amber-600"
+                  href="/wishlist"
+                  prefetch={true}
+                  onClick={closeMenu}
+                  className="flex items-center justify-center gap-2 py-2.5 rounded-xl border border-border bg-surface text-text hover:border-amber-600 active:scale-95 transition-all"
                 >
                   <span>❤️</span> Wishlist
                 </Link>
               </div>
               <Link
                 href="/track-order"
-                onClick={() => setOpen(false)}
-                className="block text-center w-full py-2.5 rounded-lg bg-amber-600 text-white font-bold text-xs shadow-sm hover:bg-amber-700 transition-colors"
+                prefetch={true}
+                onClick={closeMenu}
+                className="block text-center w-full py-3 rounded-xl bg-amber-600 text-white font-bold text-xs shadow-md hover:bg-amber-700 active:scale-95 transition-all"
               >
                 📦 Track Order Progress
               </Link>
