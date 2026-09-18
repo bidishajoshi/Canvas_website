@@ -5,7 +5,6 @@ import { CategoryGrid } from '@/components/home/CategoryGrid';
 import { BestSellers } from '@/components/home/BestSellers';
 import { CozyCanvasCollection } from '@/components/home/CozyCanvasCollection';
 import { CustomTShirtCta } from '@/components/home/CustomTShirtCta';
-import { PinterestCozyGallery } from '@/components/home/PinterestCozyGallery';
 import { SalesInquiryForm } from '@/components/home/SalesInquiryForm';
 import { Testimonials } from '@/components/home/Testimonials';
 import { WhyChooseUs } from '@/components/home/WhyChooseUs';
