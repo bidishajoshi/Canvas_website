@@ -1,6 +1,7 @@
+'use me';
 'use client';
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import Link from 'next/link';
 import { ThemeToggle } from './ThemeToggle';
 import { NavbarMobileMenu } from './NavbarMobileMenu';
@@ -14,35 +15,41 @@ export function NavbarHeaderControls({ menuItems }: { menuItems: MenuItem[] }) {
   const [cartOpen, setCartOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
 
+  const openCart = useCallback(() => setCartOpen(true), []);
+  const closeCart = useCallback(() => setCartOpen(false), []);
+  const openSearch = useCallback(() => setSearchOpen(true), []);
+  const closeSearch = useCallback(() => setSearchOpen(false), []);
+
   return (
     <>
       <div className="flex items-center gap-2 sm:gap-3">
         {/* Search Icon Button */}
         <button
           type="button"
-          onClick={() => setSearchOpen(true)}
+          onClick={openSearch}
           aria-label="Search Products"
-          className="flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-full border border-border bg-surface text-text transition-all hover:border-amber-600 hover:text-amber-600 shadow-sm"
+          className="flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-full border border-border bg-surface text-text transition-all duration-100 hover:border-amber-600 hover:text-amber-600 active:scale-90 shadow-sm gpu-layer"
         >
           <SearchIcon className="h-4 w-4" />
         </button>
 
-        {/* Wishlist / Love Button (Always Visible) */}
+        {/* Wishlist / Love Button */}
         <Link
           href="/wishlist"
+          prefetch={true}
           aria-label="Wishlist Love Items"
-          className="flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-full border border-border bg-surface text-pink-600 hover:text-pink-700 transition-all hover:border-pink-500 shadow-sm relative"
+          className="flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-full border border-border bg-surface text-pink-600 hover:text-pink-700 transition-all duration-100 hover:border-pink-500 active:scale-90 shadow-sm relative gpu-layer"
         >
           <HeartIcon className="h-4 w-4" />
           <WishlistBadge />
         </Link>
 
-        {/* Cart Drawer Trigger Button (Always Visible) */}
+        {/* Cart Drawer Trigger Button */}
         <button
           type="button"
-          onClick={() => setCartOpen(true)}
+          onClick={openCart}
           aria-label="Open Shopping Cart"
-          className="flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-full border border-border bg-surface text-amber-600 hover:text-amber-700 transition-all hover:border-amber-600 shadow-sm relative"
+          className="flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-full border border-border bg-surface text-amber-600 hover:text-amber-700 transition-all duration-100 hover:border-amber-600 active:scale-90 shadow-sm relative gpu-layer"
         >
           <CartIcon className="h-4 w-4" />
           <CartBadge />
@@ -50,11 +57,12 @@ export function NavbarHeaderControls({ menuItems }: { menuItems: MenuItem[] }) {
 
         <ThemeToggle />
 
-        {/* Account Button (Always Visible) */}
+        {/* Account Button */}
         <Link
           href="/account"
+          prefetch={true}
           aria-label="Account & Sign In"
-          className="flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-full border border-border bg-surface text-text transition-all hover:border-amber-600 hover:text-amber-600 shadow-sm"
+          className="flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-full border border-border bg-surface text-text transition-all duration-100 hover:border-amber-600 hover:text-amber-600 active:scale-90 shadow-sm gpu-layer"
         >
           <UserIcon className="h-4 w-4" />
         </Link>
@@ -64,8 +72,8 @@ export function NavbarHeaderControls({ menuItems }: { menuItems: MenuItem[] }) {
       </div>
 
       {/* Rendered Client Drawers / Modals */}
-      <CartDrawer open={cartOpen} onClose={() => setCartOpen(false)} />
-      <SearchModal open={searchOpen} onClose={() => setSearchOpen(false)} />
+      <CartDrawer open={cartOpen} onClose={closeCart} />
+      <SearchModal open={searchOpen} onClose={closeSearch} />
     </>
   );
 }

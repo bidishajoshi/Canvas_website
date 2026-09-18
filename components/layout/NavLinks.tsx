@@ -1,3 +1,4 @@
+'use me';
 'use client';
 
 import Link from 'next/link';
@@ -10,13 +11,14 @@ export function NavLinks({ menuItems }: { menuItems: MenuItem[] }) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // Standard primary links per user requirements
+  // Primary links per design
   const primaryLinks = [
     { label: 'Home', href: '/' },
     { label: 'Shop', href: '/shop' },
     { label: 'Canvas', href: '/custom-canvas' },
     { label: 'T-Shirts', href: '/custom-t-shirt' },
     { label: 'Categories', href: '/categories' },
+    { label: 'Gallery', href: '/gallery' },
     { label: 'Offers', href: '/offers' },
   ];
 
@@ -39,7 +41,7 @@ export function NavLinks({ menuItems }: { menuItems: MenuItem[] }) {
         closeDropdown();
       }
     }
-    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('mousedown', handleClickOutside, { passive: true });
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [closeDropdown]);
 
@@ -55,10 +57,11 @@ export function NavLinks({ menuItems }: { menuItems: MenuItem[] }) {
           <Link
             key={item.href}
             href={item.href}
-            className={`text-sm font-semibold transition-all duration-150 relative py-1.5 active:scale-95 nav-link-glow ${
+            prefetch={true}
+            className={`text-sm font-semibold transition-all duration-120 relative py-1.5 active:scale-95 nav-link-glow gpu-layer ${
               isActive
                 ? 'text-amber-600 font-bold after:absolute after:bottom-0 after:left-0 after:right-0 after:h-[2.5px] after:bg-amber-600 after:rounded-full'
-                : 'text-text/80 hover:text-amber-600 after:absolute after:bottom-0 after:left-0 after:right-0 after:h-[2px] after:bg-amber-600 after:scale-x-0 hover:after:scale-x-100 after:transition-transform'
+                : 'text-text/85 hover:text-amber-600 after:absolute after:bottom-0 after:left-0 after:right-0 after:h-[2px] after:bg-amber-600 after:scale-x-0 hover:after:scale-x-100 after:transition-transform'
             }`}
           >
             {item.label}
@@ -71,10 +74,10 @@ export function NavLinks({ menuItems }: { menuItems: MenuItem[] }) {
         <button
           type="button"
           onClick={() => setDropdownOpen((v) => !v)}
-          className={`flex items-center gap-1 text-sm font-semibold transition-all duration-150 py-1.5 focus:outline-none active:scale-95 ${
+          className={`flex items-center gap-1 text-sm font-semibold transition-all duration-120 py-1.5 focus:outline-none active:scale-95 gpu-layer ${
             dropdownOpen || secondaryLinks.some((l) => pathname.startsWith(l.href))
               ? 'text-amber-600 font-bold'
-              : 'text-text/80 hover:text-amber-600'
+              : 'text-text/85 hover:text-amber-600'
           }`}
           aria-expanded={dropdownOpen}
         >
@@ -82,7 +85,7 @@ export function NavLinks({ menuItems }: { menuItems: MenuItem[] }) {
           <svg
             viewBox="0 0 20 20"
             fill="currentColor"
-            className={`h-4 w-4 transition-transform duration-200 ${
+            className={`h-4 w-4 transition-transform duration-150 ${
               dropdownOpen ? 'rotate-180 text-amber-600' : 'text-muted'
             }`}
           >
@@ -95,15 +98,16 @@ export function NavLinks({ menuItems }: { menuItems: MenuItem[] }) {
         </button>
 
         {dropdownOpen && (
-          <div className="absolute top-full right-0 mt-2 w-52 rounded-2xl border border-border bg-surface p-2 shadow-2xl z-50 animate-fadeIn transform origin-top-right">
+          <div className="absolute top-full right-0 mt-2 w-52 rounded-2xl border border-border bg-surface p-2 shadow-2xl z-50 transform origin-top-right transition-all duration-150 gpu-layer">
             {secondaryLinks.map((item) => {
               const isSecActive = pathname.startsWith(item.href);
               return (
                 <Link
                   key={item.href}
                   href={item.href}
+                  prefetch={true}
                   onClick={closeDropdown}
-                  className={`flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-colors ${
+                  className={`flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-colors duration-100 ${
                     isSecActive
                       ? 'bg-amber-500/10 text-amber-600 font-bold'
                       : 'text-text hover:bg-surface-hover hover:text-amber-600'
