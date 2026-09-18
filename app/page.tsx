@@ -4,7 +4,6 @@ import { AnnouncementBar } from '@/components/home/AnnouncementBar';
 import { CategoryGrid } from '@/components/home/CategoryGrid';
 import { BestSellers } from '@/components/home/BestSellers';
 import { CozyCanvasCollection } from '@/components/home/CozyCanvasCollection';
-import { CustomCanvasCta } from '@/components/home/CustomCanvasCta';
 import { CustomTShirtCta } from '@/components/home/CustomTShirtCta';
 import { PinterestCozyGallery } from '@/components/home/PinterestCozyGallery';
 import { SalesInquiryForm } from '@/components/home/SalesInquiryForm';
@@ -116,9 +115,6 @@ export default async function HomePage() {
 
       {/* Pinterest-Inspired Cozy Decor & Girl Room Collections */}
       <PinterestCozyGallery />
-
-      {/* 7-Piece Staggered Canvas Builder Spotlight */}
-      <CustomCanvasCta section={{ id: 'sec-canvas', section_key: 'custom_canvas_cta', title: 'Custom 7-Panel Canvas Wall Builder', subtitle: 'Upload your photo, preview 1 to 7 panel splits on actual wall backgrounds.', body: null, cta_label: null, cta_href: null, secondary_cta_label: null, secondary_cta_href: null, media: {}, settings: {}, enabled: true, sort_order: 4 }} />
 
       {/* Cozy Ready Made Canvas Gallery */}
       <CozyCanvasCollection />
