@@ -1,3 +1,4 @@
+'use me';
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
@@ -18,11 +19,11 @@ export function CartDrawer({ open, onClose }: { open: boolean; onClose: () => vo
       syncCart();
       document.body.style.overflow = 'hidden';
     } else {
-      document.body.style.overflow = 'unset';
+      document.body.style.overflow = '';
     }
-    window.addEventListener('cart-updated', syncCart);
+    window.addEventListener('cart-updated', syncCart, { passive: true } as EventListenerOptions);
     return () => {
-      document.body.style.overflow = 'unset';
+      document.body.style.overflow = '';
       window.removeEventListener('cart-updated', syncCart);
     };
   }, [open, syncCart]);
@@ -33,15 +34,15 @@ export function CartDrawer({ open, onClose }: { open: boolean; onClose: () => vo
   const isFreeDelivery = subtotalPaisa >= 200000;
 
   return (
-    <div className="fixed inset-0 z-50 overflow-hidden">
-      {/* Light, Hardware-Accelerated Overlay Backdrop */}
+    <div className="fixed inset-0 z-50 overflow-hidden gpu-layer">
+      {/* Hardware-Accelerated Overlay Backdrop */}
       <div
-        className="fixed inset-0 bg-black/60 transition-opacity duration-200"
+        className="fixed inset-0 bg-black/60 transition-opacity duration-150 backdrop-blur-sm"
         onClick={onClose}
       />
 
       <div className="fixed inset-y-0 right-0 max-w-full flex pl-10">
-        <div className="w-screen max-w-md bg-bg border-l border-border shadow-2xl flex flex-col justify-between transform transition-transform duration-300 ease-out">
+        <div className="w-screen max-w-md bg-bg border-l border-border shadow-2xl flex flex-col justify-between transform transition-transform duration-200 ease-out gpu-layer">
           {/* Header */}
           <div className="p-5 border-b border-border flex items-center justify-between bg-surface">
             <div className="flex items-center gap-2">
@@ -54,7 +55,7 @@ export function CartDrawer({ open, onClose }: { open: boolean; onClose: () => vo
             <button
               type="button"
               onClick={onClose}
-              className="h-8 w-8 rounded-full border border-border flex items-center justify-center text-muted hover:text-text hover:border-amber-600 transition-colors active:scale-95"
+              className="h-8 w-8 rounded-full border border-border flex items-center justify-center text-muted hover:text-text hover:border-amber-600 transition-all duration-100 active:scale-90"
             >
               ✕
             </button>
@@ -72,7 +73,7 @@ export function CartDrawer({ open, onClose }: { open: boolean; onClose: () => vo
                 <button
                   type="button"
                   onClick={onClose}
-                  className="inline-block px-5 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs shadow-sm transition-colors active:scale-95"
+                  className="inline-block px-5 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs shadow-sm transition-all duration-100 active:scale-95"
                 >
                   Start Shopping Now →
                 </button>
@@ -108,7 +109,7 @@ export function CartDrawer({ open, onClose }: { open: boolean; onClose: () => vo
                         <button
                           type="button"
                           onClick={() => removeFromCart(item.id)}
-                          className="text-muted hover:text-rose-600 text-sm font-bold active:scale-95"
+                          className="text-muted hover:text-rose-600 text-sm font-bold active:scale-90 transition-all duration-100"
                           title="Remove item"
                         >
                           ✕
@@ -127,7 +128,7 @@ export function CartDrawer({ open, onClose }: { open: boolean; onClose: () => vo
                         <button
                           type="button"
                           onClick={() => updateCartQuantity(item.id, item.quantity - 1)}
-                          className="text-muted hover:text-text font-bold px-1.5 active:scale-95"
+                          className="text-muted hover:text-text font-bold px-1.5 active:scale-90 transition-all"
                         >
                           -
                         </button>
@@ -135,7 +136,7 @@ export function CartDrawer({ open, onClose }: { open: boolean; onClose: () => vo
                         <button
                           type="button"
                           onClick={() => updateCartQuantity(item.id, item.quantity + 1)}
-                          className="text-muted hover:text-text font-bold px-1.5 active:scale-95"
+                          className="text-muted hover:text-text font-bold px-1.5 active:scale-90 transition-all"
                         >
                           +
                         </button>
@@ -175,16 +176,18 @@ export function CartDrawer({ open, onClose }: { open: boolean; onClose: () => vo
               <div className="grid grid-cols-2 gap-2 pt-1">
                 <Link
                   href="/cart"
+                  prefetch={true}
                   onClick={onClose}
-                  className="w-full py-3 rounded-xl border border-border bg-bg hover:border-amber-600 text-text font-bold text-xs text-center transition-colors active:scale-95 shadow-sm"
+                  className="w-full py-3 rounded-xl border border-border bg-bg hover:border-amber-600 text-text font-bold text-xs text-center transition-all duration-100 active:scale-95 shadow-sm"
                 >
                   View Full Cart
                 </Link>
 
                 <Link
                   href="/checkout"
+                  prefetch={true}
                   onClick={onClose}
-                  className="w-full py-3 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs text-center transition-colors active:scale-95 shadow-md"
+                  className="w-full py-3 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs text-center transition-all duration-100 active:scale-95 shadow-md"
                 >
                   Checkout Now 💳
                 </Link>
