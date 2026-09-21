@@ -100,7 +100,7 @@ export default async function HomePage() {
             ? announcement.message
             : '🇳🇵 Free Delivery Across Kathmandu Valley on Orders Over Rs. 2,000! Express Cash on Delivery Available.'
         }
-        href={announcement?.enabled && announcement.link_href ? announcement.link_href : '/custom-canvas'}
+        href={announcement?.enabled && announcement.link_href ? announcement.link_href : 'https://affordabledecoration.vercel.app/custom-canvas'}
       />
 
       {/* Multi-Photo Hero Slider */}
