@@ -12,13 +12,15 @@ interface DesignLibraryProps {
 
 const THEME_FILTERS = [
   'All',
+  'Couple Set',
+  'Reference Photos',
+  'Love',
   'Minimal',
   'Quotes',
   'Nepalese',
   'Gaming',
   'Anime',
   'Funny',
-  'Love',
   'Travel',
 ];
 
@@ -32,9 +34,13 @@ export function DesignLibrary({
   const filteredDesigns =
     activeTheme === 'All'
       ? designs
-      : designs.filter(
-          (d) => d.theme.toLowerCase() === activeTheme.toLowerCase()
-        );
+      : designs.filter((d) => {
+          const t = (d.theme || '').toLowerCase();
+          const target = activeTheme.toLowerCase();
+          if (target === 'couple set') return t.includes('couple') || t.includes('matching') || t.includes('pair');
+          if (target === 'reference photos') return t.includes('reference') || t.includes('photo') || t.includes('custom');
+          return t.includes(target);
+        });
 
   return (
     <div className="space-y-4">
