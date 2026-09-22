@@ -10,6 +10,7 @@ export interface TShirtEditorProps {
   colorName?: string;
   designUrl?: string | null;
   customTShirtBaseUrl?: string | null;
+  referencePhotoUrl?: string | null;
   customText?: string;
   textFont?: string;
   textColor?: string;
@@ -26,6 +27,7 @@ export function TShirtEditor({
   colorName = 'White',
   designUrl,
   customTShirtBaseUrl,
+  referencePhotoUrl,
   customText = '',
   textFont = 'Plus Jakarta Sans',
   textColor = '#ffffff',
