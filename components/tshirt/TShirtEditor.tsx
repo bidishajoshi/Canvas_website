@@ -429,6 +429,26 @@ export function TShirtEditor({
             />
             <span className="max-w-[100px] truncate">{colorName}</span>
           </div>
+
+          {/* Reference Photo Picture-in-Picture Badge */}
+          {referencePhotoUrl && (
+            <div className="absolute bottom-2 right-2 sm:bottom-3 sm:right-3 flex flex-col items-end gap-1 group z-10">
+              <div className="relative h-16 w-16 sm:h-20 sm:w-20 rounded-xl overflow-hidden border-2 border-amber-500 shadow-lg bg-surface transition-transform group-hover:scale-105">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={referencePhotoUrl}
+                  alt="Reference photo"
+                  className="h-full w-full object-cover"
+                />
+                <span className="absolute top-0.5 right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-amber-600 text-white text-[8px] font-bold">
+                  📸
+                </span>
+              </div>
+              <span className="text-[9px] font-bold text-amber-600 bg-surface/90 px-2 py-0.5 rounded-full border border-amber-500/30 shadow-xs">
+                Ref Photo
+              </span>
+            </div>
+          )}
         </div>
       </div>
 
