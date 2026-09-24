@@ -85,8 +85,8 @@ export default async function HomePage() {
     imageUrl: slide.image_url,
     ctaText: slide.cta_text || 'Customize Now 🖼️',
     ctaHref: slide.cta_href || '/custom-canvas',
-    secondaryCtaText: 'Explore Collections',
-    secondaryCtaHref: '/shop',
+    secondaryCtaText: slide.secondary_cta_text || undefined,
+    secondaryCtaHref: slide.secondary_cta_href || undefined,
   }));
 
   const activeSlides = heroSlides.length > 0 ? heroSlides : defaultHeroSlides;
