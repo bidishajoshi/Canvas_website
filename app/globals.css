@@ -95,16 +95,12 @@ body {
 .gpu-layer {
   transform: translateZ(0);
   backface-visibility: hidden;
-  perspective: 1000px;
-  will-change: transform;
 }
 
 .glass-header {
   background-color: rgba(255, 255, 255, 0.85);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  transform: translateZ(0);
-  will-change: transform;
 }
 
 [data-theme='dark'] .glass-header {
