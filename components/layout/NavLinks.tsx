@@ -57,7 +57,7 @@ export function NavLinks({ menuItems }: { menuItems: MenuItem[] }) {
           <Link
             key={item.href}
             href={item.href}
-            prefetch={true}
+            prefetch={item.href.includes('custom') ? false : true}
             className={`text-sm font-semibold transition-all duration-120 relative py-1.5 active:scale-95 nav-link-glow gpu-layer ${
               isActive
                 ? 'text-amber-600 font-bold after:absolute after:bottom-0 after:left-0 after:right-0 after:h-[2.5px] after:bg-amber-600 after:rounded-full'
