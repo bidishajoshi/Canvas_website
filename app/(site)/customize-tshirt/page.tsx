@@ -3,6 +3,8 @@ import { getSettings } from '@/lib/content';
 import { createClient } from '@/lib/supabase/server';
 import { TShirtBuilderClient } from '@/components/tshirt/TShirtBuilderClient';
 
+export const revalidate = 300;
+
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await getSettings();
   return {

@@ -4,6 +4,8 @@ import { createClient } from '@/lib/supabase/server';
 import { filterDeleted, getCategoriesStore } from '@/lib/adminStore';
 import type { Category } from '@/lib/types';
 
+export const revalidate = 300;
+
 export const metadata = {
   title: 'Explore Categories - Affordable Decoration Nepal',
   description: 'Browse our collection of Canvas Prints, Multi-Panel Canvas Art, Personalised Wall Decor, and Customised T-Shirts.',

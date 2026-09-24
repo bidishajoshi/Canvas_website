@@ -4,6 +4,8 @@ import { getSettings } from '@/lib/content';
 import { CanvasBuilderClient } from '@/components/custom-canvas/CanvasBuilderClient';
 import type { CanvasSize, Finish, Frame, PanelType } from '@/lib/types';
 
+export const revalidate = 300;
+
 export const metadata: Metadata = {
   title: 'Custom Canvas Builder — Affordable Decoration Nepal',
   description:
