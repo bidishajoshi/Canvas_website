@@ -57,29 +57,29 @@ export function ProductForm({ action, categories, product }: ProductFormProps) {
         />
       </div>
 
-      {/* Main Image Input with Live Preview */}
-      <div>
-        <label className="text-xs font-semibold text-muted">Product Main Photo URL</label>
-        <input
-          name="main_image_url"
-          value={imageUrl}
-          onChange={(e) => setImageUrl(e.target.value)}
-          placeholder="https://images.unsplash.com/..."
-          className="mt-1 w-full rounded-xl border border-border bg-bg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
+      {/* Main Image Input with Automatic Optimization & Live Preview */}
+      <div className="space-y-3 p-4 rounded-xl border border-border bg-bg">
+        <label className="text-xs font-bold text-text uppercase tracking-wider block">📷 Product Main Photo</label>
+        
+        <OptimizedImageUploader
+          mode="admin"
+          preset="admin"
+          buttonText="📁 Upload Product Photo from Computer"
+          sublabel="Upload high-res DSLR photo — system automatically optimizes file size"
+          currentImageUrl={imageUrl}
+          onOptimized={(result) => setImageUrl(result.url)}
         />
-        {imageUrl ? (
-          <div className="relative mt-3 h-48 w-full max-w-md overflow-hidden rounded-xl border border-border bg-neutral-900 shadow-inner">
-            <Image
-              src={imageUrl}
-              alt="Product Photo Preview"
-              fill
-              className="object-cover"
-              sizes="400px"
-            />
-          </div>
-        ) : (
-          <p className="mt-1.5 text-xs text-muted">Paste an image URL from Cloudinary or media library to preview.</p>
-        )}
+
+        <div>
+          <label className="text-xs font-semibold text-muted block mb-1">Or Paste Main Image URL</label>
+          <input
+            name="main_image_url"
+            value={imageUrl}
+            onChange={(e) => setImageUrl(e.target.value)}
+            placeholder="https://images.unsplash.com/..."
+            className="w-full rounded-xl border border-border bg-surface px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-amber-500 font-mono"
+          />
+        </div>
       </div>
 
       <div className="grid grid-cols-2 gap-4">
