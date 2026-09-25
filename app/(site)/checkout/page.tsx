@@ -7,6 +7,7 @@ import { createClient } from '@/lib/supabase/client';
 import { cartSubtotalPaisa, clearCart, getCart, removeFromCart, type CartItem } from '@/lib/cart';
 import { formatPaisa } from '@/lib/utils';
 import { buildFullOrderWhatsAppLink } from '@/lib/whatsapp';
+import { optimizeImage } from '@/lib/imageOptimizer';
 
 interface PaymentMethod {
   id: string;
