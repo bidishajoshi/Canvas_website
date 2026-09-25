@@ -1,10 +1,10 @@
-'use me';
 'use client';
 
 import { useState } from 'react';
 import Image from 'next/image';
 import type { Category } from '@/lib/types';
 import { createCategory, updateCategory, deleteCategory } from '@/app/admin/categories/actions';
+import { OptimizedImageUploader } from '@/components/common/OptimizedImageUploader';
 
 interface CategoryManagerProps {
   categories: Category[];
