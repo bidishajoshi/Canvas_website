@@ -23,37 +23,68 @@ export function PhotoUpload({ onUploaded, maxUploadSizeMb }: PhotoUploadProps) {
   const [error, setError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
+import { optimizeImage, validateImageFile, getImageDimensions, type OptimizationResult } from '@/lib/imageOptimizer';
+
+export function PhotoUpload({ onUploaded, maxUploadSizeMb }: PhotoUploadProps) {
+  const [preview, setPreview] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [error, setError] = useState<string | null>(null);
+  const [statusText, setStatusText] = useState<string>('');
+  const inputRef = useRef<HTMLInputElement>(null);
+
   async function handleFile(file: File) {
     setError(null);
+    setStatusText('');
 
-    if (!ALLOWED_TYPES.includes(file.type)) {
-      setError('Please upload a JPG, PNG, or WEBP image.');
+    const validation = validateImageFile(file, maxUploadSizeMb * 1024 * 1024);
+    if (!validation.valid) {
+      setError(validation.error || `Please upload a JPG, PNG, or WEBP image up to ${maxUploadSizeMb}MB.`);
       return;
     }
-    if (file.size > maxUploadSizeMb * 1024 * 1024) {
-      setError(`File is larger than the ${maxUploadSizeMb}MB limit.`);
-      return;
-    }
 
-    const localUrl = URL.createObjectURL(file);
-    setPreview(localUrl);
-
-    const dimensions = await getImageDimensions(localUrl);
     setUploading(true);
-    setProgress(0);
+    setProgress(15);
+    setStatusText('Optimizing your photo...');
+
+    let optimizedFile: File = file;
+    let finalWidth = 0;
+    let finalHeight = 0;
+
+    try {
+      // Automatic client-side smart compression
+      const optResult: OptimizationResult = await optimizeImage(file, { preset: 'canvas' });
+      optimizedFile = optResult.file;
+      finalWidth = optResult.width;
+      finalHeight = optResult.height;
+      setPreview(optResult.previewUrl);
+    } catch (optErr) {
+      console.warn('Optimization notice, proceeding with original photo:', optErr);
+      const localUrl = URL.createObjectURL(file);
+      setPreview(localUrl);
+      const dims = await getImageDimensions(file);
+      finalWidth = dims.width;
+      finalHeight = dims.height;
+    }
+
+    setProgress(50);
+    setStatusText('Preparing live canvas editor...');
 
     try {
       const signRes = await fetch('/api/canvas/upload', { method: 'POST' });
       if (signRes.ok) {
         const signed = await signRes.json();
-        const uploadedUrl = await uploadToCloudinary(file, signed, setProgress);
+        const uploadedUrl = await uploadToCloudinary(optimizedFile, signed, (pct) => {
+          setProgress(50 + Math.round(pct * 0.5));
+        });
 
         onUploaded({
           url: uploadedUrl,
-          width: dimensions.width,
-          height: dimensions.height,
-          sizeBytes: file.size,
+          width: finalWidth,
+          height: finalHeight,
+          sizeBytes: optimizedFile.size,
         });
+        setStatusText('Photo ready ✓');
         setUploading(false);
         return;
       }
@@ -66,17 +97,18 @@ export function PhotoUpload({ onUploaded, maxUploadSizeMb }: PhotoUploadProps) {
     reader.onload = () => {
       onUploaded({
         url: reader.result as string,
-        width: dimensions.width,
-        height: dimensions.height,
-        sizeBytes: file.size,
+        width: finalWidth,
+        height: finalHeight,
+        sizeBytes: optimizedFile.size,
       });
+      setStatusText('Photo ready ✓');
       setUploading(false);
     };
     reader.onerror = () => {
       setError('Upload failed. Please try a different image.');
       setUploading(false);
     };
-    reader.readAsDataURL(file);
+    reader.readAsDataURL(optimizedFile);
   }
 
   return (
