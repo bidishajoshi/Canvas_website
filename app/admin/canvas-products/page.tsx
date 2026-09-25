@@ -1,9 +1,10 @@
 import { requireAdminUser } from '@/lib/adminAuth';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { formatPaisa } from '@/lib/utils';
-import { createCanvasProduct, deleteCanvasProduct } from './actions';
+import { deleteCanvasProduct } from './actions';
 import type { CanvasProduct } from '@/lib/types';
 import { filterDeleted } from '@/lib/adminStore';
+import { CanvasProductForm } from '@/components/admin/CanvasProductForm';
 
 const DEMO_PRODUCTS: CanvasProduct[] = [
   {
