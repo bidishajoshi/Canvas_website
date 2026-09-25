@@ -1,6 +1,7 @@
 'use client';
 
 import { useRef, useState } from 'react';
+import { optimizeImage, validateImageFile, getImageDimensions, type OptimizationResult } from '@/lib/imageOptimizer';
 
 export interface UploadedPhoto {
   url: string;
@@ -13,17 +14,6 @@ interface PhotoUploadProps {
   onUploaded: (result: UploadedPhoto) => void;
   maxUploadSizeMb: number;
 }
-
-const ALLOWED_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
-
-export function PhotoUpload({ onUploaded, maxUploadSizeMb }: PhotoUploadProps) {
-  const [preview, setPreview] = useState<string | null>(null);
-  const [uploading, setUploading] = useState(false);
-  const [progress, setProgress] = useState(0);
-  const [error, setError] = useState<string | null>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
-
-import { optimizeImage, validateImageFile, getImageDimensions, type OptimizationResult } from '@/lib/imageOptimizer';
 
 export function PhotoUpload({ onUploaded, maxUploadSizeMb }: PhotoUploadProps) {
   const [preview, setPreview] = useState<string | null>(null);
@@ -139,23 +129,32 @@ export function PhotoUpload({ onUploaded, maxUploadSizeMb }: PhotoUploadProps) {
       ) : (
         <div className="space-y-2">
           <div className="relative aspect-video w-full overflow-hidden rounded-card bg-surface">
-            {/* Local object URL preview — a plain <img> avoids next/image's
-                remote-domain restrictions for a blob: URL. */}
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={preview} alt="Uploaded preview" className="h-full w-full object-cover" />
+            {statusText === 'Photo ready ✓' && (
+              <div className="absolute right-2 top-2 rounded-full bg-emerald-600 px-2.5 py-0.5 text-[10px] font-bold text-white shadow-md">
+                Photo ready ✓
+              </div>
+            )}
           </div>
           {uploading && (
-            <div className="h-1.5 w-full overflow-hidden rounded-full bg-surface" role="progressbar" aria-valuenow={progress} aria-valuemin={0} aria-valuemax={100}>
-              <div
-                className="h-full bg-accent-yellow transition-all"
-                style={{ width: `${progress}%` }}
-              />
+            <div className="space-y-1">
+              <div className="flex items-center justify-between text-[11px] font-bold text-amber-600">
+                <span>{statusText || 'Optimizing photo...'}</span>
+                <span>{progress}%</span>
+              </div>
+              <div className="h-1.5 w-full overflow-hidden rounded-full bg-surface" role="progressbar" aria-valuenow={progress} aria-valuemin={0} aria-valuemax={100}>
+                <div
+                  className="h-full bg-amber-500 transition-all"
+                  style={{ width: `${progress}%` }}
+                />
+              </div>
             </div>
           )}
           <button
             type="button"
             onClick={() => inputRef.current?.click()}
-            className="text-xs font-medium text-accent-yellow underline"
+            className="text-xs font-medium text-amber-600 underline"
           >
             Choose a different photo
           </button>
@@ -169,14 +168,6 @@ export function PhotoUpload({ onUploaded, maxUploadSizeMb }: PhotoUploadProps) {
       )}
     </div>
   );
-}
-
-function getImageDimensions(url: string): Promise<{ width: number; height: number }> {
-  return new Promise((resolve) => {
-    const img = new window.Image();
-    img.onload = () => resolve({ width: img.naturalWidth, height: img.naturalHeight });
-    img.src = url;
-  });
 }
 
 function uploadToCloudinary(

@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { addToCart } from '@/lib/cart';
 import { formatPaisa } from '@/lib/utils';
 import type { HomepageSection } from '@/lib/types';
+import { optimizeImage } from '@/lib/imageOptimizer';
 
 const SAMPLE_ARTWORKS = [
   {
@@ -60,11 +61,17 @@ export function CustomCanvasCta({ section }: { section: HomepageSection }) {
   const currentPreset = PANEL_PRESETS.find((p) => p.count === selectedPanelCount) || PANEL_PRESETS[1];
   const activeImageSrc = uploadedArtUrl || selectedArtUrl;
 
-  function handlePhotoUpload(e: React.ChangeEvent<HTMLInputElement>) {
+  async function handlePhotoUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (file) {
-      const url = URL.createObjectURL(file);
-      setUploadedArtUrl(url);
+      try {
+        const result = await optimizeImage(file, { preset: activeTab === 'canvas' ? 'canvas' : 'tshirt' });
+        setUploadedArtUrl(result.previewUrl);
+      } catch (err) {
+        console.warn('Optimization notice, using fallback URL:', err);
+        const url = URL.createObjectURL(file);
+        setUploadedArtUrl(url);
+      }
     }
   }
 
