@@ -153,106 +153,13 @@ export default async function AdminCanvasProductsPage() {
         </div>
       </section>
 
-      {/* Add New Ready-Made Canvas Product Form */}
+      {/* Add New Ready-Made Canvas Product Form with Automatic Image Optimization */}
       <section className="rounded-xl border border-border bg-surface/50 p-6 space-y-4">
         <h2 className="font-bold text-lg text-text flex items-center gap-2 border-b border-border pb-3">
           <span>➕</span> Add New Ready-Made Canvas Product
         </h2>
 
-        <form action={createCanvasProduct} encType="multipart/form-data" className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <LabeledInput label="Product Name" name="name" placeholder="e.g. 7 Running Horses Vastu Canvas" required />
-          <LabeledInput label="URL Slug (Optional)" name="slug" placeholder="e.g. 7-running-horses-vastu-canvas" />
-
-          <div className="md:col-span-2">
-            <label className="text-xs text-muted font-medium">Description</label>
-            <textarea
-              name="description"
-              rows={2}
-              placeholder="Detailed artwork description and spiritual / decor details..."
-              className="mt-1 w-full rounded-xl border border-border bg-bg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
-            />
-          </div>
-
-          <div>
-            <label className="text-xs text-muted font-medium block mb-1">📁 Upload Photo File from Computer</label>
-            <input
-              type="file"
-              name="image_file"
-              accept="image/*"
-              className="w-full rounded-xl border border-border bg-bg px-3 py-2 text-xs cursor-pointer focus:outline-none focus:ring-2 focus:ring-amber-500"
-            />
-          </div>
-
-          <LabeledInput
-            label="Or Enter Main Image URL"
-            name="main_image_url"
-            placeholder="https://images.unsplash.com/..."
-          />
-
-          <div>
-            <label className="text-xs text-muted font-medium">Panel Count (1 to 7 Pieces)</label>
-            <select
-              name="panel_count"
-              defaultValue="5"
-              className="mt-1 w-full rounded-xl border border-border bg-bg px-3 py-2 text-sm"
-            >
-              <option value="1">1 Piece (Single Canvas)</option>
-              <option value="2">2 Pieces (Diptych)</option>
-              <option value="3">3 Pieces (Triptych)</option>
-              <option value="4">4 Pieces (Quad Split)</option>
-              <option value="5">5 Pieces (Pentaptych Chevron)</option>
-              <option value="6">6 Pieces (Hexaptych)</option>
-              <option value="7">7 Pieces (Panoramic Multi)</option>
-            </select>
-          </div>
-
-          <LabeledInput label="Canvas Size Breakdown" name="size_label" placeholder="e.g. 60 x 32 in (Center 12x32 max)" required />
-          <LabeledInput label="Frame Style" name="frame_label" placeholder="e.g. Black Floating Frame" />
-
-          <LabeledInput label="Original Price (NPR)" name="original_price" type="number" step="1" placeholder="e.g. 6900" required />
-          <LabeledInput label="Discount Price (NPR)" name="discount_price" type="number" step="1" placeholder="e.g. 5520" />
-
-          <LabeledInput label="Stock Count" name="stock" type="number" defaultValue="10" />
-          <LabeledInput label="SKU Code" name="sku" placeholder="e.g. AD-CAN-7HORSES" />
-
-          {/* Placement Checkboxes */}
-          <div className="md:col-span-2 p-4 rounded-xl border border-border bg-surface/80 space-y-2">
-            <label className="text-xs font-bold text-text uppercase tracking-wider block mb-2">
-              Website Placement &amp; Category Badges
-            </label>
-            <div className="flex flex-wrap gap-4 text-xs font-semibold">
-              <label className="flex items-center gap-1.5 cursor-pointer">
-                <input type="checkbox" name="is_best_seller" defaultChecked className="rounded text-amber-600 focus:ring-amber-500" />
-                <span>⭐ Best Seller</span>
-              </label>
-              <label className="flex items-center gap-1.5 cursor-pointer">
-                <input type="checkbox" name="is_featured" defaultChecked className="rounded text-amber-600 focus:ring-amber-500" />
-                <span>📌 Featured Product</span>
-              </label>
-              <label className="flex items-center gap-1.5 cursor-pointer">
-                <input type="checkbox" name="is_new_arrival" className="rounded text-amber-600 focus:ring-amber-500" />
-                <span>🔥 New Arrival</span>
-              </label>
-              <label className="flex items-center gap-1.5 cursor-pointer">
-                <input type="checkbox" name="is_trending" className="rounded text-amber-600 focus:ring-amber-500" />
-                <span>⚡ Trending</span>
-              </label>
-              <label className="flex items-center gap-1.5 cursor-pointer">
-                <input type="checkbox" name="show_on_homepage" defaultChecked className="rounded text-amber-600 focus:ring-amber-500" />
-                <span>🏠 Show on Cozy Canvas Homepage Section</span>
-              </label>
-            </div>
-          </div>
-
-          <div className="md:col-span-2 pt-2">
-            <button
-              type="submit"
-              className="w-full py-3 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-extrabold text-sm shadow-md transition-all"
-            >
-              + Publish Ready-Made Canvas Product
-            </button>
-          </div>
-        </form>
+        <CanvasProductForm />
       </section>
     </div>
   );

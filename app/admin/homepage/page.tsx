@@ -10,6 +10,8 @@ import {
   toggleSectionEnabled,
 } from './actions';
 import { filterDeleted } from '@/lib/adminStore';
+import { HeroSlideForm } from '@/components/admin/HeroSlideForm';
+import { HeroSlideEditForm } from '@/components/admin/HeroSlideEditForm';
 
 export default async function AdminHomepagePage() {
   await requireAdminUser();
@@ -102,101 +104,7 @@ export default async function AdminHomepagePage() {
         </div>
 
         {/* Add New Slide Form */}
-        <form action={addHeroSlide} encType="multipart/form-data" className="p-5 rounded-2xl bg-bg border border-border space-y-4">
-          <h3 className="text-xs font-bold uppercase tracking-wider text-amber-600">+ Add New Carousel Banner Slide</h3>
-
-          <div className="grid sm:grid-cols-3 gap-3">
-            <div>
-              <label className="text-xs font-semibold text-muted block mb-1">Slide Title / Main Heading *</label>
-              <input
-                type="text"
-                name="title"
-                required
-                placeholder="e.g. Turn Your Photos Into 7-Piece Canvas Art"
-                className="w-full px-3 py-2 rounded-xl border border-border bg-surface text-text text-xs focus:outline-none"
-              />
-            </div>
-
-            <div>
-              <label className="text-xs font-semibold text-muted block mb-1">📁 Upload Photo from Device</label>
-              <input
-                type="file"
-                name="image_file"
-                accept="image/*"
-                className="w-full px-3 py-1.5 rounded-xl border border-border bg-surface text-text text-xs focus:outline-none cursor-pointer"
-              />
-            </div>
-
-            <div>
-              <label className="text-xs font-semibold text-muted block mb-1">Or Photo URL</label>
-              <input
-                type="url"
-                name="image_url"
-                placeholder="https://images.unsplash.com/photo-..."
-                className="w-full px-3 py-2 rounded-xl border border-border bg-surface text-text text-xs focus:outline-none"
-              />
-            </div>
-          </div>
-
-          <div>
-            <label className="text-xs font-semibold text-muted block mb-1">Subtitle / Paragraph Description</label>
-            <input
-              type="text"
-              name="subtitle"
-              placeholder="High-definition canvas wall statement split across staggered heights..."
-              className="w-full px-3 py-2 rounded-xl border border-border bg-surface text-text text-xs focus:outline-none"
-            />
-          </div>
-
-          <div className="grid sm:grid-cols-4 gap-3">
-            <div>
-              <label className="text-xs font-semibold text-muted block mb-1">Top Badge Tag</label>
-              <input
-                type="text"
-                name="badge"
-                placeholder="🇳🇵 #1 Choice in Nepal"
-                className="w-full px-3 py-2 rounded-xl border border-border bg-surface text-text text-xs focus:outline-none"
-              />
-            </div>
-
-            <div>
-              <label className="text-xs font-semibold text-muted block mb-1">Primary Button Text</label>
-              <input
-                type="text"
-                name="cta_text"
-                defaultValue="Build Custom Canvas 🖼️"
-                className="w-full px-3 py-2 rounded-xl border border-border bg-surface text-text text-xs focus:outline-none"
-              />
-            </div>
-
-            <div>
-              <label className="text-xs font-semibold text-muted block mb-1">Primary Button Link</label>
-              <input
-                type="text"
-                name="cta_href"
-                defaultValue="/custom-canvas"
-                className="w-full px-3 py-2 rounded-xl border border-border bg-surface text-text text-xs focus:outline-none"
-              />
-            </div>
-
-            <div>
-              <label className="text-xs font-semibold text-muted block mb-1">Secondary Button Text</label>
-              <input
-                type="text"
-                name="secondary_cta_text"
-                placeholder="e.g. Browse Ready Made Art"
-                className="w-full px-3 py-2 rounded-xl border border-border bg-surface text-text text-xs focus:outline-none"
-              />
-            </div>
-          </div>
-
-          <button
-            type="submit"
-            className="px-5 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs shadow-md transition-all active:scale-95 btn-glow"
-          >
-            + Save &amp; Add Slide to Homepage Carousel
-          </button>
-        </form>
+        <HeroSlideForm />
 
         {/* Existing Carousel Slides List with Edit & Delete */}
         <div className="space-y-4">
@@ -221,121 +129,7 @@ export default async function AdminHomepagePage() {
                   </form>
                 </div>
 
-                <form action={updateHeroSlide} encType="multipart/form-data" className="space-y-3">
-                  <input type="hidden" name="id" value={slide.id} />
-
-                  <div className="grid sm:grid-cols-3 gap-3">
-                    <div className="sm:col-span-2">
-                      <label className="text-xs font-semibold text-muted block mb-1">Slide Title / Heading *</label>
-                      <input
-                        type="text"
-                        name="title"
-                        defaultValue={slide.title}
-                        required
-                        className="w-full px-3 py-2 rounded-xl border border-border bg-surface text-text text-xs font-bold focus:outline-none"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="text-xs font-semibold text-muted block mb-1">Top Badge Text</label>
-                      <input
-                        type="text"
-                        name="badge"
-                        defaultValue={slide.badge || ''}
-                        placeholder="🇳🇵 #1 Decor Choice"
-                        className="w-full px-3 py-2 rounded-xl border border-border bg-surface text-text text-xs focus:outline-none"
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="text-xs font-semibold text-muted block mb-1">Subtitle / Paragraph Description</label>
-                    <input
-                      type="text"
-                      name="subtitle"
-                      defaultValue={slide.subtitle || ''}
-                      className="w-full px-3 py-2 rounded-xl border border-border bg-surface text-text text-xs focus:outline-none"
-                    />
-                  </div>
-
-                  <div className="grid sm:grid-cols-4 gap-3">
-                    <div>
-                      <label className="text-xs font-semibold text-muted block mb-1">Primary Button Text</label>
-                      <input
-                        type="text"
-                        name="cta_text"
-                        defaultValue={slide.cta_text || 'Shop Now'}
-                        className="w-full px-3 py-2 rounded-xl border border-border bg-surface text-text text-xs focus:outline-none"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="text-xs font-semibold text-muted block mb-1">Primary Button Link</label>
-                      <input
-                        type="text"
-                        name="cta_href"
-                        defaultValue={slide.cta_href || '/custom-canvas'}
-                        className="w-full px-3 py-2 rounded-xl border border-border bg-surface text-text text-xs focus:outline-none"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="text-xs font-semibold text-muted block mb-1">Secondary Button Text</label>
-                      <input
-                        type="text"
-                        name="secondary_cta_text"
-                        defaultValue={slide.secondary_cta_text || ''}
-                        placeholder="Browse Collections"
-                        className="w-full px-3 py-2 rounded-xl border border-border bg-surface text-text text-xs focus:outline-none"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="text-xs font-semibold text-muted block mb-1">Secondary Button Link</label>
-                      <input
-                        type="text"
-                        name="secondary_cta_href"
-                        defaultValue={slide.secondary_cta_href || '/shop'}
-                        className="w-full px-3 py-2 rounded-xl border border-border bg-surface text-text text-xs focus:outline-none"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="grid sm:grid-cols-3 gap-3 items-center pt-2">
-                    <div className="relative aspect-[16/7] w-full rounded-xl overflow-hidden bg-neutral-900 border border-border">
-                      <Image src={slide.image_url} alt={slide.title} fill className="object-cover" />
-                    </div>
-
-                    <div>
-                      <label className="text-xs font-semibold text-muted block mb-1">Replace Image File</label>
-                      <input
-                        type="file"
-                        name="image_file"
-                        accept="image/*"
-                        className="w-full px-2 py-1 rounded-lg border border-border bg-surface text-xs"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="text-xs font-semibold text-muted block mb-1">Or Replace Image URL</label>
-                      <input
-                        type="url"
-                        name="image_url"
-                        defaultValue={slide.image_url}
-                        className="w-full px-2.5 py-1.5 rounded-lg border border-border bg-surface text-xs"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="flex justify-end pt-1">
-                    <button
-                      type="submit"
-                      className="px-4 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs shadow-sm transition-all active:scale-95"
-                    >
-                      ✓ Save Changes for Slide #{index + 1}
-                    </button>
-                  </div>
-                </form>
+                <HeroSlideEditForm slide={slide} index={index} />
               </div>
             ))}
           </div>

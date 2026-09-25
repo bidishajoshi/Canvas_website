@@ -1,12 +1,12 @@
 import { requireAdminUser } from '@/lib/adminAuth';
 import { createAdminClient } from '@/lib/supabase/admin';
 import {
-  createPaymentMethod,
   deletePaymentMethod,
   togglePaymentMethodActive,
-  updatePaymentMethod,
 } from './actions';
 import { filterDeleted } from '@/lib/adminStore';
+import { PaymentMethodEditForm } from '@/components/admin/PaymentMethodEditForm';
+import { PaymentMethodCreateForm } from '@/components/admin/PaymentMethodCreateForm';
 
 interface PaymentMethod {
   id: string;
@@ -133,60 +133,7 @@ export default async function AdminPaymentsPage() {
                   </div>
                 </div>
 
-                <form action={updatePaymentMethod.bind(null, m.id)} className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                  <div className="sm:col-span-2 space-y-3">
-                    <div>
-                      <label className="text-xs font-semibold text-muted block mb-1">Display Name</label>
-                      <input
-                        name="name"
-                        type="text"
-                        defaultValue={m.name}
-                        required
-                        className="w-full rounded-xl border border-border bg-bg px-3 py-2 text-xs text-text focus:outline-none focus:ring-2 focus:ring-amber-600"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="text-xs font-semibold text-muted block mb-1">Instructions &amp; Delivery Terms</label>
-                      <textarea
-                        name="instructions"
-                        rows={2}
-                        defaultValue={m.instructions ?? ''}
-                        className="w-full rounded-xl border border-border bg-bg px-3 py-2 text-xs text-text focus:outline-none focus:ring-2 focus:ring-amber-600"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="text-xs font-semibold text-muted block mb-1">Admin Payment QR Code Image URL</label>
-                      <input
-                        name="qr_code_url"
-                        type="text"
-                        defaultValue={qrUrl ?? ''}
-                        placeholder="https://.../esewa_qr.jpg"
-                        className="w-full rounded-xl border border-border bg-bg px-3 py-2 text-xs text-text focus:outline-none focus:ring-2 focus:ring-amber-600"
-                      />
-                    </div>
-
-                    <button
-                      type="submit"
-                      className="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs shadow-sm transition-all"
-                    >
-                      Save Payment Changes 💾
-                    </button>
-                  </div>
-
-                  {/* QR Code Preview Box */}
-                  <div className="flex flex-col items-center justify-center p-3 rounded-xl border border-border bg-bg text-center space-y-2">
-                    <span className="text-xs font-bold text-text">QR Code Preview</span>
-                    {qrUrl ? (
-                      <img src={qrUrl} alt={`${m.name} QR`} className="w-28 h-28 object-contain rounded-lg border border-border shadow-sm" />
-                    ) : (
-                      <div className="w-28 h-28 flex items-center justify-center border border-dashed border-border text-muted text-xs rounded-lg">
-                        No QR Code URL
-                      </div>
-                    )}
-                  </div>
-                </form>
+                <PaymentMethodEditForm method={m} />
               </div>
             );
           })}
@@ -199,58 +146,7 @@ export default async function AdminPaymentsPage() {
           <span>➕</span> Add New Payment Option
         </h2>
 
-        <form action={createPaymentMethod} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label className="text-xs text-muted font-medium">Payment Name *</label>
-            <input
-              name="name"
-              type="text"
-              required
-              placeholder="e.g. Khalti Mobile Wallet"
-              className="mt-1 block w-full rounded-xl border border-border bg-bg px-3.5 py-2.5 text-sm"
-            />
-          </div>
-
-          <div>
-            <label className="text-xs text-muted font-medium">Unique Code *</label>
-            <input
-              name="code"
-              type="text"
-              required
-              placeholder="e.g. khalti"
-              className="mt-1 block w-full rounded-xl border border-border bg-bg px-3.5 py-2.5 text-sm font-mono"
-            />
-          </div>
-
-          <div className="sm:col-span-2">
-            <label className="text-xs text-muted font-medium">Payment Instructions &amp; Notes</label>
-            <textarea
-              name="instructions"
-              rows={2}
-              placeholder="Enter instructions for customers (e.g. Send to Khalti ID 9800000000)..."
-              className="mt-1 block w-full rounded-xl border border-border bg-bg px-3.5 py-2.5 text-sm"
-            />
-          </div>
-
-          <div className="sm:col-span-2">
-            <label className="text-xs text-muted font-medium">Payment QR Code Image URL</label>
-            <input
-              name="qr_code_url"
-              type="text"
-              placeholder="https://.../qr.png"
-              className="mt-1 block w-full rounded-xl border border-border bg-bg px-3.5 py-2.5 text-sm"
-            />
-          </div>
-
-          <div className="sm:col-span-2 pt-2">
-            <button
-              type="submit"
-              className="w-full py-3.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-extrabold text-sm shadow-md transition-all"
-            >
-              + Create Payment Option
-            </button>
-          </div>
-        </form>
+        <PaymentMethodCreateForm />
       </section>
     </div>
   );

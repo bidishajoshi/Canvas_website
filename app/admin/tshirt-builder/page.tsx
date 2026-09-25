@@ -10,9 +10,9 @@ import {
   deleteTShirtColor,
   addPrintLocation,
   deletePrintLocation,
-  addTShirtDesign,
   deleteTShirtDesign,
 } from './actions';
+import { TShirtDesignForm } from '@/components/admin/TShirtDesignForm';
 
 export default async function AdminTShirtBuilderPage() {
   await requireAdminUser();
@@ -237,67 +237,7 @@ export default async function AdminTShirtBuilderPage() {
         </h2>
 
         {/* Add Artwork Form */}
-        <form action={addTShirtDesign} encType="multipart/form-data" className="p-4 rounded-xl bg-bg border border-border space-y-3">
-          <h3 className="text-xs font-bold uppercase tracking-wider text-amber-600">+ Add New Artwork Design</h3>
-          <div className="grid sm:grid-cols-2 gap-3">
-            <div>
-              <label className="text-xs font-semibold text-muted block mb-1">Design Title *</label>
-              <input
-                type="text"
-                name="name"
-                required
-                placeholder="e.g. Kathmandu Minimalist Skyline"
-                className="w-full px-3 py-2 rounded-xl border border-border bg-surface text-xs focus:outline-none focus:ring-2 focus:ring-amber-600"
-              />
-            </div>
-            <div>
-              <label className="text-xs font-semibold text-muted block mb-1">Theme / Category</label>
-              <input
-                type="text"
-                name="theme"
-                defaultValue="Urban"
-                placeholder="Urban / Typography / Nepal"
-                className="w-full px-3 py-2 rounded-xl border border-border bg-surface text-xs focus:outline-none focus:ring-2 focus:ring-amber-600"
-              />
-            </div>
-          </div>
-          <div className="grid sm:grid-cols-3 gap-3">
-            <div>
-              <label className="text-xs font-semibold text-muted block mb-1">📁 Upload Artwork File</label>
-              <input
-                type="file"
-                name="image_file"
-                accept="image/*"
-                className="w-full px-3 py-1.5 rounded-xl border border-border bg-surface text-xs cursor-pointer focus:outline-none focus:ring-2 focus:ring-amber-600"
-              />
-            </div>
-            <div>
-              <label className="text-xs font-semibold text-muted block mb-1">Or Artwork Image URL</label>
-              <input
-                type="url"
-                name="image_url"
-                placeholder="https://images.unsplash.com/photo-..."
-                className="w-full px-3 py-2 rounded-xl border border-border bg-surface text-xs focus:outline-none focus:ring-2 focus:ring-amber-600"
-              />
-            </div>
-            <div>
-              <label className="text-xs font-semibold text-muted block mb-1">Extra Artwork Fee (Rs.)</label>
-              <input
-                type="number"
-                name="price"
-                defaultValue={0}
-                placeholder="0"
-                className="w-full px-3 py-2 rounded-xl border border-border bg-surface text-xs focus:outline-none focus:ring-2 focus:ring-amber-600"
-              />
-            </div>
-          </div>
-          <button
-            type="submit"
-            className="px-4 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs shadow-sm transition-all"
-          >
-            Save Artwork Design
-          </button>
-        </form>
+        <TShirtDesignForm />
 
         {/* List of Designs */}
         <div className="grid gap-3 grid-cols-2 sm:grid-cols-4">

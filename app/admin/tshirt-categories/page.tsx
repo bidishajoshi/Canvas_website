@@ -3,6 +3,7 @@ import { requireAdminUser } from '@/lib/adminAuth';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { filterDeleted } from '@/lib/adminStore';
 import { addTShirtCategory, deleteTShirtCategory } from './actions';
+import { TShirtCategoryForm } from '@/components/admin/TShirtCategoryForm';
 
 export default async function AdminTShirtCategoriesPage() {
   await requireAdminUser();
@@ -42,49 +43,7 @@ export default async function AdminTShirtCategoriesPage() {
       </div>
 
       {/* Add New Category Form */}
-      <form action={addTShirtCategory} className="rounded-2xl border border-border bg-surface p-5 space-y-4 shadow-sm">
-        <h3 className="text-xs font-bold uppercase tracking-wider text-amber-600">Add New T-Shirt Category</h3>
-
-        <div className="grid sm:grid-cols-2 gap-3">
-          <div>
-            <label className="text-xs font-semibold text-muted block mb-1">Category Name *</label>
-            <input
-              type="text"
-              name="name"
-              required
-              placeholder="e.g. Couple & Matching T-Shirts"
-              className="w-full px-3 py-2 rounded-xl border border-border bg-bg text-xs focus:outline-none"
-            />
-          </div>
-
-          <div>
-            <label className="text-xs font-semibold text-muted block mb-1">Cover Image URL</label>
-            <input
-              type="url"
-              name="image_url"
-              placeholder="https://images.unsplash.com/photo-..."
-              className="w-full px-3 py-2 rounded-xl border border-border bg-bg text-xs focus:outline-none"
-            />
-          </div>
-        </div>
-
-        <div>
-          <label className="text-xs font-semibold text-muted block mb-1">Description</label>
-          <input
-            type="text"
-            name="description"
-            placeholder="Brief description of this apparel category..."
-            className="w-full px-3 py-2 rounded-xl border border-border bg-bg text-xs focus:outline-none"
-          />
-        </div>
-
-        <button
-          type="submit"
-          className="px-5 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs shadow-sm transition-all active:scale-95 btn-glow"
-        >
-          + Save Category
-        </button>
-      </form>
+      <TShirtCategoryForm />
 
       {/* Category Cards Grid */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
