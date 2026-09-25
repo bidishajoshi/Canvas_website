@@ -193,9 +193,17 @@ export default function CheckoutPage() {
     setItems(getCart());
   }
 
-  function handleScreenshotFile(e: React.ChangeEvent<HTMLInputElement>) {
+  async function handleScreenshotFile(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
+
+    let targetFile = file;
+    try {
+      const optResult = await optimizeImage(file, { preset: 'screenshot' });
+      targetFile = optResult.file;
+    } catch (err) {
+      console.warn('Screenshot optimization notice, using original file:', err);
+    }
 
     const reader = new FileReader();
     reader.onload = (evt) => {
@@ -203,7 +211,7 @@ export default function CheckoutPage() {
         setPaymentScreenshotUrl(evt.target.result as string);
       }
     };
-    reader.readAsDataURL(file);
+    reader.readAsDataURL(targetFile);
   }
 
   const subtotalPaisa = cartSubtotalPaisa(items);
