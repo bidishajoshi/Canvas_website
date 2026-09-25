@@ -142,28 +142,27 @@ export function CategoryManager({ categories }: CategoryManagerProps) {
                 />
               </div>
 
-              <div>
-                <label className="text-xs font-semibold text-muted">
-                  Photo / Cover Image URL
+              <div className="space-y-2.5 p-3.5 rounded-xl border border-border bg-bg">
+                <label className="text-xs font-bold text-text uppercase tracking-wider block">
+                  📷 Category Cover Photo
                 </label>
-                <input
-                  name="image_url"
-                  value={editImageUrl}
-                  onChange={(e) => setEditImageUrl(e.target.value)}
-                  placeholder="https://images.unsplash.com/..."
-                  className="mt-1 w-full rounded-xl border border-border bg-surface px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
+                <OptimizedImageUploader
+                  mode="admin"
+                  preset="admin"
+                  buttonText="📁 Upload Category Cover Photo"
+                  currentImageUrl={editImageUrl}
+                  onOptimized={(result) => setEditImageUrl(result.url)}
                 />
-                {editImageUrl && (
-                  <div className="relative mt-2 h-32 w-full overflow-hidden rounded-xl border border-border bg-neutral-900">
-                    <Image
-                      src={editImageUrl}
-                      alt="Category Preview"
-                      fill
-                      className="object-cover"
-                      sizes="400px"
-                    />
-                  </div>
-                )}
+                <div>
+                  <label className="text-[11px] font-semibold text-muted block mb-1">Or Image URL</label>
+                  <input
+                    name="image_url"
+                    value={editImageUrl}
+                    onChange={(e) => setEditImageUrl(e.target.value)}
+                    placeholder="https://images.unsplash.com/..."
+                    className="w-full rounded-xl border border-border bg-surface px-3 py-2 text-xs font-mono"
+                  />
+                </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
@@ -244,28 +243,27 @@ export function CategoryManager({ categories }: CategoryManagerProps) {
             />
           </div>
 
-          <div>
-            <label className="text-xs font-semibold text-muted">
-              Cover Photo Image URL
+          <div className="space-y-2.5 p-4 rounded-xl border border-border bg-bg">
+            <label className="text-xs font-bold text-text uppercase tracking-wider block">
+              📷 Category Cover Photo
             </label>
-            <input
-              name="image_url"
-              value={newImageUrl}
-              onChange={(e) => setNewImageUrl(e.target.value)}
-              placeholder="https://images.unsplash.com/photo-..."
-              className="mt-1 w-full rounded-xl border border-border bg-bg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
+            <OptimizedImageUploader
+              mode="admin"
+              preset="admin"
+              buttonText="📁 Upload Cover Photo from Computer"
+              currentImageUrl={newImageUrl}
+              onOptimized={(result) => setNewImageUrl(result.url)}
             />
-            {newImageUrl && (
-              <div className="relative mt-2 h-32 w-full max-w-sm overflow-hidden rounded-xl border border-border bg-neutral-900">
-                <Image
-                  src={newImageUrl}
-                  alt="New Category Preview"
-                  fill
-                  className="object-cover"
-                  sizes="300px"
-                />
-              </div>
-            )}
+            <div>
+              <label className="text-[11px] font-semibold text-muted block mb-1">Or Cover Image URL</label>
+              <input
+                name="image_url"
+                value={newImageUrl}
+                onChange={(e) => setNewImageUrl(e.target.value)}
+                placeholder="https://images.unsplash.com/photo-..."
+                className="w-full rounded-xl border border-border bg-surface px-3 py-2 text-xs font-mono"
+              />
+            </div>
           </div>
 
           <div className="flex justify-end pt-2">

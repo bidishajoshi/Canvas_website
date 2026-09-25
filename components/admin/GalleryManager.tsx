@@ -1,10 +1,10 @@
-'use me';
 'use client';
 
 import { useState } from 'react';
 import Image from 'next/image';
 import type { GalleryItem, Category } from '@/lib/types';
 import { createGalleryItem, updateGalleryItem, deleteGalleryItem } from '@/app/admin/gallery/actions';
+import { OptimizedImageUploader } from '@/components/common/OptimizedImageUploader';
 
 interface GalleryManagerProps {
   items: GalleryItem[];
