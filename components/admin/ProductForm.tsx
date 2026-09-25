@@ -1,9 +1,9 @@
-'use me';
 'use client';
 
 import { useState } from 'react';
 import Image from 'next/image';
 import type { Category, Product } from '@/lib/types';
+import { OptimizedImageUploader } from '@/components/common/OptimizedImageUploader';
 
 interface ProductFormProps {
   action: (formData: FormData) => void | Promise<void>;
