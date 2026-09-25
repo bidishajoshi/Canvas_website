@@ -170,26 +170,28 @@ export function GalleryManager({ items, categories }: GalleryManagerProps) {
               }}
               className="space-y-4"
             >
-              <div>
-                <label className="text-xs font-semibold text-muted">Photo Image URL *</label>
-                <input
-                  name="image_url"
-                  value={editImageUrl}
-                  onChange={(e) => setEditImageUrl(e.target.value)}
-                  required
-                  className="mt-1 w-full rounded-xl border border-border bg-surface px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
+              <div className="space-y-2.5 p-3.5 rounded-xl border border-border bg-bg">
+                <label className="text-xs font-bold text-text uppercase tracking-wider block">
+                  📷 Gallery Photo File
+                </label>
+                <OptimizedImageUploader
+                  mode="admin"
+                  preset="admin"
+                  buttonText="📁 Upload Gallery Photo from Computer"
+                  currentImageUrl={editImageUrl}
+                  onOptimized={(result) => setEditImageUrl(result.url)}
                 />
-                {editImageUrl && (
-                  <div className="relative mt-2 h-40 w-full overflow-hidden rounded-xl border border-border bg-neutral-900">
-                    <Image
-                      src={editImageUrl}
-                      alt="Photo Preview"
-                      fill
-                      className="object-cover"
-                      sizes="400px"
-                    />
-                  </div>
-                )}
+                <div>
+                  <label className="text-[11px] font-semibold text-muted block mb-1">Or Photo URL *</label>
+                  <input
+                    name="image_url"
+                    value={editImageUrl}
+                    onChange={(e) => setEditImageUrl(e.target.value)}
+                    required
+                    placeholder="https://images.unsplash.com/..."
+                    className="w-full rounded-xl border border-border bg-surface px-3 py-2 text-xs font-mono"
+                  />
+                </div>
               </div>
 
               <div>
@@ -276,27 +278,28 @@ export function GalleryManager({ items, categories }: GalleryManagerProps) {
       <div className="rounded-2xl border border-border bg-surface p-6 shadow-sm">
         <h2 className="font-display text-lg font-bold text-text mb-4">Add Photo to Gallery with Category</h2>
         <form action={createGalleryItem} className="space-y-4">
-          <div>
-            <label className="text-xs font-semibold text-muted">Photo Image URL *</label>
-            <input
-              name="image_url"
-              value={newImageUrl}
-              onChange={(e) => setNewImageUrl(e.target.value)}
-              required
-              placeholder="https://images.unsplash.com/photo-..."
-              className="mt-1 w-full rounded-xl border border-border bg-bg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
+          <div className="space-y-2.5 p-4 rounded-xl border border-border bg-bg">
+            <label className="text-xs font-bold text-text uppercase tracking-wider block">
+              📷 Gallery Photo File
+            </label>
+            <OptimizedImageUploader
+              mode="admin"
+              preset="admin"
+              buttonText="📁 Upload High-Res Gallery Photo from Computer"
+              currentImageUrl={newImageUrl}
+              onOptimized={(result) => setNewImageUrl(result.url)}
             />
-            {newImageUrl && (
-              <div className="relative mt-2 h-40 w-full max-w-sm overflow-hidden rounded-xl border border-border bg-neutral-900">
-                <Image
-                  src={newImageUrl}
-                  alt="New Photo Preview"
-                  fill
-                  className="object-cover"
-                  sizes="300px"
-                />
-              </div>
-            )}
+            <div>
+              <label className="text-[11px] font-semibold text-muted block mb-1">Or Photo URL *</label>
+              <input
+                name="image_url"
+                value={newImageUrl}
+                onChange={(e) => setNewImageUrl(e.target.value)}
+                required
+                placeholder="https://images.unsplash.com/photo-..."
+                className="w-full rounded-xl border border-border bg-surface px-3 py-2 text-xs font-mono"
+              />
+            </div>
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2">
