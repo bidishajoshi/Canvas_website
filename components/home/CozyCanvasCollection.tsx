@@ -122,13 +122,21 @@ const DEMO_READY_CANVASES: CanvasProduct[] = [
   },
 ];
 
-export function CozyCanvasCollection({ section }: { section?: HomepageSection }) {
+export function CozyCanvasCollection({
+  section,
+  products = DEMO_READY_CANVASES,
+}: {
+  section?: HomepageSection;
+  products?: CanvasProduct[];
+}) {
   const [activeFilter, setActiveFilter] = useState<number | 'all'>('all');
+
+  const itemsToDisplay = products && products.length > 0 ? products : DEMO_READY_CANVASES;
 
   const filtered =
     activeFilter === 'all'
-      ? DEMO_READY_CANVASES
-      : DEMO_READY_CANVASES.filter((item) => item.panel_count === activeFilter);
+      ? itemsToDisplay
+      : itemsToDisplay.filter((item) => item.panel_count === activeFilter);
 
   return (
     <section className="container-page py-16 border-t border-border bg-surface-hover/20">
