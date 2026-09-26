@@ -1,4 +1,3 @@
-'use me';
 'use client';
 
 import Link from 'next/link';
@@ -46,7 +45,7 @@ export function NavLinks({ menuItems }: { menuItems: MenuItem[] }) {
   }, [closeDropdown]);
 
   return (
-    <nav className="hidden lg:flex items-center gap-6">
+    <nav className="hidden lg:flex items-center gap-3 xl:gap-6 shrink-0">
       {primaryLinks.map((item) => {
         const isActive =
           item.href === '/'
@@ -58,7 +57,7 @@ export function NavLinks({ menuItems }: { menuItems: MenuItem[] }) {
             key={item.href}
             href={item.href}
             prefetch={item.href.includes('custom') ? false : true}
-            className={`text-sm font-semibold transition-all duration-120 relative py-1.5 active:scale-95 nav-link-glow gpu-layer ${
+            className={`text-xs xl:text-sm font-semibold whitespace-nowrap transition-all duration-120 relative py-1.5 active:scale-95 nav-link-glow gpu-layer ${
               isActive
                 ? 'text-amber-600 font-bold after:absolute after:bottom-0 after:left-0 after:right-0 after:h-[2.5px] after:bg-amber-600 after:rounded-full'
                 : 'text-text/85 hover:text-amber-600 after:absolute after:bottom-0 after:left-0 after:right-0 after:h-[2px] after:bg-amber-600 after:scale-x-0 hover:after:scale-x-100 after:transition-transform'
@@ -74,7 +73,7 @@ export function NavLinks({ menuItems }: { menuItems: MenuItem[] }) {
         <button
           type="button"
           onClick={() => setDropdownOpen((v) => !v)}
-          className={`flex items-center gap-1 text-sm font-semibold transition-all duration-120 py-1.5 focus:outline-none active:scale-95 gpu-layer ${
+          className={`flex items-center gap-1 text-xs xl:text-sm font-semibold whitespace-nowrap transition-all duration-120 py-1.5 focus:outline-none active:scale-95 gpu-layer ${
             dropdownOpen || secondaryLinks.some((l) => pathname.startsWith(l.href))
               ? 'text-amber-600 font-bold'
               : 'text-text/85 hover:text-amber-600'
