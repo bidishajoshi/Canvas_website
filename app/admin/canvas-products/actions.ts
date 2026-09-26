@@ -42,7 +42,8 @@ export async function createCanvasProduct(formData: FormData) {
     mainImageUrl = `data:${mimeType};base64,${base64}`;
   }
 
-  await supabase.from('canvas_products').insert({
+  const newProduct: CanvasProduct = {
+    id: 'cp-' + Date.now(),
     name,
     slug,
     description: String(formData.get('description') ?? '') || null,
@@ -62,7 +63,36 @@ export async function createCanvasProduct(formData: FormData) {
     show_on_homepage: formData.get('show_on_homepage') === 'on',
     status: 'published',
     sort_order: 1,
-  });
+  };
+
+  saveCanvasProductToStore(newProduct);
+
+  try {
+    await supabase.from('canvas_products').insert({
+      id: newProduct.id,
+      name: newProduct.name,
+      slug: newProduct.slug,
+      description: newProduct.description,
+      main_image_url: newProduct.main_image_url,
+      panel_count: newProduct.panel_count,
+      size_label: newProduct.size_label,
+      frame_label: newProduct.frame_label,
+      original_price_paisa: newProduct.original_price_paisa,
+      discount_price_paisa: newProduct.discount_price_paisa,
+      discount_percentage: newProduct.discount_percentage,
+      sku: newProduct.sku,
+      stock: newProduct.stock,
+      is_featured: newProduct.is_featured,
+      is_best_seller: newProduct.is_best_seller,
+      is_new_arrival: newProduct.is_new_arrival,
+      is_trending: newProduct.is_trending,
+      show_on_homepage: newProduct.show_on_homepage,
+      status: newProduct.status,
+      sort_order: newProduct.sort_order,
+    });
+  } catch (err) {
+    console.error('Supabase canvas product insert fallback:', err);
+  }
 
   revalidatePath('/admin/canvas-products');
   revalidatePath('/shop');
