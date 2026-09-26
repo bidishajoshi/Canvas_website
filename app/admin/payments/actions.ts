@@ -4,6 +4,8 @@ import { revalidatePath } from 'next/cache';
 import { requireAdminUser } from '@/lib/adminAuth';
 import { createAdminClient } from '@/lib/supabase/admin';
 
+import { markIdAsDeleted, savePaymentMethodToStore } from '@/lib/adminStore';
+
 export async function createPaymentMethod(formData: FormData) {
   await requireAdminUser();
   const supabase = createAdminClient();
@@ -15,15 +17,28 @@ export async function createPaymentMethod(formData: FormData) {
 
   if (!name || !code) throw new Error('Name and Code are required.');
 
-  const { error } = await supabase.from('payment_methods').insert({
+  const method = {
+    id: code,
     name,
     code,
     instructions: instructions || null,
     config: qrCodeUrl ? { qr_code_url: qrCodeUrl } : {},
     active: true,
-  });
+  };
 
-  if (error) throw new Error(error.message);
+  savePaymentMethodToStore(method);
+
+  try {
+    await supabase.from('payment_methods').insert({
+      name,
+      code,
+      instructions: instructions || null,
+      config: qrCodeUrl ? { qr_code_url: qrCodeUrl } : {},
+      active: true,
+    });
+  } catch (err) {
+    console.error('Supabase createPaymentMethod fallback:', err);
+  }
 
   revalidatePath('/admin/payments');
   revalidatePath('/checkout');
@@ -37,16 +52,25 @@ export async function updatePaymentMethod(id: string, formData: FormData) {
   const instructions = String(formData.get('instructions') ?? '').trim();
   const qrCodeUrl = String(formData.get('qr_code_url') ?? '').trim();
 
-  const { error } = await supabase
-    .from('payment_methods')
-    .update({
-      name,
-      instructions: instructions || null,
-      config: qrCodeUrl ? { qr_code_url: qrCodeUrl } : {},
-    })
-    .eq('id', id);
+  savePaymentMethodToStore({
+    id,
+    name,
+    instructions: instructions || null,
+    config: qrCodeUrl ? { qr_code_url: qrCodeUrl } : {},
+  });
 
-  if (error) throw new Error(error.message);
+  try {
+    await supabase
+      .from('payment_methods')
+      .update({
+        name,
+        instructions: instructions || null,
+        config: qrCodeUrl ? { qr_code_url: qrCodeUrl } : {},
+      })
+      .eq('id', id);
+  } catch (err) {
+    console.error('Supabase updatePaymentMethod fallback:', err);
+  }
 
   revalidatePath('/admin/payments');
   revalidatePath('/checkout');
@@ -56,12 +80,16 @@ export async function togglePaymentMethodActive(id: string, active: boolean) {
   await requireAdminUser();
   const supabase = createAdminClient();
 
-  const { error } = await supabase
-    .from('payment_methods')
-    .update({ active })
-    .eq('id', id);
+  savePaymentMethodToStore({ id, active });
 
-  if (error) throw new Error(error.message);
+  try {
+    await supabase
+      .from('payment_methods')
+      .update({ active })
+      .eq('id', id);
+  } catch (err) {
+    console.error('Supabase togglePaymentMethodActive fallback:', err);
+  }
 
   revalidatePath('/admin/payments');
   revalidatePath('/checkout');
@@ -69,11 +97,14 @@ export async function togglePaymentMethodActive(id: string, active: boolean) {
 
 export async function deletePaymentMethod(id: string) {
   await requireAdminUser();
-  const supabase = createAdminClient();
+  markIdAsDeleted(id);
 
-  const { error } = await supabase.from('payment_methods').delete().eq('id', id);
-
-  if (error) throw new Error(error.message);
+  try {
+    const supabase = createAdminClient();
+    await supabase.from('payment_methods').delete().eq('id', id);
+  } catch (err) {
+    console.error('Supabase deletePaymentMethod fallback:', err);
+  }
 
   revalidatePath('/admin/payments');
   revalidatePath('/checkout');

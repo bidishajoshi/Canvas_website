@@ -3,6 +3,8 @@
 import { revalidatePath } from 'next/cache';
 import { requireAdminUser } from '@/lib/adminAuth';
 import { createAdminClient } from '@/lib/supabase/admin';
+import { saveCanvasProductToStore, markIdAsDeleted } from '@/lib/adminStore';
+import type { CanvasProduct } from '@/lib/types';
 
 function toPaisa(value: FormDataEntryValue | null): number {
   const n = parseFloat(String(value ?? '0'));

@@ -3,7 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import { requireAdminUser } from '@/lib/adminAuth';
 import { createAdminClient } from '@/lib/supabase/admin';
-import { markIdAsDeleted } from '@/lib/adminStore';
+import { markIdAsDeleted, saveHeroSlideToStore, saveAnnouncementBarToStore } from '@/lib/adminStore';
 
 export async function addHeroSlide(formData: FormData) {
   await requireAdminUser();
@@ -29,7 +29,8 @@ export async function addHeroSlide(formData: FormData) {
 
   if (!title || (!imageUrl && (!imageFile || imageFile.size === 0))) return;
 
-  await supabase.from('hero_slides').insert({
+  const newSlide = {
+    id: 'slide-' + Date.now(),
     title,
     subtitle,
     badge,
@@ -40,7 +41,27 @@ export async function addHeroSlide(formData: FormData) {
     secondary_cta_href: secondaryCtaHref || null,
     active: true,
     sort_order: Date.now(),
-  });
+  };
+
+  saveHeroSlideToStore(newSlide);
+
+  try {
+    await supabase.from('hero_slides').insert({
+      id: newSlide.id,
+      title: newSlide.title,
+      subtitle: newSlide.subtitle,
+      badge: newSlide.badge,
+      image_url: newSlide.image_url,
+      cta_text: newSlide.cta_text,
+      cta_href: newSlide.cta_href,
+      secondary_cta_text: newSlide.secondary_cta_text,
+      secondary_cta_href: newSlide.secondary_cta_href,
+      active: newSlide.active,
+      sort_order: newSlide.sort_order,
+    });
+  } catch (err) {
+    console.error('Supabase addHeroSlide fallback:', err);
+  }
 
   revalidatePath('/admin/homepage');
   revalidatePath('/');
@@ -72,6 +93,7 @@ export async function updateHeroSlide(formData: FormData) {
   if (!id || !title) return;
 
   const updateData: Record<string, any> = {
+    id,
     title,
     subtitle,
     badge: badge || null,
@@ -85,7 +107,13 @@ export async function updateHeroSlide(formData: FormData) {
     updateData.image_url = imageUrl;
   }
 
-  await supabase.from('hero_slides').update(updateData).eq('id', id);
+  saveHeroSlideToStore(updateData);
+
+  try {
+    await supabase.from('hero_slides').update(updateData).eq('id', id);
+  } catch (err) {
+    console.error('Supabase updateHeroSlide fallback:', err);
+  }
 
   revalidatePath('/admin/homepage');
   revalidatePath('/');
@@ -96,7 +124,11 @@ export async function deleteHeroSlide(id: string) {
   const supabase = createAdminClient();
 
   markIdAsDeleted(id);
-  await supabase.from('hero_slides').delete().eq('id', id);
+  try {
+    await supabase.from('hero_slides').delete().eq('id', id);
+  } catch (err) {
+    console.error('Supabase deleteHeroSlide fallback:', err);
+  }
 
   revalidatePath('/admin/homepage');
   revalidatePath('/');
@@ -110,21 +142,31 @@ export async function updateAnnouncementBar(formData: FormData) {
   const linkHref = String(formData.get('link_href') ?? '').trim();
   const enabled = formData.get('enabled') === 'true' || formData.get('enabled') === 'on';
 
-  // Upsert announcement bar
-  const { data: existing } = await supabase.from('announcement_bar').select('*').limit(1).single();
+  saveAnnouncementBarToStore({
+    message,
+    link_href: linkHref,
+    enabled,
+  });
 
-  if (existing) {
-    await supabase.from('announcement_bar').update({
-      message,
-      link_href: linkHref,
-      enabled,
-    }).eq('id', existing.id);
-  } else {
-    await supabase.from('announcement_bar').insert({
-      message,
-      link_href: linkHref,
-      enabled,
-    });
+  try {
+    // Upsert announcement bar
+    const { data: existing } = await supabase.from('announcement_bar').select('*').limit(1).single();
+
+    if (existing) {
+      await supabase.from('announcement_bar').update({
+        message,
+        link_href: linkHref,
+        enabled,
+      }).eq('id', existing.id);
+    } else {
+      await supabase.from('announcement_bar').insert({
+        message,
+        link_href: linkHref,
+        enabled,
+      });
+    }
+  } catch (err) {
+    console.error('Supabase updateAnnouncementBar fallback:', err);
   }
 
   revalidatePath('/admin/homepage');

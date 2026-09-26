@@ -3,7 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import { requireAdminUser } from '@/lib/adminAuth';
 import { createAdminClient } from '@/lib/supabase/admin';
-import { markIdAsDeleted } from '@/lib/adminStore';
+import { markIdAsDeleted, saveTShirtCategoryToStore } from '@/lib/adminStore';
 
 export async function addTShirtCategory(formData: FormData) {
   await requireAdminUser();
@@ -16,8 +16,19 @@ export async function addTShirtCategory(formData: FormData) {
 
   if (!name) return;
 
+  const newCat = {
+    id: 'cat-' + Date.now(),
+    name,
+    slug,
+    description: description || null,
+    image_url: imageUrl || null,
+  };
+
+  saveTShirtCategoryToStore(newCat);
+
   try {
     await supabase.from('tshirt_categories').insert({
+      id: newCat.id,
       name,
       slug,
       description: description || null,
