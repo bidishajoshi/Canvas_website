@@ -1,6 +1,12 @@
 import type { Metadata } from 'next';
 import { getSettings } from '@/lib/content';
 import { createClient } from '@/lib/supabase/server';
+import {
+  getTShirtTypesStore,
+  getTShirtColorsStore,
+  getPrintLocationsStore,
+  getTShirtDesignsStore,
+} from '@/lib/adminStore';
 import { TShirtBuilderClient } from '@/components/tshirt/TShirtBuilderClient';
 
 export const revalidate = 300;
@@ -39,8 +45,13 @@ export default async function CustomizeTShirtPage() {
     printLocations = locsRes.data || [];
     designs = designsRes.data || [];
   } catch {
-    // Graceful fallbacks handled inside TShirtBuilderClient
+    // Fallbacks handled below
   }
+
+  if (!tshirtTypes || tshirtTypes.length === 0) tshirtTypes = getTShirtTypesStore();
+  if (!colors || colors.length === 0) colors = getTShirtColorsStore();
+  if (!printLocations || printLocations.length === 0) printLocations = getPrintLocationsStore();
+  if (!designs || designs.length === 0) designs = getTShirtDesignsStore();
 
   return (
     <div className="container-page py-6 sm:py-10">
