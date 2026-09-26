@@ -1,7 +1,7 @@
 import Image from 'next/image';
 import { requireAdminUser } from '@/lib/adminAuth';
 import { createAdminClient } from '@/lib/supabase/admin';
-import { filterDeleted } from '@/lib/adminStore';
+import { filterDeleted, getTShirtCategoriesStore } from '@/lib/adminStore';
 import { addTShirtCategory, deleteTShirtCategory } from './actions';
 import { TShirtCategoryForm } from '@/components/admin/TShirtCategoryForm';
 
@@ -30,7 +30,7 @@ export default async function AdminTShirtCategoriesPage() {
   ];
 
   const categories = filterDeleted(
-    dbCategories && dbCategories.length > 0 ? dbCategories : defaultCategories
+    dbCategories && dbCategories.length > 0 ? dbCategories : getTShirtCategoriesStore()
   );
 
   return (

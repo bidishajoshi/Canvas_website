@@ -4,7 +4,7 @@ import {
   deletePaymentMethod,
   togglePaymentMethodActive,
 } from './actions';
-import { filterDeleted } from '@/lib/adminStore';
+import { filterDeleted, getPaymentMethodsStore } from '@/lib/adminStore';
 import { PaymentMethodEditForm } from '@/components/admin/PaymentMethodEditForm';
 import { PaymentMethodCreateForm } from '@/components/admin/PaymentMethodCreateForm';
 
@@ -18,48 +18,6 @@ interface PaymentMethod {
   config?: { qr_code_url?: string } | null;
 }
 
-const DEFAULT_PAYMENTS: PaymentMethod[] = [
-  {
-    id: 'cod',
-    name: 'Cash on Delivery (COD + Advance Delivery Fee)',
-    code: 'cod',
-    instructions:
-      'Pay cash on delivery! Note: A small advance delivery charge (e.g. Rs. 150) must be paid via QR code before delivery dispatch to confirm your address.',
-    active: true,
-    sort_order: 1,
-    config: {
-      qr_code_url:
-        'https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?auto=format&fit=crop&w=600&q=80',
-    },
-  },
-  {
-    id: 'esewa',
-    name: 'eSewa Mobile Wallet (Online QR Pay)',
-    code: 'esewa',
-    instructions:
-      'Scan the official Affordable Decoration eSewa QR Code below to make instant payment to eSewa ID: 9800000000.',
-    active: true,
-    sort_order: 2,
-    config: {
-      qr_code_url:
-        'https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?auto=format&fit=crop&w=600&q=80',
-    },
-  },
-  {
-    id: 'bank_transfer',
-    name: 'Direct Bank Transfer (NABIL / NIC Asia)',
-    code: 'bank_transfer',
-    instructions:
-      'Transfer directly to NABIL Bank A/C: 0101017500001 (Affordable Decoration Pvt Ltd). Enter transaction reference or statement ID below.',
-    active: true,
-    sort_order: 3,
-    config: {
-      qr_code_url:
-        'https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?auto=format&fit=crop&w=600&q=80',
-    },
-  },
-];
-
 export default async function AdminPaymentsPage() {
   await requireAdminUser();
   const supabase = createAdminClient();
@@ -69,9 +27,8 @@ export default async function AdminPaymentsPage() {
     .select('*')
     .order('sort_order', { ascending: true });
 
-  const methods = filterDeleted(
-    data && data.length > 0 ? (data as PaymentMethod[]) : DEFAULT_PAYMENTS
-  );
+  const rawMethods = (data && data.length > 0) ? (data as PaymentMethod[]) : getPaymentMethodsStore();
+  const methods = filterDeleted(rawMethods);
 
   return (
     <div className="space-y-10 max-w-4xl">

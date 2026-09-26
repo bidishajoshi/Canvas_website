@@ -9,7 +9,7 @@ import {
   updateHomepageSection,
   toggleSectionEnabled,
 } from './actions';
-import { filterDeleted } from '@/lib/adminStore';
+import { filterDeleted, getHeroSlidesStore } from '@/lib/adminStore';
 import { HeroSlideForm } from '@/components/admin/HeroSlideForm';
 import { HeroSlideEditForm } from '@/components/admin/HeroSlideEditForm';
 
@@ -23,7 +23,8 @@ export default async function AdminHomepagePage() {
     supabase.from('announcement_bar').select('*').limit(1).single(),
   ]);
 
-  const activeSlides = filterDeleted(slides || []);
+  const rawSlides = (slides && slides.length > 0) ? slides : getHeroSlidesStore();
+  const activeSlides = filterDeleted(rawSlides);
   const activeSections = sections || [];
 
   return (

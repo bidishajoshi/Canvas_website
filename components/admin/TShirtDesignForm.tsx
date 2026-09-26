@@ -39,6 +39,7 @@ export function TShirtDesignForm() {
           🎨 Artwork File (PNG with Transparency Preserved)
         </label>
         <OptimizedImageUploader
+          name="image_url"
           mode="admin"
           preset="tshirt"
           buttonText="📁 Upload Graphic Artwork / Logo from Computer"

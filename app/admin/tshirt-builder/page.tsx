@@ -2,7 +2,13 @@ import Image from 'next/image';
 import { requireAdminUser } from '@/lib/adminAuth';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { formatPaisa } from '@/lib/utils';
-import { filterDeleted } from '@/lib/adminStore';
+import {
+  filterDeleted,
+  getTShirtTypesStore,
+  getTShirtColorsStore,
+  getPrintLocationsStore,
+  getTShirtDesignsStore,
+} from '@/lib/adminStore';
 import {
   addTShirtType,
   deleteTShirtType,
@@ -32,10 +38,15 @@ export default async function AdminTShirtBuilderPage() {
     supabase.from('tshirt_designs').select('*').order('sort_order', { ascending: true }),
   ]);
 
-  const tshirtTypes = filterDeleted(tshirtTypesData || []);
-  const colors = filterDeleted(colorsData || []);
-  const printLocations = filterDeleted(printLocationsData || []);
-  const designs = filterDeleted(designsData || []);
+  const rawTypes = (tshirtTypesData && tshirtTypesData.length > 0) ? tshirtTypesData : getTShirtTypesStore();
+  const rawColors = (colorsData && colorsData.length > 0) ? colorsData : getTShirtColorsStore();
+  const rawLocs = (printLocationsData && printLocationsData.length > 0) ? printLocationsData : getPrintLocationsStore();
+  const rawDesigns = (designsData && designsData.length > 0) ? designsData : getTShirtDesignsStore();
+
+  const tshirtTypes = filterDeleted(rawTypes);
+  const colors = filterDeleted(rawColors);
+  const printLocations = filterDeleted(rawLocs);
+  const designs = filterDeleted(rawDesigns);
 
   return (
     <div className="space-y-10 max-w-5xl">

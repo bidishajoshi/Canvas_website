@@ -26,6 +26,7 @@ export function CanvasProductForm() {
         <label className="text-xs font-bold text-text uppercase tracking-wider block">📷 Ready-Made Canvas Main Artwork Photo</label>
         
         <OptimizedImageUploader
+          name="main_image_url"
           mode="admin"
           preset="canvas"
           buttonText="📁 Upload High-Res Canvas Photo from Computer"

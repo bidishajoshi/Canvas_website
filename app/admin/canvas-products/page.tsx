@@ -3,49 +3,8 @@ import { createAdminClient } from '@/lib/supabase/admin';
 import { formatPaisa } from '@/lib/utils';
 import { deleteCanvasProduct } from './actions';
 import type { CanvasProduct } from '@/lib/types';
-import { filterDeleted } from '@/lib/adminStore';
+import { filterDeleted, getCanvasProductsStore } from '@/lib/adminStore';
 import { CanvasProductForm } from '@/components/admin/CanvasProductForm';
-
-const DEMO_PRODUCTS: CanvasProduct[] = [
-  {
-    id: 'demo-1',
-    name: '7 Running Horses Vastu Wall Canvas',
-    slug: '7-running-horses-vastu-wall-canvas',
-    description: 'Breathtaking 5-piece staggered Vastu horse canvas.',
-    main_image_url: 'https://images.unsplash.com/photo-1553284965-83fd3e82fa5a?auto=format&fit=crop&w=800&q=80',
-    panel_count: 5,
-    size_label: '60" × 32" Total',
-    frame_label: 'Black Floating Frame',
-    original_price_paisa: 690000,
-    discount_price_paisa: 552000,
-    discount_percentage: 20,
-    is_best_seller: true,
-    is_featured: true,
-    is_new_arrival: false,
-    show_on_homepage: true,
-    status: 'published',
-    sort_order: 1,
-  },
-  {
-    id: 'demo-2',
-    name: 'Himalayan Sunrise Mountain Triptych',
-    slug: 'himalayan-sunrise-mountain-triptych',
-    description: 'Serene 3-piece mountain peak panorama in morning light.',
-    main_image_url: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80',
-    panel_count: 3,
-    size_label: '48" × 24" Total',
-    frame_label: 'Natural Wood Frame',
-    original_price_paisa: 480000,
-    discount_price_paisa: 399000,
-    discount_percentage: 17,
-    is_best_seller: true,
-    is_featured: true,
-    is_new_arrival: true,
-    show_on_homepage: true,
-    status: 'published',
-    sort_order: 2,
-  },
-];
 
 export default async function AdminCanvasProductsPage() {
   await requireAdminUser();
@@ -56,7 +15,8 @@ export default async function AdminCanvasProductsPage() {
     .select('*')
     .order('sort_order', { ascending: true });
 
-  const products = filterDeleted(data && data.length > 0 ? (data as CanvasProduct[]) : DEMO_PRODUCTS);
+  const rawProducts = (data && data.length > 0) ? (data as CanvasProduct[]) : getCanvasProductsStore();
+  const products = filterDeleted(rawProducts);
 
   return (
     <div className="space-y-10">
