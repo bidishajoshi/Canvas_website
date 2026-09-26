@@ -11,9 +11,9 @@ import crypto from 'crypto';
  */
 export function getSignedUploadParams(folder: string) {
   const timestamp = Math.round(Date.now() / 1000);
-  const apiSecret = process.env.CLOUDINARY_API_SECRET!;
-  const apiKey = process.env.CLOUDINARY_API_KEY!;
-  const cloudName = process.env.CLOUDINARY_CLOUD_NAME!;
+  const apiSecret = process.env.CLOUDINARY_API_SECRET || '';
+  const apiKey = process.env.CLOUDINARY_API_KEY || '';
+  const cloudName = process.env.CLOUDINARY_CLOUD_NAME || 'demo';
 
   // Cloudinary requires the signature to be computed over all
   // parameters (except file, cloud_name, resource_type and api_key)

@@ -23,7 +23,7 @@ export function HeroSection({ section }: { section: HomepageSection }) {
         <div className="space-y-6">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-amber-500/30 bg-amber-500/10 text-amber-600 dark:text-amber-400 font-bold text-xs">
             <span>✨</span>
-            <span>Nepal's #1 Premium Canvas &amp; Decor Store</span>
+            <span>Nepal&apos;s #1 Premium Canvas &amp; Decor Store</span>
           </div>
 
           <h1 className="font-display text-4xl font-bold leading-tight text-text sm:text-5xl lg:text-6xl tracking-tight">

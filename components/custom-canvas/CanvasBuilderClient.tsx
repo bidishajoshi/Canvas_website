@@ -715,7 +715,7 @@ export function CanvasBuilderClient({
               {selectedSize && (
                 <div className="p-4 rounded-xl border border-amber-500/30 bg-amber-500/5 text-xs space-y-2">
                   <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-1 font-bold text-amber-700 dark:text-amber-300">
-                    <span>📏 TOTAL ARTWORK SIZE: {effectiveWidth}" × {effectiveHeight}" ({Math.round(effectiveWidth * 2.54)}cm × {Math.round(effectiveHeight * 2.54)}cm) — {orientation === 'portrait' ? '↕️ Portrait Mode' : '↔️ Landscape Mode'}</span>
+                    <span>📏 TOTAL ARTWORK SIZE: {effectiveWidth}&quot; × {effectiveHeight}&quot; ({Math.round(effectiveWidth * 2.54)}cm × {Math.round(effectiveHeight * 2.54)}cm) — {orientation === 'portrait' ? '↕️ Portrait Mode' : '↔️ Landscape Mode'}</span>
                   </div>
                   {selectedSize.each_panel_size && (
                     <div className="text-muted font-medium flex items-center gap-1">
@@ -850,7 +850,7 @@ export function CanvasBuilderClient({
             {customText && (
               <div className="mt-3 p-2.5 rounded border border-border bg-surface-hover text-center">
                 <p className="text-[11px] text-muted uppercase tracking-wider font-semibold">Text Overlay Preview</p>
-                <p className="text-sm font-display italic text-amber-600 mt-0.5">"{customText}"</p>
+                <p className="text-sm font-display italic text-amber-600 mt-0.5">&quot;{customText}&quot;</p>
               </div>
             )}
           </div>

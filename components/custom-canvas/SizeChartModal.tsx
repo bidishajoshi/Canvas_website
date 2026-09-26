@@ -160,9 +160,9 @@ export function SizeChartModal({ isOpen, onClose, sizeChartItems }: SizeChartMod
                 <span>📐</span> Panel Gap Guidelines
               </h4>
               <ul className="text-xs text-muted space-y-1 list-disc list-inside">
-                <li><strong className="text-text">Small Canvas (12" - 24"):</strong> Leave 1cm to 2cm (10-20mm) between panels.</li>
-                <li><strong className="text-text">Medium Canvas (36" - 48"):</strong> Leave 2cm to 3cm (20-30mm) between panels.</li>
-                <li><strong className="text-text">Large Multi-Panel (60"+):</strong> Leave 3cm to 5cm (30-50mm) for optimal visual flow.</li>
+                <li><strong className="text-text">Small Canvas (12&quot; - 24&quot;):</strong> Leave 1cm to 2cm (10-20mm) between panels.</li>
+                <li><strong className="text-text">Medium Canvas (36&quot; - 48&quot;):</strong> Leave 2cm to 3cm (20-30mm) between panels.</li>
+                <li><strong className="text-text">Large Multi-Panel (60&quot;+):</strong> Leave 3cm to 5cm (30-50mm) for optimal visual flow.</li>
               </ul>
             </div>
 
