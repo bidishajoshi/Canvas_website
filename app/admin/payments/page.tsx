@@ -7,6 +7,7 @@ import {
 import { filterDeleted, getPaymentMethodsStore } from '@/lib/adminStore';
 import { PaymentMethodEditForm } from '@/components/admin/PaymentMethodEditForm';
 import { PaymentMethodCreateForm } from '@/components/admin/PaymentMethodCreateForm';
+import { DeleteButton } from '@/components/admin/DeleteButton';
 
 interface PaymentMethod {
   id: string;
@@ -82,11 +83,7 @@ export default async function AdminPaymentsPage() {
                       </button>
                     </form>
 
-                    <form action={deletePaymentMethod.bind(null, m.id)}>
-                      <button type="submit" className="font-semibold text-red-600 hover:underline">
-                        Delete
-                      </button>
-                    </form>
+                    <DeleteButton action={deletePaymentMethod.bind(null, m.id)} itemName={m.name} />
                   </div>
                 </div>
 

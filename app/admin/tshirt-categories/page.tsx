@@ -4,6 +4,7 @@ import { createAdminClient } from '@/lib/supabase/admin';
 import { filterDeleted, getTShirtCategoriesStore } from '@/lib/adminStore';
 import { addTShirtCategory, deleteTShirtCategory } from './actions';
 import { TShirtCategoryForm } from '@/components/admin/TShirtCategoryForm';
+import { DeleteButton } from '@/components/admin/DeleteButton';
 
 export default async function AdminTShirtCategoriesPage() {
   await requireAdminUser();
@@ -65,11 +66,7 @@ export default async function AdminTShirtCategoriesPage() {
             </div>
 
             <div className="p-4 pt-0 flex justify-end">
-              <form action={deleteTShirtCategory.bind(null, cat.id)}>
-                <button type="submit" className="text-xs text-rose-600 font-bold hover:underline">
-                  Delete Category
-                </button>
-              </form>
+              <DeleteButton action={deleteTShirtCategory.bind(null, cat.id)} itemName={cat.name} buttonText="Delete Category" />
             </div>
           </div>
         ))}

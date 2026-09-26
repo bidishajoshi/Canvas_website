@@ -14,11 +14,10 @@ import {
   deleteTShirtType,
   addTShirtColor,
   deleteTShirtColor,
-  addPrintLocation,
-  deletePrintLocation,
   deleteTShirtDesign,
 } from './actions';
 import { TShirtDesignForm } from '@/components/admin/TShirtDesignForm';
+import { DeleteButton } from '@/components/admin/DeleteButton';
 
 export default async function AdminTShirtBuilderPage() {
   await requireAdminUser();
@@ -115,11 +114,7 @@ export default async function AdminTShirtBuilderPage() {
                 <p className="text-muted">{type.description}</p>
                 <p className="font-extrabold text-amber-600 mt-1">{formatPaisa(type.base_price_paisa)}</p>
               </div>
-              <form action={deleteTShirtType.bind(null, type.id)}>
-                <button type="submit" className="text-rose-600 font-bold hover:underline">
-                  Delete
-                </button>
-              </form>
+              <DeleteButton action={deleteTShirtType.bind(null, type.id)} itemName={type.name} />
             </div>
           ))}
         </div>
@@ -174,11 +169,7 @@ export default async function AdminTShirtBuilderPage() {
                 <span className="font-bold block">{color.name}</span>
                 <span className="text-[10px] text-muted font-mono">{color.color_hex}</span>
               </div>
-              <form action={deleteTShirtColor.bind(null, color.id)} className="ml-2">
-                <button type="submit" className="text-rose-600 font-bold hover:underline text-[11px]">
-                  ✕
-                </button>
-              </form>
+              <DeleteButton action={deleteTShirtColor.bind(null, color.id)} itemName={color.name} buttonText="✕" className="text-rose-600 font-bold hover:underline text-xs ml-2 cursor-pointer" />
             </div>
           ))}
         </div>
@@ -231,11 +222,7 @@ export default async function AdminTShirtBuilderPage() {
                 <span className="font-bold text-text block">{loc.name}</span>
                 <span className="font-extrabold text-amber-600">+{formatPaisa(loc.additional_price_paisa)}</span>
               </div>
-              <form action={deletePrintLocation.bind(null, loc.id)}>
-                <button type="submit" className="text-rose-600 font-bold hover:underline">
-                  Delete
-                </button>
-              </form>
+              <DeleteButton action={deletePrintLocation.bind(null, loc.id)} itemName={loc.name} />
             </div>
           ))}
         </div>
@@ -264,11 +251,7 @@ export default async function AdminTShirtBuilderPage() {
                   {design.price_paisa > 0 ? `+${formatPaisa(design.price_paisa)}` : 'Free'}
                 </p>
               </div>
-              <form action={deleteTShirtDesign.bind(null, design.id)}>
-                <button type="submit" className="w-full py-1 text-center text-rose-600 font-bold hover:underline text-[11px]">
-                  Delete Design
-                </button>
-              </form>
+              <DeleteButton action={deleteTShirtDesign.bind(null, design.id)} itemName={design.name} buttonText="Delete Design" className="w-full py-1 text-center text-rose-600 font-bold hover:underline text-[11px] cursor-pointer" />
             </div>
           ))}
         </div>

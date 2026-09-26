@@ -13,9 +13,32 @@ interface ProductFormProps {
 
 export function ProductForm({ action, categories, product }: ProductFormProps) {
   const [imageUrl, setImageUrl] = useState(product?.main_image_url ?? '');
+  const [publishedMsg, setPublishedMsg] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  async function handleSubmit(formData: FormData) {
+    setIsSubmitting(true);
+    setPublishedMsg(false);
+    try {
+      await action(formData);
+      setPublishedMsg(true);
+      if (!product) setImageUrl('');
+    } catch (err) {
+      console.error('Submit error:', err);
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
 
   return (
-    <form action={action} className="max-w-2xl space-y-5 rounded-2xl border border-border bg-surface p-6 shadow-sm">
+    <form action={handleSubmit} className="max-w-2xl space-y-5 rounded-2xl border border-border bg-surface p-6 shadow-sm">
+      {publishedMsg && (
+        <div className="p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 font-bold text-xs flex items-center justify-between shadow-sm">
+          <span>✓ {product ? 'Product changes saved successfully!' : 'Published successfully! Product is live on the website.'}</span>
+          <button type="button" onClick={() => setPublishedMsg(false)} className="text-xs font-extrabold hover:underline ml-2">✕</button>
+        </div>
+      )}
+
       <Field label="Product Name" name="name" defaultValue={product?.name} required />
       <Field label="SKU / Item Code" name="sku" defaultValue={product?.sku ?? ''} placeholder="e.g. AD-CAN-01" />
 
@@ -62,6 +85,7 @@ export function ProductForm({ action, categories, product }: ProductFormProps) {
         <label className="text-xs font-bold text-text uppercase tracking-wider block">📷 Product Main Photo</label>
         
         <OptimizedImageUploader
+          name="main_image_url"
           mode="admin"
           preset="admin"
           buttonText="📁 Upload Product Photo from Computer"
@@ -141,9 +165,14 @@ export function ProductForm({ action, categories, product }: ProductFormProps) {
       <div className="pt-3">
         <button
           type="submit"
-          className="rounded-xl bg-amber-500 px-6 py-3 text-xs font-bold text-black hover:bg-amber-400 shadow-md transition-all"
+          disabled={isSubmitting}
+          className="rounded-xl bg-amber-500 px-6 py-3 text-xs font-bold text-black hover:bg-amber-400 disabled:opacity-60 shadow-md transition-all"
         >
-          {product ? '💾 Save Photo & Product Changes' : '✨ Create Product with Photo'}
+          {isSubmitting
+            ? 'Publishing...'
+            : product
+            ? '💾 Save Photo & Product Changes'
+            : '✨ Create Product with Photo'}
         </button>
       </div>
     </form>

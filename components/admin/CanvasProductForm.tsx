@@ -6,9 +6,32 @@ import { OptimizedImageUploader } from '@/components/common/OptimizedImageUpload
 
 export function CanvasProductForm() {
   const [imageUrl, setImageUrl] = useState('');
+  const [publishedMsg, setPublishedMsg] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  async function handleSubmit(formData: FormData) {
+    setIsSubmitting(true);
+    setPublishedMsg(false);
+    try {
+      await createCanvasProduct(formData);
+      setPublishedMsg(true);
+      setImageUrl('');
+    } catch (err) {
+      console.error('Submit error:', err);
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
 
   return (
-    <form action={createCanvasProduct} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <form action={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {publishedMsg && (
+        <div className="md:col-span-2 p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 font-bold text-xs flex items-center justify-between shadow-sm">
+          <span>✓ Published successfully! Ready-made canvas product is live on the website.</span>
+          <button type="button" onClick={() => setPublishedMsg(false)} className="text-xs font-extrabold hover:underline ml-2">✕</button>
+        </div>
+      )}
+
       <LabeledInput label="Product Name" name="name" placeholder="e.g. 7 Running Horses Vastu Canvas" required />
       <LabeledInput label="URL Slug (Optional)" name="slug" placeholder="e.g. 7-running-horses-vastu-canvas" />
 
@@ -105,9 +128,10 @@ export function CanvasProductForm() {
       <div className="md:col-span-2 pt-2">
         <button
           type="submit"
-          className="w-full py-3 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-extrabold text-sm shadow-md transition-all"
+          disabled={isSubmitting}
+          className="w-full py-3 rounded-xl bg-amber-500 hover:bg-amber-600 disabled:opacity-60 text-white font-extrabold text-sm shadow-md transition-all"
         >
-          + Publish Ready-Made Canvas Product
+          {isSubmitting ? 'Publishing...' : '+ Publish Ready-Made Canvas Product'}
         </button>
       </div>
     </form>

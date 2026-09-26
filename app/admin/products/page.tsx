@@ -5,6 +5,7 @@ import { createAdminClient } from '@/lib/supabase/admin';
 import { formatPaisa } from '@/lib/utils';
 import { deleteProduct } from './actions';
 import { filterDeleted, getProductsStore, getCategoriesStore } from '@/lib/adminStore';
+import { DeleteButton } from '@/components/admin/DeleteButton';
 import type { Product, Category } from '@/lib/types';
 
 export default async function AdminProductsPage() {
@@ -108,14 +109,7 @@ export default async function AdminProductsPage() {
                     >
                       ✏️ Edit Photo &amp; Product
                     </Link>
-                    <form action={deleteProduct.bind(null, product.id)} className="inline">
-                      <button
-                        type="submit"
-                        className="rounded-lg bg-red-500/10 px-3 py-1.5 text-xs font-semibold text-red-600 hover:bg-red-600 hover:text-white transition-colors"
-                      >
-                        Delete
-                      </button>
-                    </form>
+                    <DeleteButton action={deleteProduct.bind(null, product.id)} itemName={product.name} className="rounded-lg bg-red-500/10 px-3 py-1.5 text-xs font-semibold text-red-600 hover:bg-red-600 hover:text-white transition-colors cursor-pointer" />
                   </div>
                 </td>
               </tr>

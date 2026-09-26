@@ -6,10 +6,33 @@ import { OptimizedImageUploader } from '@/components/common/OptimizedImageUpload
 
 export function HeroSlideForm() {
   const [imageUrl, setImageUrl] = useState('');
+  const [publishedMsg, setPublishedMsg] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  async function handleSubmit(formData: FormData) {
+    setIsSubmitting(true);
+    setPublishedMsg(false);
+    try {
+      await addHeroSlide(formData);
+      setPublishedMsg(true);
+      setImageUrl('');
+    } catch (err) {
+      console.error('Submit error:', err);
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
 
   return (
-    <form action={addHeroSlide} className="p-5 rounded-2xl bg-bg border border-border space-y-4">
+    <form action={handleSubmit} className="p-5 rounded-2xl bg-bg border border-border space-y-4">
       <h3 className="text-xs font-bold uppercase tracking-wider text-amber-600">+ Add New Carousel Banner Slide</h3>
+
+      {publishedMsg && (
+        <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 font-bold text-xs flex items-center justify-between shadow-sm">
+          <span>✓ Published successfully! Hero banner slide is live on the homepage carousel.</span>
+          <button type="button" onClick={() => setPublishedMsg(false)} className="text-xs font-extrabold hover:underline ml-2">✕</button>
+        </div>
+      )}
 
       <div className="grid sm:grid-cols-2 gap-3">
         <div>
@@ -49,6 +72,7 @@ export function HeroSlideForm() {
           🖼️ Hero Banner Image (Automatic Smart Optimization)
         </label>
         <OptimizedImageUploader
+          name="image_url"
           mode="admin"
           preset="admin"
           buttonText="📁 Upload Hero Banner Photo from Computer"
@@ -113,9 +137,10 @@ export function HeroSlideForm() {
 
       <button
         type="submit"
-        className="px-5 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs shadow-md transition-all active:scale-95 btn-glow"
+        disabled={isSubmitting}
+        className="px-5 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 disabled:opacity-60 text-white font-bold text-xs shadow-md transition-all active:scale-95 btn-glow"
       >
-        + Save &amp; Add Slide to Homepage Carousel
+        {isSubmitting ? 'Publishing...' : '+ Save & Add Slide to Homepage Carousel'}
       </button>
     </form>
   );

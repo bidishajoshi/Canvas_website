@@ -6,10 +6,33 @@ import { OptimizedImageUploader } from '@/components/common/OptimizedImageUpload
 
 export function TShirtCategoryForm() {
   const [imageUrl, setImageUrl] = useState('');
+  const [publishedMsg, setPublishedMsg] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  async function handleSubmit(formData: FormData) {
+    setIsSubmitting(true);
+    setPublishedMsg(false);
+    try {
+      await addTShirtCategory(formData);
+      setPublishedMsg(true);
+      setImageUrl('');
+    } catch (err) {
+      console.error('Submit error:', err);
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
 
   return (
-    <form action={addTShirtCategory} className="rounded-2xl border border-border bg-surface p-5 space-y-4 shadow-sm">
+    <form action={handleSubmit} className="rounded-2xl border border-border bg-surface p-5 space-y-4 shadow-sm">
       <h3 className="text-xs font-bold uppercase tracking-wider text-amber-600">Add New T-Shirt Category</h3>
+
+      {publishedMsg && (
+        <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 font-bold text-xs flex items-center justify-between shadow-sm">
+          <span>✓ Published successfully! Apparel category is live.</span>
+          <button type="button" onClick={() => setPublishedMsg(false)} className="text-xs font-extrabold hover:underline ml-2">✕</button>
+        </div>
+      )}
 
       <div className="grid sm:grid-cols-2 gap-3">
         <div>
@@ -39,6 +62,7 @@ export function TShirtCategoryForm() {
           📷 Category Cover Image (Automatic Smart Optimization)
         </label>
         <OptimizedImageUploader
+          name="image_url"
           mode="admin"
           preset="admin"
           buttonText="📁 Upload Category Cover Photo from Computer"
@@ -60,9 +84,10 @@ export function TShirtCategoryForm() {
 
       <button
         type="submit"
-        className="px-5 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs shadow-sm transition-all active:scale-95 btn-glow"
+        disabled={isSubmitting}
+        className="px-5 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 disabled:opacity-60 text-white font-bold text-xs shadow-sm transition-all active:scale-95 btn-glow"
       >
-        + Save Category
+        {isSubmitting ? 'Publishing...' : '+ Save Category'}
       </button>
     </form>
   );

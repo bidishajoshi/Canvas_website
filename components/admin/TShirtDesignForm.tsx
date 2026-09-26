@@ -6,10 +6,33 @@ import { OptimizedImageUploader } from '@/components/common/OptimizedImageUpload
 
 export function TShirtDesignForm() {
   const [imageUrl, setImageUrl] = useState('');
+  const [publishedMsg, setPublishedMsg] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  async function handleSubmit(formData: FormData) {
+    setIsSubmitting(true);
+    setPublishedMsg(false);
+    try {
+      await addTShirtDesign(formData);
+      setPublishedMsg(true);
+      setImageUrl('');
+    } catch (err) {
+      console.error('Submit error:', err);
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
 
   return (
-    <form action={addTShirtDesign} className="p-4 rounded-xl bg-bg border border-border space-y-4">
+    <form action={handleSubmit} className="p-4 rounded-xl bg-bg border border-border space-y-4">
       <h3 className="text-xs font-bold uppercase tracking-wider text-amber-600">+ Add New Graphic Artwork Design</h3>
+
+      {publishedMsg && (
+        <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 font-bold text-xs flex items-center justify-between shadow-sm">
+          <span>✓ Published successfully! Graphic artwork design is live.</span>
+          <button type="button" onClick={() => setPublishedMsg(false)} className="text-xs font-extrabold hover:underline ml-2">✕</button>
+        </div>
+      )}
 
       <div className="grid sm:grid-cols-2 gap-3">
         <div>
@@ -73,9 +96,10 @@ export function TShirtDesignForm() {
 
       <button
         type="submit"
-        className="px-4 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs shadow-sm transition-all"
+        disabled={isSubmitting}
+        className="px-4 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 disabled:opacity-60 text-white font-bold text-xs shadow-sm transition-all"
       >
-        Save Artwork Design
+        {isSubmitting ? 'Publishing...' : 'Save Artwork Design'}
       </button>
     </form>
   );

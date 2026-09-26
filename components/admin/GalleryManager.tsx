@@ -5,6 +5,7 @@ import Image from 'next/image';
 import type { GalleryItem, Category } from '@/lib/types';
 import { createGalleryItem, updateGalleryItem, deleteGalleryItem } from '@/app/admin/gallery/actions';
 import { OptimizedImageUploader } from '@/components/common/OptimizedImageUploader';
+import { DeleteButton } from '@/components/admin/DeleteButton';
 
 interface GalleryManagerProps {
   items: GalleryItem[];
@@ -16,6 +17,22 @@ export function GalleryManager({ items, categories }: GalleryManagerProps) {
   const [newImageUrl, setNewImageUrl] = useState('');
   const [editImageUrl, setEditImageUrl] = useState('');
   const [selectedCategoryFilter, setSelectedCategoryFilter] = useState<string>('all');
+  const [publishedMsg, setPublishedMsg] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  async function handleCreateSubmit(formData: FormData) {
+    setIsSubmitting(true);
+    setPublishedMsg(false);
+    try {
+      await createGalleryItem(formData);
+      setPublishedMsg(true);
+      setNewImageUrl('');
+    } catch (err) {
+      console.error('Submit error:', err);
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
 
   const filteredItems = selectedCategoryFilter === 'all'
     ? items
@@ -130,14 +147,7 @@ export function GalleryManager({ items, categories }: GalleryManagerProps) {
               >
                 ✏️ Edit Photo
               </button>
-              <form action={deleteGalleryItem.bind(null, item.id)}>
-                <button
-                  type="submit"
-                  className="rounded-lg bg-red-500/10 px-3 py-1.5 text-red-600 hover:bg-red-600 hover:text-white transition-colors"
-                >
-                  Delete
-                </button>
-              </form>
+              <DeleteButton action={deleteGalleryItem.bind(null, item.id)} itemName={item.caption || 'this photo'} className="rounded-lg bg-red-500/10 px-3 py-1.5 text-xs font-semibold text-red-600 hover:bg-red-600 hover:text-white transition-colors cursor-pointer" />
             </div>
           </div>
         ))}
@@ -277,12 +287,20 @@ export function GalleryManager({ items, categories }: GalleryManagerProps) {
       {/* Add New Gallery Photo Form */}
       <div className="rounded-2xl border border-border bg-surface p-6 shadow-sm">
         <h2 className="font-display text-lg font-bold text-text mb-4">Add Photo to Gallery with Category</h2>
-        <form action={createGalleryItem} className="space-y-4">
+        <form action={handleCreateSubmit} className="space-y-4">
+          {publishedMsg && (
+            <div className="p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 font-bold text-xs flex items-center justify-between shadow-sm">
+              <span>✓ Published successfully! Photo is live in the gallery.</span>
+              <button type="button" onClick={() => setPublishedMsg(false)} className="text-xs font-extrabold hover:underline ml-2">✕</button>
+            </div>
+          )}
+
           <div className="space-y-2.5 p-4 rounded-xl border border-border bg-bg">
             <label className="text-xs font-bold text-text uppercase tracking-wider block">
               📷 Gallery Photo File
             </label>
             <OptimizedImageUploader
+              name="image_url"
               mode="admin"
               preset="admin"
               buttonText="📁 Upload High-Res Gallery Photo from Computer"
@@ -339,9 +357,10 @@ export function GalleryManager({ items, categories }: GalleryManagerProps) {
             </label>
             <button
               type="submit"
-              className="rounded-xl bg-amber-500 px-6 py-2.5 text-xs font-bold text-black hover:bg-amber-400 shadow-md transition-all"
+              disabled={isSubmitting}
+              className="rounded-xl bg-amber-500 px-6 py-2.5 text-xs font-bold text-black hover:bg-amber-400 disabled:opacity-60 shadow-md transition-all"
             >
-              + Add Photo with Category
+              {isSubmitting ? 'Publishing...' : '+ Add Photo with Category'}
             </button>
           </div>
         </form>

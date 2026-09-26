@@ -12,6 +12,7 @@ import {
 import { filterDeleted, getHeroSlidesStore } from '@/lib/adminStore';
 import { HeroSlideForm } from '@/components/admin/HeroSlideForm';
 import { HeroSlideEditForm } from '@/components/admin/HeroSlideEditForm';
+import { DeleteButton } from '@/components/admin/DeleteButton';
 
 export default async function AdminHomepagePage() {
   await requireAdminUser();
@@ -123,11 +124,7 @@ export default async function AdminHomepagePage() {
                     <span>Carousel Slide #{index + 1}</span>
                   </span>
 
-                  <form action={deleteHeroSlide.bind(null, slide.id)}>
-                    <button type="submit" className="text-xs text-rose-600 font-bold hover:underline">
-                      Delete Slide 🗑️
-                    </button>
-                  </form>
+                  <DeleteButton action={deleteHeroSlide.bind(null, slide.id)} itemName={`Slide #${index + 1}`} buttonText="Delete Slide 🗑️" />
                 </div>
 
                 <HeroSlideEditForm slide={slide} index={index} />

@@ -5,6 +5,7 @@ import Image from 'next/image';
 import type { Category } from '@/lib/types';
 import { createCategory, updateCategory, deleteCategory } from '@/app/admin/categories/actions';
 import { OptimizedImageUploader } from '@/components/common/OptimizedImageUploader';
+import { DeleteButton } from '@/components/admin/DeleteButton';
 
 interface CategoryManagerProps {
   categories: Category[];
@@ -14,6 +15,22 @@ export function CategoryManager({ categories }: CategoryManagerProps) {
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
   const [newImageUrl, setNewImageUrl] = useState('');
   const [editImageUrl, setEditImageUrl] = useState('');
+  const [publishedMsg, setPublishedMsg] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  async function handleCreateSubmit(formData: FormData) {
+    setIsSubmitting(true);
+    setPublishedMsg(false);
+    try {
+      await createCategory(formData);
+      setPublishedMsg(true);
+      setNewImageUrl('');
+    } catch (err) {
+      console.error('Submit error:', err);
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
 
   return (
     <div className="space-y-8">
@@ -82,14 +99,7 @@ export function CategoryManager({ categories }: CategoryManagerProps) {
                 ✏️ Edit Photo &amp; Info
               </button>
 
-              <form action={deleteCategory.bind(null, cat.id)}>
-                <button
-                  type="submit"
-                  className="rounded-lg bg-red-500/10 px-3 py-1.5 text-red-600 hover:bg-red-600 hover:text-white transition-colors"
-                >
-                  Delete
-                </button>
-              </form>
+              <DeleteButton action={deleteCategory.bind(null, cat.id)} itemName={cat.name} className="rounded-lg bg-red-500/10 px-3 py-1.5 text-xs font-semibold text-red-600 hover:bg-red-600 hover:text-white transition-colors cursor-pointer" />
             </div>
           </div>
         ))}
@@ -212,7 +222,14 @@ export function CategoryManager({ categories }: CategoryManagerProps) {
       {/* Add New Category Form */}
       <div className="rounded-2xl border border-border bg-surface p-6 shadow-sm">
         <h2 className="font-display text-lg font-bold text-text mb-4">Add New Category</h2>
-        <form action={createCategory} className="space-y-4">
+        <form action={handleCreateSubmit} className="space-y-4">
+          {publishedMsg && (
+            <div className="p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 font-bold text-xs flex items-center justify-between shadow-sm">
+              <span>✓ Published successfully! Category is live on the website.</span>
+              <button type="button" onClick={() => setPublishedMsg(false)} className="text-xs font-extrabold hover:underline ml-2">✕</button>
+            </div>
+          )}
+
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
               <label className="text-xs font-semibold text-muted">Category Name *</label>
@@ -248,6 +265,7 @@ export function CategoryManager({ categories }: CategoryManagerProps) {
               📷 Category Cover Photo
             </label>
             <OptimizedImageUploader
+              name="image_url"
               mode="admin"
               preset="admin"
               buttonText="📁 Upload Cover Photo from Computer"
@@ -269,9 +287,10 @@ export function CategoryManager({ categories }: CategoryManagerProps) {
           <div className="flex justify-end pt-2">
             <button
               type="submit"
-              className="rounded-xl bg-amber-500 px-6 py-2.5 text-xs font-bold text-black hover:bg-amber-400 shadow-md transition-all"
+              disabled={isSubmitting}
+              className="rounded-xl bg-amber-500 px-6 py-2.5 text-xs font-bold text-black hover:bg-amber-400 disabled:opacity-60 shadow-md transition-all"
             >
-              + Add Category with Photo
+              {isSubmitting ? 'Publishing...' : '+ Add Category with Photo'}
             </button>
           </div>
         </form>

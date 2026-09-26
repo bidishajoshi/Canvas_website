@@ -5,6 +5,7 @@ import { deleteCanvasProduct } from './actions';
 import type { CanvasProduct } from '@/lib/types';
 import { filterDeleted, getCanvasProductsStore } from '@/lib/adminStore';
 import { CanvasProductForm } from '@/components/admin/CanvasProductForm';
+import { DeleteButton } from '@/components/admin/DeleteButton';
 
 export default async function AdminCanvasProductsPage() {
   await requireAdminUser();
@@ -98,14 +99,7 @@ export default async function AdminCanvasProductsPage() {
                 </div>
 
                 <div className="pt-2 flex justify-end">
-                  <form action={deleteCanvasProduct.bind(null, item.id)}>
-                    <button
-                      type="submit"
-                      className="text-red-600 hover:text-red-700 font-semibold hover:underline"
-                    >
-                      Delete
-                    </button>
-                  </form>
+                  <DeleteButton action={deleteCanvasProduct.bind(null, item.id)} itemName={item.name} />
                 </div>
               </div>
             </div>

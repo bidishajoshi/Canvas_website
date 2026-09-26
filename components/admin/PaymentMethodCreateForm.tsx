@@ -6,9 +6,32 @@ import { OptimizedImageUploader } from '@/components/common/OptimizedImageUpload
 
 export function PaymentMethodCreateForm() {
   const [qrUrl, setQrUrl] = useState('');
+  const [publishedMsg, setPublishedMsg] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  async function handleSubmit(formData: FormData) {
+    setIsSubmitting(true);
+    setPublishedMsg(false);
+    try {
+      await createPaymentMethod(formData);
+      setPublishedMsg(true);
+      setQrUrl('');
+    } catch (err) {
+      console.error('Submit error:', err);
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
 
   return (
-    <form action={createPaymentMethod} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+    <form action={handleSubmit} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      {publishedMsg && (
+        <div className="sm:col-span-2 p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 font-bold text-xs flex items-center justify-between shadow-sm">
+          <span>✓ Published successfully! Payment method is active.</span>
+          <button type="button" onClick={() => setPublishedMsg(false)} className="text-xs font-extrabold hover:underline ml-2">✕</button>
+        </div>
+      )}
+
       <div>
         <label className="text-xs text-muted font-medium">Payment Name *</label>
         <input
@@ -46,6 +69,7 @@ export function PaymentMethodCreateForm() {
           📲 Payment Gateway QR Code Image
         </label>
         <OptimizedImageUploader
+          name="qr_code_url"
           mode="admin"
           preset="screenshot"
           buttonText="📁 Upload Payment QR Code Image from Computer"
@@ -68,9 +92,10 @@ export function PaymentMethodCreateForm() {
       <div className="sm:col-span-2 pt-2">
         <button
           type="submit"
-          className="w-full py-3.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-extrabold text-sm shadow-md transition-all"
+          disabled={isSubmitting}
+          className="w-full py-3.5 rounded-xl bg-amber-500 hover:bg-amber-600 disabled:opacity-60 text-white font-extrabold text-sm shadow-md transition-all"
         >
-          + Create Payment Option
+          {isSubmitting ? 'Publishing...' : '+ Create Payment Option'}
         </button>
       </div>
     </form>
