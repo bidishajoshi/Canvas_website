@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server';
+import { getAnnouncementBarStore, getHeroSlidesStore, getCanvasProductsStore } from '@/lib/adminStore';
 import { HeroSlider, type HeroSlide } from '@/components/home/HeroSlider';
 import { AnnouncementBar } from '@/components/home/AnnouncementBar';
 import { CategoryGrid } from '@/components/home/CategoryGrid';
@@ -16,19 +17,30 @@ export const revalidate = 60;
 export default async function HomePage() {
   let announcement: { enabled?: boolean; message?: string; link_href?: string } | null = null;
   let dbSlides: any[] | null = null;
+  let dbCanvasProducts: any[] | null = null;
 
   try {
     const supabase = createClient();
-    const [announcementRes, slidesRes] = await Promise.all([
+    const [announcementRes, slidesRes, canvasRes] = await Promise.all([
       supabase.from('announcement_bar').select('*').single(),
       supabase.from('hero_slides').select('*').eq('active', true).order('sort_order', { ascending: true }),
+      supabase.from('canvas_products').select('*').eq('status', 'published').order('sort_order', { ascending: true }),
     ]);
     announcement = announcementRes.data;
     dbSlides = slidesRes.data;
+    dbCanvasProducts = canvasRes.data;
   } catch {
     announcement = null;
     dbSlides = null;
+    dbCanvasProducts = null;
   }
+
+  if (!announcement) {
+    announcement = getAnnouncementBarStore();
+  }
+
+  const slidesToUse = (dbSlides && dbSlides.length > 0) ? dbSlides : getHeroSlidesStore();
+  const canvasProductsToUse = (dbCanvasProducts && dbCanvasProducts.length > 0) ? dbCanvasProducts : getCanvasProductsStore();
 
   const defaultHeroSlides: HeroSlide[] = [
     {
@@ -77,7 +89,7 @@ export default async function HomePage() {
     },
   ];
 
-  const heroSlides: HeroSlide[] = (dbSlides || []).map((slide) => ({
+  const heroSlides: HeroSlide[] = (slidesToUse || []).map((slide: any) => ({
     id: slide.id,
     title: slide.title,
     subtitle: slide.subtitle || '',
@@ -113,7 +125,7 @@ export default async function HomePage() {
       <BestSellers section={{ id: 'sec-best', section_key: 'best_sellers', title: 'Best Selling Ready-Made Canvases', subtitle: 'Customer favorite wall art and multi-panel decor handcrafted in Nepal.', body: null, cta_label: null, cta_href: null, secondary_cta_label: null, secondary_cta_href: null, media: {}, settings: {}, enabled: true, sort_order: 2 }} />
 
       {/* Cozy Ready Made Canvas Gallery */}
-      <CozyCanvasCollection />
+      <CozyCanvasCollection products={canvasProductsToUse} />
 
       {/* Custom T-Shirt Builder Spotlight */}
       <CustomTShirtCta section={{ id: 'sec-tshirt', section_key: 'custom_tshirt_cta', title: 'Design Your Own Custom T-Shirt', subtitle: 'Pick colors, select print locations, add graphic artwork, or upload your own design.', body: null, cta_label: null, cta_href: null, secondary_cta_label: null, secondary_cta_href: null, media: {}, settings: {}, enabled: true, sort_order: 6 }} />
