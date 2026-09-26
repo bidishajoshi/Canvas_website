@@ -14,6 +14,8 @@ import {
   deleteTShirtType,
   addTShirtColor,
   deleteTShirtColor,
+  addPrintLocation,
+  deletePrintLocation,
   deleteTShirtDesign,
 } from './actions';
 import { TShirtDesignForm } from '@/components/admin/TShirtDesignForm';
