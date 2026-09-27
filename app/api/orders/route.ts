@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { getSettings } from '@/lib/content';
+import { extractCloudinaryPublicId, deleteCloudinaryAsset } from '@/lib/cloudinary';
 import type { CartItem } from '@/lib/cart';
 
 interface OrderRequestBody {
