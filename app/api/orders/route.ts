@@ -193,6 +193,19 @@ export async function POST(req: NextRequest) {
         payload: { order_id: order.id, order_number: order.order_number },
       });
 
+      // Section 5 Cleanup: Securely delete temporary customer uploads from Cloudinary
+      // after the order has been successfully created and associated.
+      for (const item of body.items) {
+        if (item.imageUrl && item.imageUrl.includes('cloudinary.com') && item.imageUrl.includes('/temp_')) {
+          const publicId = extractCloudinaryPublicId(item.imageUrl);
+          if (publicId) {
+            deleteCloudinaryAsset(publicId).catch((err) =>
+              console.error('Failed to cleanup temp customer Cloudinary image:', publicId, err)
+            );
+          }
+        }
+      }
+
       return NextResponse.json({
         id: order.id,
         orderNumber: order.order_number,
