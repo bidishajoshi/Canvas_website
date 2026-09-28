@@ -26,7 +26,7 @@ export const DEFAULT_CATEGORIES: Category[] = [
     name: 'Aesthetic & Vastu Wall Art',
     slug: 'aesthetic-vastu-wall-art',
     description: 'Pinterest-inspired cozy decor & traditional Vastu art for positive energy in homes & offices across Nepal.',
-    image_url: '/images/shiva-parvati-5panel.png',
+    image_url: 'https://images.unsplash.com/photo-1582562124811-c09040d0a901?auto=format&fit=crop&w=800&q=80',
     parent_id: null,
     status: 'published',
     sort_order: 3,
