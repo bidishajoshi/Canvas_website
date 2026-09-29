@@ -36,12 +36,12 @@ export function CartDrawer({ open, onClose }: { open: boolean; onClose: () => vo
     <div className="fixed inset-0 z-50 overflow-hidden gpu-layer">
       {/* Hardware-Accelerated Overlay Backdrop */}
       <div
-        className="fixed inset-0 bg-black/60 transition-opacity duration-150 backdrop-blur-sm"
+        className="fixed inset-0 bg-black/60 transition-opacity duration-150 backdrop-blur-sm animate-fade-in"
         onClick={onClose}
       />
 
       <div className="fixed inset-y-0 right-0 max-w-full flex pl-10">
-        <div className="w-screen max-w-md bg-bg border-l border-border shadow-2xl flex flex-col justify-between transform transition-transform duration-200 ease-out gpu-layer">
+        <div className="w-screen max-w-md bg-bg border-l border-border shadow-2xl flex flex-col justify-between transform transition-transform duration-250 ease-out gpu-layer animate-slide-right">
           {/* Header */}
           <div className="p-5 border-b border-border flex items-center justify-between bg-surface">
             <div className="flex items-center gap-2">

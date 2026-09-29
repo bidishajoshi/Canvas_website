@@ -56,8 +56,8 @@ export function NavbarMobileMenu({ menuItems }: { menuItems: MenuItem[] }) {
       </button>
 
       {open && (
-        <div className="fixed inset-0 top-16 z-50 bg-black/60 backdrop-blur-sm transition-opacity duration-150 gpu-layer">
-          <div className="absolute right-0 top-0 bottom-0 w-[85%] max-w-sm border-l border-border bg-bg p-6 shadow-2xl overflow-y-auto flex flex-col justify-between transform transition-transform duration-150 ease-out gpu-layer">
+        <div className="fixed inset-0 top-16 z-50 bg-black/60 backdrop-blur-sm transition-opacity duration-150 gpu-layer animate-fade-in">
+          <div className="absolute right-0 top-0 bottom-0 w-[85%] max-w-sm border-l border-border bg-bg p-6 shadow-2xl overflow-y-auto flex flex-col justify-between transform transition-transform duration-200 ease-out gpu-layer animate-slide-right">
             <div>
               {/* Header inside mobile drawer */}
               <div className="flex items-center justify-between border-b border-border pb-4 mb-4">
