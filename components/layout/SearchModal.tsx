@@ -1,4 +1,3 @@
-'use me';
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
@@ -55,12 +54,12 @@ export function SearchModal({ open, onClose }: { open: boolean; onClose: () => v
     <div className="fixed inset-0 z-50 overflow-y-auto gpu-layer">
       {/* Hardware Backdrop Overlay */}
       <div
-        className="fixed inset-0 bg-black/60 transition-opacity duration-150 backdrop-blur-sm"
+        className="fixed inset-0 bg-black/60 transition-opacity duration-150 backdrop-blur-sm animate-fade-in"
         onClick={onClose}
       />
 
       <div className="relative min-h-screen flex items-start justify-center p-4 sm:p-6 pt-14 sm:pt-20">
-        <div className="relative w-full max-w-2xl bg-bg border border-border rounded-3xl shadow-2xl overflow-hidden z-10 transform transition-all duration-150 ease-out gpu-layer">
+        <div className="relative w-full max-w-2xl bg-bg border border-border rounded-3xl shadow-2xl overflow-hidden z-10 transform transition-all duration-150 ease-out gpu-layer animate-pop-in">
           {/* Search Header */}
           <div className="p-4 sm:p-5 border-b border-border bg-surface flex items-center gap-3">
             <span className="text-xl text-amber-600">🔍</span>
