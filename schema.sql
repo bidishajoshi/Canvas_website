@@ -524,7 +524,18 @@ create table analytics_events (
 );
 
 -- ---------------------------------------------------------------------
--
+-- INDEXES
+-- ---------------------------------------------------------------------
+create index idx_products_category on products(category_id);
+create index idx_products_status on products(status);
+create index idx_product_images_product on product_images(product_id);
+create index idx_canvas_sizes_panel_type on canvas_sizes(panel_type_id);
+create index idx_orders_customer on orders(customer_id);
+create index idx_order_items_order on order_items(order_id);
+create index idx_canvas_inquiries_status on canvas_inquiries(status);
+create index idx_reviews_product on reviews(product_id);
+create index idx_chat_logs_session on chat_logs(session_id);
+create index idx_analytics_event_type on analytics_events(event_type);
 
 -- ---------------------------------------------------------------------
 -- ROW LEVEL SECURITY (sketch — expand per-table in Supabase)
