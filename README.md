@@ -253,6 +253,9 @@ Every input comes from the DB (`panel_types`, `canvas_sizes`, `frames`, `finishe
 9. **SEO, performance, security hardening, analytics.**
 10. **Testing pass** against the checklist in your spec, then deploy.
 
+---
+*Project maintained and updated by [bidishajoshi](https://github.com/bidishajoshi).*
+
 ## Why Claude Code for the actual build
 
 This chat environment has no network access, so I can hand you complete, correct source files and the schema, but I can't install real npm packages, run this against a live Supabase instance, or verify it end-to-end here. Claude Code (terminal, VS Code/JetBrains, or the desktop app) can create the repo, run `npm install`, apply migrations to a real Supabase project, and actually run/deploy the app — which matters a lot for a system this size, since you'll want to test each phase as it's built rather than receive one untested mega-drop at the end.
