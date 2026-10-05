@@ -5,6 +5,7 @@ import { AnnouncementBar } from '@/components/home/AnnouncementBar';
 import { CategoryGrid } from '@/components/home/CategoryGrid';
 import { BestSellers } from '@/components/home/BestSellers';
 import { CozyCanvasCollection } from '@/components/home/CozyCanvasCollection';
+import { CustomCanvasCta } from '@/components/home/CustomCanvasCta';
 import { CustomTShirtCta } from '@/components/home/CustomTShirtCta';
 import { SalesInquiryForm } from '@/components/home/SalesInquiryForm';
 import { Testimonials } from '@/components/home/Testimonials';
@@ -127,8 +128,8 @@ export default async function HomePage() {
       {/* Cozy Ready Made Canvas Gallery */}
       <CozyCanvasCollection products={canvasProductsToUse} />
 
-      {/* Custom T-Shirt Builder Spotlight */}
-      <CustomTShirtCta section={{ id: 'sec-tshirt', section_key: 'custom_tshirt_cta', title: 'Design Your Own Custom T-Shirt', subtitle: 'Pick colors, select print locations, add graphic artwork, or upload your own design.', body: null, cta_label: null, cta_href: null, secondary_cta_label: null, secondary_cta_href: null, media: {}, settings: {}, enabled: true, sort_order: 6 }} />
+      {/* Live Interactive Customization Studio */}
+      <CustomCanvasCta section={{ id: 'sec-customizer', section_key: 'custom_studio_cta', title: 'Live Product Customization Studio', subtitle: 'Test photo panel splits or design custom apparel right here.', body: null, cta_label: null, cta_href: null, secondary_cta_label: null, secondary_cta_href: null, media: {}, settings: {}, enabled: true, sort_order: 6 }} />
 
       {/* Sales & Wholesale Bulk Order Form */}
       <SalesInquiryForm />
