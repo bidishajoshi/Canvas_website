@@ -478,40 +478,54 @@ export function CanvasBuilderClient({
           </div>
 
           {/* Step 1: Canvas Category */}
-          <div className="rounded-xl border border-border p-5 bg-surface/50">
-            <div className="flex items-center gap-2 mb-3">
-              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-amber-600 text-white text-xs font-bold">1</span>
-              <h2 className="text-base font-semibold">Choose Canvas Category</h2>
+          <div className="rounded-2xl border border-border/80 p-5 sm:p-6 bg-surface/80 backdrop-blur-sm shadow-sm space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2.5">
+                <span className="flex h-7 w-7 items-center justify-center rounded-xl bg-amber-600 text-white text-xs font-extrabold shadow-sm">1</span>
+                <div>
+                  <h2 className="text-base font-bold text-text">Choose Canvas Category</h2>
+                  <p className="text-xs text-muted">Select the subject or theme for your wall art composition.</p>
+                </div>
+              </div>
+              <span className="text-[11px] font-semibold text-amber-600 bg-amber-500/10 px-2.5 py-1 rounded-full border border-amber-500/20">
+                Step 1 of 5
+              </span>
             </div>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-              {categoriesList.map((type) => (
-                <button
-                  key={type.id}
-                  type="button"
-                  onClick={() => setSelectedCanvasType(type.id)}
-                  className={`flex flex-col items-center justify-center gap-1.5 p-3 rounded-lg border text-xs font-medium transition-all ${
-                    selectedCanvasType === type.id
-                      ? 'border-pink-500 bg-pink-500/10 text-pink-600 font-semibold shadow-sm'
-                      : 'border-border bg-surface hover:border-text/30'
-                  }`}
-                >
-                  <span className="text-xl">{type.icon}</span>
-                  <span className="text-center">{type.name}</span>
-                </button>
-              ))}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              {categoriesList.map((type) => {
+                const isSelected = selectedCanvasType === type.id;
+                return (
+                  <button
+                    key={type.id}
+                    type="button"
+                    onClick={() => setSelectedCanvasType(type.id)}
+                    className={`flex flex-col items-center justify-center gap-2 p-3.5 rounded-2xl border text-xs font-medium transition-all ${
+                      isSelected
+                        ? 'border-amber-600 bg-amber-500/10 text-amber-700 dark:text-amber-400 font-bold shadow-md ring-2 ring-amber-600/30 scale-[1.02]'
+                        : 'border-border/80 bg-surface/60 hover:bg-surface-hover text-muted hover:text-text'
+                    }`}
+                  >
+                    <span className="text-2xl">{type.icon}</span>
+                    <span className="text-center font-semibold">{type.name}</span>
+                  </button>
+                );
+              })}
             </div>
           </div>
 
           {/* Step 2: Upload Photo */}
-          <div className="rounded-xl border border-border p-5 bg-surface/50 space-y-4">
+          <div className="rounded-2xl border border-border/80 p-5 sm:p-6 bg-surface/80 backdrop-blur-sm shadow-sm space-y-4">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-amber-600 text-white text-xs font-bold">2</span>
-                <h2 className="text-base font-semibold">Upload Your Photo</h2>
+              <div className="flex items-center gap-2.5">
+                <span className="flex h-7 w-7 items-center justify-center rounded-xl bg-amber-600 text-white text-xs font-extrabold shadow-sm">2</span>
+                <div>
+                  <h2 className="text-base font-bold text-text">Upload Your High-Res Photo</h2>
+                  <p className="text-xs text-muted">Upload your favorite family portrait, memory, or landscape.</p>
+                </div>
               </div>
               {uploadedPhoto && (
-                <span className="text-xs text-emerald-600 font-semibold flex items-center gap-1">
-                  ✓ Custom Image Uploaded
+                <span className="text-xs text-emerald-600 dark:text-emerald-400 font-bold flex items-center gap-1.5 bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20">
+                  <span>✓</span> Photo Uploaded
                 </span>
               )}
             </div>
@@ -523,7 +537,7 @@ export function CanvasBuilderClient({
 
             {qualityRating && (
               <div
-                className={`p-3 rounded-lg border text-xs flex items-center gap-2.5 ${
+                className={`p-4 rounded-2xl border text-xs flex items-center gap-3.5 shadow-xs ${
                   qualityRating === 'excellent'
                     ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300'
                     : qualityRating === 'good'
@@ -531,14 +545,14 @@ export function CanvasBuilderClient({
                     : 'border-amber-500/40 bg-amber-500/10 text-amber-800 dark:text-amber-300'
                 }`}
               >
-                <span className="text-base">
+                <span className="text-2xl">
                   {qualityRating === 'excellent' ? '🌟' : qualityRating === 'good' ? '👍' : '⚠️'}
                 </span>
                 <div>
-                  <p className="font-semibold uppercase tracking-wider text-[11px]">
-                    Quality Indicator: {qualityRating.replace('_', ' ')}
+                  <p className="font-bold uppercase tracking-wider text-[11px]">
+                    Quality Score: {qualityRating.replace('_', ' ')}
                   </p>
-                  <p className="text-[12px] opacity-90">
+                  <p className="text-[12px] opacity-90 leading-relaxed mt-0.5">
                     {qualityRating === 'excellent' && 'Your photo has high resolution and will print sharply on canvas.'}
                     {qualityRating === 'good' && 'Your image resolution is good for this canvas size.'}
                     {qualityRating === 'low_resolution' &&
@@ -550,16 +564,19 @@ export function CanvasBuilderClient({
           </div>
 
           {/* Step 3: Panel Type Cards (1, 2, 3, 4, 5, 6, 7) */}
-          <div className="rounded-xl border border-border p-5 bg-surface/50 space-y-6">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-amber-600 text-white text-xs font-bold">3</span>
-                <h2 className="text-base font-semibold">Select Panel Layout (1 to 7 Pieces)</h2>
+          <div className="rounded-2xl border border-border/80 p-5 sm:p-6 bg-surface/80 backdrop-blur-sm shadow-sm space-y-6">
+            <div className="flex items-center justify-between flex-wrap gap-2">
+              <div className="flex items-center gap-2.5">
+                <span className="flex h-7 w-7 items-center justify-center rounded-xl bg-amber-600 text-white text-xs font-extrabold shadow-sm">3</span>
+                <div>
+                  <h2 className="text-base font-bold text-text">Select Panel Layout (1 to 7 Pieces)</h2>
+                  <p className="text-xs text-muted">Continuous image flow split across multiple pine wood panels.</p>
+                </div>
               </div>
               <button
                 type="button"
                 onClick={() => setIsSizeChartOpen(true)}
-                className="px-3 py-1.5 rounded-lg bg-amber-500 text-white font-bold text-xs shadow hover:bg-amber-600 transition-all flex items-center gap-1.5"
+                className="px-3.5 py-1.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs shadow-md transition-all active:scale-95 flex items-center gap-1.5"
               >
                 <span>📏</span> View Size Chart
               </button>
@@ -567,7 +584,7 @@ export function CanvasBuilderClient({
 
             {/* Visual Panel Card Grid */}
             <div>
-              <label className="text-xs font-semibold text-muted mb-2.5 block uppercase tracking-wider">
+              <label className="text-xs font-bold text-muted mb-3 block uppercase tracking-wider">
                 Panel Composition Slices
               </label>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -579,33 +596,33 @@ export function CanvasBuilderClient({
                       key={p.id}
                       type="button"
                       onClick={() => setPanelTypeId(p.id)}
-                      className={`relative flex flex-col items-center p-3.5 rounded-xl border text-center transition-all ${
+                      className={`relative flex flex-col items-center p-4 rounded-2xl border text-center transition-all ${
                         isSelected
-                          ? 'border-pink-500 ring-2 ring-pink-500/30 bg-pink-500/10 text-pink-600 font-bold shadow-md'
-                          : 'border-border bg-surface hover:border-pink-500/50 hover:-translate-y-0.5'
+                          ? 'border-amber-600 ring-2 ring-amber-600/40 bg-amber-500/10 text-amber-700 dark:text-amber-400 font-bold shadow-md scale-[1.02]'
+                          : 'border-border/80 bg-surface/60 hover:border-amber-500/50 hover:bg-surface-hover text-muted hover:text-text'
                       }`}
                     >
                       {/* Visual Panel Icon Diagram */}
                       <RenderPanelDiagram count={p.panel_count} isSelected={isSelected} />
 
-                      <span className="text-xs font-bold text-text mt-2">{p.name}</span>
+                      <span className="text-xs font-bold text-text mt-2.5">{p.name}</span>
                       <span className="text-[10px] text-muted font-medium mt-0.5">
                         {p.panel_count === 1 ? '1 Solid Canvas' : `${p.panel_count} Split Panels`}
                       </span>
 
-                      {/* Warm Yellow Badges */}
+                      {/* Warm Badges */}
                       {p.panel_count === 3 && (
-                        <span className="absolute -top-2 right-1 px-1.5 py-0.5 text-[9px] font-bold rounded-full bg-amber-500 text-white shadow">
+                        <span className="absolute -top-2.5 right-2 px-2 py-0.5 text-[9px] font-extrabold rounded-full bg-amber-500 text-white shadow-sm uppercase tracking-wider">
                           Popular
                         </span>
                       )}
                       {p.panel_count === 5 && (
-                        <span className="absolute -top-2 right-1 px-1.5 py-0.5 text-[9px] font-bold rounded-full bg-amber-500 text-white shadow">
+                        <span className="absolute -top-2.5 right-2 px-2 py-0.5 text-[9px] font-extrabold rounded-full bg-amber-500 text-white shadow-sm uppercase tracking-wider">
                           Grand View
                         </span>
                       )}
                       {p.panel_count === 7 && (
-                        <span className="absolute -top-2 right-1 px-1.5 py-0.5 text-[9px] font-bold rounded-full bg-pink-600 text-white shadow">
+                        <span className="absolute -top-2.5 right-2 px-2 py-0.5 text-[9px] font-extrabold rounded-full bg-rose-600 text-white shadow-sm uppercase tracking-wider">
                           Panoramic
                         </span>
                       )}
@@ -617,10 +634,10 @@ export function CanvasBuilderClient({
 
             {/* Panel Gap Spacing Selector */}
             {selectedPanelType && selectedPanelType.panel_count > 1 && (
-              <div className="p-4 rounded-xl border border-border bg-surface/80 space-y-2">
+              <div className="p-4 rounded-2xl border border-border/80 bg-bg/60 space-y-2.5">
                 <label className="text-xs font-bold text-text flex items-center justify-between">
                   <span>↔️ Panel Gap Spacing</span>
-                  <span className="text-amber-600 font-mono text-xs">{panelGapMm / 10} cm ({panelGapMm} mm)</span>
+                  <span className="text-amber-600 font-mono text-xs font-extrabold">{panelGapMm / 10} cm ({panelGapMm} mm)</span>
                 </label>
                 <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
                   {GAP_OPTIONS.map((g) => (
@@ -628,14 +645,14 @@ export function CanvasBuilderClient({
                       key={g.mm}
                       type="button"
                       onClick={() => setPanelGapMm(g.mm)}
-                      className={`p-2 rounded-lg border text-center transition-all text-xs ${
+                      className={`p-2.5 rounded-xl border text-center transition-all text-xs ${
                         panelGapMm === g.mm
-                          ? 'border-amber-500 bg-amber-500/10 text-amber-700 font-bold'
-                          : 'border-border bg-bg text-muted hover:text-text'
+                          ? 'border-amber-600 bg-amber-500/10 text-amber-700 dark:text-amber-400 font-bold shadow-xs'
+                          : 'border-border/80 bg-surface/80 text-muted hover:text-text'
                       }`}
                     >
-                      <div className="font-semibold">{g.label}</div>
-                      <div className="text-[10px] text-muted">{g.desc}</div>
+                      <div className="font-bold">{g.label}</div>
+                      <div className="text-[10px] text-muted mt-0.5">{g.desc}</div>
                     </button>
                   ))}
                 </div>
@@ -643,15 +660,15 @@ export function CanvasBuilderClient({
             )}
 
             {/* Orientation Mode Selector (Landscape vs Portrait) */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 rounded-xl border border-amber-500/30 bg-amber-500/5">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-2xl border border-amber-500/30 bg-amber-500/5">
               <div className="space-y-0.5">
                 <span className="text-xs font-bold text-text flex items-center gap-1.5">
-                  <span>🔄</span> Canvas Orientation Mode (Auto-Detected)
+                  <span>🔄</span> Canvas Orientation Mode
                 </span>
-                <p className="text-[11px] text-muted">Auto-fitted to photo aspect ratio. Switch to Landscape (↔️) or Portrait (↕️) or rotate anytime.</p>
+                <p className="text-[11px] text-muted">Auto-fitted to photo aspect ratio. Switch orientation or rotate anytime.</p>
               </div>
               <div className="flex items-center gap-2">
-                <div className="flex rounded-xl bg-surface p-1 border border-border text-xs font-semibold shrink-0">
+                <div className="flex rounded-xl bg-surface p-1 border border-border/80 text-xs font-semibold shrink-0 shadow-inner">
                   <button
                     type="button"
                     onClick={() => setOrientation('landscape')}
@@ -679,7 +696,7 @@ export function CanvasBuilderClient({
                 <button
                   type="button"
                   onClick={() => setOrientation((prev) => (prev === 'landscape' ? 'portrait' : 'landscape'))}
-                  className="px-3 py-1.5 rounded-xl border border-border bg-surface hover:bg-surface-hover text-xs font-bold text-text flex items-center gap-1 transition-all active:scale-95 shadow-sm shrink-0"
+                  className="px-3.5 py-1.5 rounded-xl border border-border/80 bg-surface hover:bg-surface-hover text-xs font-bold text-text flex items-center gap-1 transition-all active:scale-95 shadow-xs shrink-0"
                   title="Rotate / Switch Orientation"
                 >
                   <span>↻</span> Rotate
@@ -690,12 +707,12 @@ export function CanvasBuilderClient({
             {/* Size Options & Breakdown */}
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <label className="text-xs font-semibold text-muted uppercase tracking-wider">
+                <label className="text-xs font-bold text-muted uppercase tracking-wider">
                   Available Sizes for {selectedPanelType?.name || 'Selected Layout'}
                 </label>
                 {selectedSize?.sizing_mode && (
-                  <span className="text-[11px] font-semibold text-pink-600 bg-pink-500/10 px-2 py-0.5 rounded border border-pink-500/20">
-                    Mode: {selectedSize.sizing_mode.replace('_', ' ').toUpperCase()}
+                  <span className="text-[11px] font-bold text-amber-600 bg-amber-500/10 px-2.5 py-0.5 rounded-full border border-amber-500/20">
+                    {selectedSize.sizing_mode.replace('_', ' ').toUpperCase()}
                   </span>
                 )}
               </div>
@@ -713,18 +730,18 @@ export function CanvasBuilderClient({
 
               {/* Dynamic Size Breakdown Banner */}
               {selectedSize && (
-                <div className="p-4 rounded-xl border border-amber-500/30 bg-amber-500/5 text-xs space-y-2">
-                  <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-1 font-bold text-amber-700 dark:text-amber-300">
+                <div className="p-4 rounded-2xl border border-amber-500/30 bg-amber-500/5 text-xs space-y-2 shadow-xs">
+                  <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-1 font-extrabold text-amber-700 dark:text-amber-300">
                     <span>📏 TOTAL ARTWORK SIZE: {effectiveWidth}&quot; × {effectiveHeight}&quot; ({Math.round(effectiveWidth * 2.54)}cm × {Math.round(effectiveHeight * 2.54)}cm) — {orientation === 'portrait' ? '↕️ Portrait Mode' : '↔️ Landscape Mode'}</span>
                   </div>
                   {selectedSize.each_panel_size && (
-                    <div className="text-muted font-medium flex items-center gap-1">
-                      <span>🖼️ Individual Panel Size:</span>
-                      <span className="font-mono text-text font-semibold">{selectedSize.each_panel_size}</span>
+                    <div className="text-muted font-medium flex items-center gap-1.5">
+                      <span>🖼️ Individual Panel Breakdown:</span>
+                      <span className="font-mono text-text font-bold">{selectedSize.each_panel_size}</span>
                     </div>
                   )}
                   {selectedSize.recommended_room && (
-                    <div className="text-emerald-600 dark:text-emerald-400 font-medium">
+                    <div className="text-emerald-600 dark:text-emerald-400 font-semibold">
                       ✨ Recommended For: {selectedSize.recommended_room}
                     </div>
                   )}
@@ -734,18 +751,20 @@ export function CanvasBuilderClient({
           </div>
 
           {/* Step 4: Frame & Finish Selection */}
-          <div className="rounded-xl border border-border p-5 bg-surface/50 space-y-4">
-            <div className="flex items-center gap-2">
-              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-amber-600 text-white text-xs font-bold">4</span>
-              <h2 className="text-base font-semibold">Frame &amp; Canvas Finish</h2>
-            </div>
-
-            <div className="flex justify-between items-center mb-1">
-              <span className="text-xs font-semibold text-muted uppercase tracking-wider">Item Price Range: Rs. 700 – Rs. 3,500</span>
+          <div className="rounded-2xl border border-border/80 p-5 sm:p-6 bg-surface/80 backdrop-blur-sm shadow-sm space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2.5">
+                <span className="flex h-7 w-7 items-center justify-center rounded-xl bg-amber-600 text-white text-xs font-extrabold shadow-sm">4</span>
+                <div>
+                  <h2 className="text-base font-bold text-text">Frame &amp; Canvas Finish</h2>
+                  <p className="text-xs text-muted">Outer accent floating frames &amp; protective finish coatings.</p>
+                </div>
+              </div>
+              <span className="text-[11px] font-semibold text-muted uppercase tracking-wider">Rs. 700 – Rs. 3,500</span>
             </div>
 
             <OptionSelector
-              label="Outer Frame Accent"
+              label="Outer Floating Frame Accent"
               options={
                 frames.length > 0
                   ? frames.map((f) => ({
@@ -765,7 +784,7 @@ export function CanvasBuilderClient({
             />
 
             <OptionSelector
-              label="Canvas Finish"
+              label="Canvas Surface Finish"
               options={
                 finishes.length > 0
                   ? finishes.map((fn) => ({ id: fn.id, label: fn.name }))
@@ -780,51 +799,51 @@ export function CanvasBuilderClient({
           </div>
 
           {/* Step 5: Custom Text Overlay */}
-          <div className="rounded-xl border border-border p-5 bg-surface/50">
-            <div className="flex items-center gap-2 mb-2">
-              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-amber-600 text-white text-xs font-bold">5</span>
-              <h2 className="text-base font-semibold">Custom Text Overlay (Optional)</h2>
+          <div className="rounded-2xl border border-border/80 p-5 sm:p-6 bg-surface/80 backdrop-blur-sm shadow-sm">
+            <div className="flex items-center gap-2.5 mb-2">
+              <span className="flex h-7 w-7 items-center justify-center rounded-xl bg-amber-600 text-white text-xs font-extrabold shadow-sm">5</span>
+              <div>
+                <h2 className="text-base font-bold text-text">Custom Text Overlay (Optional)</h2>
+                <p className="text-xs text-muted">Add a personal family name, date, or Vastu quote to print on your canvas.</p>
+              </div>
             </div>
-            <p className="text-xs text-muted mb-3">
-              Add a personal family name, date, or Vastu quote to print on your canvas.
-            </p>
             <input
               type="text"
               value={customText}
               onChange={(e) => setCustomText(e.target.value)}
               placeholder="e.g., 'Shrestha Family Heritage' or 'Om Namah Shivaya'"
-              className="w-full px-3.5 py-2.5 text-sm rounded-lg border border-border bg-bg text-text focus:outline-none focus:ring-2 focus:ring-amber-600"
+              className="w-full px-4 py-3 text-sm rounded-xl border border-border/80 bg-bg text-text focus:outline-none focus:ring-2 focus:ring-amber-600 mt-2 font-medium"
             />
           </div>
         </div>
 
         {/* Right Column: Live Interactive Konva Preview & Order Action */}
         <div className="space-y-6 lg:sticky lg:top-24 lg:self-start">
-          <div className="rounded-xl border border-border p-5 bg-surface shadow-sm">
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-2">
-                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-amber-600 text-white text-xs font-bold">6</span>
-                <h2 className="text-base font-semibold">Live Stage &amp; Split Preview</h2>
+          <div className="rounded-2xl border border-border/80 p-5 sm:p-6 bg-surface shadow-md">
+            <div className="flex items-center justify-between mb-3.5">
+              <div className="flex items-center gap-2.5">
+                <span className="flex h-7 w-7 items-center justify-center rounded-xl bg-amber-600 text-white text-xs font-extrabold shadow-sm">6</span>
+                <h2 className="text-base font-bold text-text">Live Stage &amp; Split Preview</h2>
               </div>
               {selectedSize && (
-                <span className="text-xs font-medium px-2 py-0.5 rounded bg-amber-500/10 text-amber-600 border border-amber-500/20">
+                <span className="text-xs font-bold px-3 py-1 rounded-full bg-amber-500/10 text-amber-600 border border-amber-500/20">
                   {selectedSize.name}
                 </span>
               )}
             </div>
 
             {/* Room Mockup Selector Bar */}
-            <div className="flex items-center gap-2 mb-3 overflow-x-auto pb-1 text-xs">
+            <div className="flex items-center gap-2 mb-3.5 overflow-x-auto pb-1 text-xs">
               <span className="text-muted font-semibold shrink-0">Room Context:</span>
               {ROOM_MOCKUPS.map((m) => (
                 <button
                   key={m.id}
                   type="button"
                   onClick={() => setSelectedMockupId(m.id)}
-                  className={`px-2.5 py-1 rounded-md border text-xs font-medium transition-colors shrink-0 ${
+                  className={`px-3 py-1.5 rounded-xl border text-xs font-semibold transition-all shrink-0 ${
                     selectedMockupId === m.id
-                      ? 'border-amber-600 bg-amber-500/10 text-amber-600 font-semibold'
-                      : 'border-border bg-bg hover:border-text/30'
+                      ? 'border-amber-600 bg-amber-500/10 text-amber-600 font-bold shadow-xs'
+                      : 'border-border/80 bg-bg hover:border-text/30'
                   }`}
                 >
                   {m.name}
@@ -848,23 +867,23 @@ export function CanvasBuilderClient({
             )}
 
             {customText && (
-              <div className="mt-3 p-2.5 rounded border border-border bg-surface-hover text-center">
-                <p className="text-[11px] text-muted uppercase tracking-wider font-semibold">Text Overlay Preview</p>
-                <p className="text-sm font-display italic text-amber-600 mt-0.5">&quot;{customText}&quot;</p>
+              <div className="mt-3.5 p-3 rounded-xl border border-border/80 bg-surface-hover/80 text-center">
+                <p className="text-[10px] text-muted uppercase tracking-wider font-bold">Text Overlay Preview</p>
+                <p className="text-sm font-display italic text-amber-600 font-bold mt-0.5">&quot;{customText}&quot;</p>
               </div>
             )}
           </div>
 
-          {/* Direct Order Actions (Technical Configuration Summary hidden per customer request) */}
-          <div className="rounded-xl border border-border p-5 bg-surface shadow-sm space-y-4">
-            <div className="flex items-center justify-between border-b border-border pb-3">
+          {/* Direct Order Actions */}
+          <div className="rounded-2xl border border-border/80 p-5 sm:p-6 bg-surface shadow-lg space-y-4">
+            <div className="flex items-center justify-between border-b border-border/80 pb-4">
               <div>
-                <span className="text-xs text-muted uppercase tracking-wider font-semibold">Total Investment</span>
-                <p className="text-2xl font-extrabold text-amber-600">{formattedPriceRs}</p>
+                <span className="text-xs text-muted uppercase tracking-wider font-bold">Total Investment</span>
+                <p className="text-3xl font-extrabold text-amber-600 dark:text-amber-400 tracking-tight">{formattedPriceRs}</p>
               </div>
               <div className="text-right text-xs text-muted">
-                <span className="font-semibold text-text">{selectedPanelType?.name || '1 Panel'}</span>
-                <p>{selectedSize?.name || 'Standard'}</p>
+                <span className="font-bold text-text">{selectedPanelType?.name || '1 Panel'}</span>
+                <p className="font-medium">{selectedSize?.name || 'Standard'}</p>
               </div>
             </div>
 
@@ -882,7 +901,7 @@ export function CanvasBuilderClient({
             {feedback && (
               <div
                 role="status"
-                className="p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-700 dark:text-emerald-300 text-sm font-medium"
+                className="p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-700 dark:text-emerald-300 text-xs font-bold"
               >
                 {feedback}
               </div>
@@ -903,7 +922,7 @@ export function CanvasBuilderClient({
 }
 
 function RenderPanelDiagram({ count, isSelected }: { count: number; isSelected: boolean }) {
-  const barColor = isSelected ? 'bg-pink-500' : 'bg-muted/40';
+  const barColor = isSelected ? 'bg-amber-500' : 'bg-muted/40';
 
   if (count === 5) {
     // Chevron height pattern (75%, 87.5%, 100%, 87.5%, 75%)
@@ -940,11 +959,11 @@ function RenderPanelDiagram({ count, isSelected }: { count: number; isSelected: 
 
 function PreviewPlaceholder() {
   return (
-    <div className="flex aspect-[4/3] w-full flex-col items-center justify-center rounded-lg border border-dashed border-border bg-surface-hover p-6 text-center text-muted">
+    <div className="flex aspect-[4/3] w-full flex-col items-center justify-center rounded-2xl border border-dashed border-border bg-surface-hover/60 p-6 text-center text-muted">
       <span className="text-3xl mb-2">🖼️</span>
-      <p className="text-sm font-medium text-text">Live Canvas Preview</p>
+      <p className="text-sm font-bold text-text">Live Canvas Studio Preview</p>
       <p className="text-xs text-muted mt-1">
-        Select your photo or use our demo sample to preview panel splits.
+        Select your photo or use demo artwork to preview panel splits in real-time.
       </p>
     </div>
   );

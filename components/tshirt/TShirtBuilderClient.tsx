@@ -216,51 +216,56 @@ export function TShirtBuilderClient({
       {/* Left Guided Customization Controls */}
       <div className="space-y-5 sm:space-y-6 w-full min-w-0">
         {/* Step 1: Model & Color Palette */}
-        <div className="rounded-2xl border border-border p-4 sm:p-5 bg-surface/50 space-y-4">
+        <div className="rounded-2xl border border-border/80 p-5 sm:p-6 bg-surface/80 backdrop-blur-sm shadow-sm space-y-4">
           <div className="flex items-center justify-between flex-wrap gap-2">
-            <div className="flex items-center gap-2">
-              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-amber-600 text-white text-xs font-bold shrink-0">1</span>
-              <h2 className="text-sm sm:text-base font-semibold">T-Shirt Model &amp; Color</h2>
+            <div className="flex items-center gap-2.5">
+              <span className="flex h-7 w-7 items-center justify-center rounded-xl bg-amber-600 text-white text-xs font-extrabold shadow-sm shrink-0">1</span>
+              <div>
+                <h2 className="text-base font-bold text-text">T-Shirt Model &amp; Color</h2>
+                <p className="text-xs text-muted">Select apparel fabric weight &amp; garment shade.</p>
+              </div>
             </div>
             {customBasePhoto && useCustomBase && (
-              <span className="text-[11px] font-bold text-emerald-600">✓ Own Base Photo Loaded</span>
+              <span className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-full border border-emerald-500/20">
+                ✓ Base Photo Loaded
+              </span>
             )}
           </div>
 
           {/* Model Selection Tabs: Store Model vs Upload Own T-Shirt Base */}
-          <div className="flex rounded-xl border border-border bg-bg p-1 text-xs font-semibold gap-1">
+          <div className="flex rounded-xl border border-border/80 bg-bg/80 p-1 text-xs font-semibold gap-1 shadow-inner">
             <button
               type="button"
               onClick={() => setUseCustomBase(false)}
-              className={`flex-1 py-2 px-2 rounded-lg transition-all text-center truncate ${
+              className={`flex-1 py-2.5 px-3 rounded-lg transition-all text-center truncate ${
                 !useCustomBase
-                  ? 'bg-amber-600 text-white shadow-sm font-bold'
+                  ? 'bg-amber-600 text-white shadow-md font-bold scale-[1.01]'
                   : 'text-muted hover:text-text'
               }`}
             >
-              👕 Store Models
+              👕 Store Apparel Models
             </button>
             <button
               type="button"
               onClick={() => setUseCustomBase(true)}
-              className={`flex-1 py-2 px-2 rounded-lg transition-all text-center truncate ${
+              className={`flex-1 py-2.5 px-3 rounded-lg transition-all text-center truncate ${
                 useCustomBase
-                  ? 'bg-amber-600 text-white shadow-sm font-bold'
+                  ? 'bg-amber-600 text-white shadow-md font-bold scale-[1.01]'
                   : 'text-muted hover:text-text'
               }`}
             >
-              📤 My Base Photo
+              📤 Upload My Own Base Photo
             </button>
           </div>
 
           {useCustomBase ? (
-            <div className="space-y-3 p-3.5 sm:p-4 rounded-xl border border-amber-500/30 bg-amber-500/5 text-xs">
+            <div className="space-y-3 p-4 rounded-2xl border border-amber-500/30 bg-amber-500/5 text-xs shadow-xs">
               <div>
                 <h3 className="font-bold text-amber-700 dark:text-amber-300 mb-1 text-xs sm:text-sm">
                   Upload Photo of Your Own T-Shirt / Hoodie / Apparel
                 </h3>
-                <p className="text-muted text-[11px]">
-                  Upload a front photo of your own T-shirt, hoodie, jersey, or polo shirt to visualize your print design right on your garment!
+                <p className="text-muted text-[11px] leading-relaxed">
+                  Upload a clean front photo of your own T-shirt, hoodie, or jersey to visualize your print artwork on your garment.
                 </p>
               </div>
 
@@ -283,39 +288,39 @@ export function TShirtBuilderClient({
 
           {/* Color Palette & Custom Color Picker */}
           <div>
-            <div className="flex items-center justify-between mb-2">
-              <label className="text-xs font-semibold text-muted uppercase tracking-wider block">
+            <div className="flex items-center justify-between mb-2.5">
+              <label className="text-xs font-bold text-muted uppercase tracking-wider block">
                 T-Shirt Fabric Color
               </label>
               <button
                 type="button"
                 onClick={() => setUseCustomColor((v) => !v)}
-                className="text-[11px] font-bold text-amber-600 hover:underline"
+                className="text-[11px] font-bold text-amber-600 hover:underline flex items-center gap-1"
               >
                 {useCustomColor ? '← Standard Swatches' : '🎨 Custom Color Hex'}
               </button>
             </div>
 
             {useCustomColor ? (
-              <div className="flex items-center gap-3 p-3 rounded-xl border border-border bg-surface">
+              <div className="flex items-center gap-3 p-3.5 rounded-2xl border border-border/80 bg-surface shadow-xs">
                 <input
                   type="color"
                   value={customColorHex}
                   onChange={(e) => setCustomColorHex(e.target.value)}
-                  className="h-9 w-9 rounded-lg border-0 cursor-pointer bg-transparent shrink-0"
+                  className="h-10 w-10 rounded-xl border-0 cursor-pointer bg-transparent shrink-0"
                 />
                 <div className="flex-1 min-w-0">
-                  <label className="text-[10px] font-bold uppercase text-muted block">Custom Hex Code</label>
+                  <label className="text-[10px] font-bold uppercase text-muted block">Custom Color Hex Code</label>
                   <input
                     type="text"
                     value={customColorHex}
                     onChange={(e) => setCustomColorHex(e.target.value)}
-                    className="w-full px-2.5 py-1 text-xs rounded-lg border border-border bg-bg font-mono font-bold"
+                    className="w-full px-3 py-1.5 text-xs rounded-xl border border-border/80 bg-bg font-mono font-bold text-text focus:outline-none focus:ring-2 focus:ring-amber-600"
                   />
                 </div>
               </div>
             ) : (
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-2.5">
                 {activeColors.map((c) => {
                   const isSelected = selectedColorId === c.id;
                   return (
@@ -326,10 +331,10 @@ export function TShirtBuilderClient({
                         setSelectedColorId(c.id);
                         setUseCustomColor(false);
                       }}
-                      className={`flex items-center gap-2 px-3 py-2 rounded-xl border text-xs font-medium transition-all ${
+                      className={`flex items-center gap-2 px-3.5 py-2 rounded-xl border text-xs font-semibold transition-all ${
                         isSelected && !useCustomColor
-                          ? 'border-amber-600 bg-amber-500/10 text-amber-600 font-semibold ring-2 ring-amber-500/30'
-                          : 'border-border bg-surface hover:border-text/30'
+                          ? 'border-amber-600 bg-amber-500/10 text-amber-700 dark:text-amber-400 font-bold ring-2 ring-amber-600/40 shadow-xs scale-[1.02]'
+                          : 'border-border/80 bg-surface/80 hover:border-text/30 text-text'
                       }`}
                     >
                       <span
@@ -346,14 +351,22 @@ export function TShirtBuilderClient({
         </div>
 
         {/* Step 2: Size & Printable Area Selection */}
-        <div className="rounded-2xl border border-border p-4 sm:p-5 bg-surface/50 space-y-4">
-          <div className="flex items-center gap-2">
-            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-amber-600 text-white text-xs font-bold shrink-0">2</span>
-            <h2 className="text-sm sm:text-base font-semibold">Size &amp; Printable Area</h2>
+        <div className="rounded-2xl border border-border/80 p-5 sm:p-6 bg-surface/80 backdrop-blur-sm shadow-sm space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2.5">
+              <span className="flex h-7 w-7 items-center justify-center rounded-xl bg-amber-600 text-white text-xs font-extrabold shadow-sm shrink-0">2</span>
+              <div>
+                <h2 className="text-base font-bold text-text">Size &amp; Printable Area</h2>
+                <p className="text-xs text-muted">Select sizing &amp; graphic placement on garment.</p>
+              </div>
+            </div>
+            <span className="text-[11px] font-semibold text-amber-600 bg-amber-500/10 px-2.5 py-1 rounded-full border border-amber-500/20">
+              Step 2 of 4
+            </span>
           </div>
 
           <OptionSelector
-            label="Select Size"
+            label="Select Garment Size"
             options={activeSizes.map((s) => ({
               id: s.id,
               label: s.name,
@@ -380,17 +393,17 @@ export function TShirtBuilderClient({
 
           {/* View Perspective Switcher */}
           <div>
-            <label className="text-xs font-semibold text-muted mb-2 block uppercase tracking-wider">
+            <label className="text-xs font-bold text-muted mb-2 block uppercase tracking-wider">
               Mockup View Perspective
             </label>
             <div className="grid grid-cols-3 gap-2">
               <button
                 type="button"
                 onClick={() => setViewSide('front')}
-                className={`py-2 px-1 rounded-xl text-xs font-semibold text-center transition-all truncate ${
+                className={`py-2.5 px-2 rounded-xl text-xs font-bold text-center transition-all truncate ${
                   viewSide === 'front'
-                    ? 'bg-amber-600 text-white shadow-sm'
-                    : 'bg-surface border border-border text-muted hover:text-text'
+                    ? 'bg-amber-600 text-white shadow-md scale-[1.01]'
+                    : 'bg-surface border border-border/80 text-muted hover:text-text'
                 }`}
               >
                 Front View
@@ -398,10 +411,10 @@ export function TShirtBuilderClient({
               <button
                 type="button"
                 onClick={() => setViewSide('back')}
-                className={`py-2 px-1 rounded-xl text-xs font-semibold text-center transition-all truncate ${
+                className={`py-2.5 px-2 rounded-xl text-xs font-bold text-center transition-all truncate ${
                   viewSide === 'back'
-                    ? 'bg-amber-600 text-white shadow-sm'
-                    : 'bg-surface border border-border text-muted hover:text-text'
+                    ? 'bg-amber-600 text-white shadow-md scale-[1.01]'
+                    : 'bg-surface border border-border/80 text-muted hover:text-text'
                 }`}
               >
                 Back View
@@ -409,10 +422,10 @@ export function TShirtBuilderClient({
               <button
                 type="button"
                 onClick={() => setViewSide('sleeve')}
-                className={`py-2 px-1 rounded-xl text-xs font-semibold text-center transition-all truncate ${
+                className={`py-2.5 px-2 rounded-xl text-xs font-bold text-center transition-all truncate ${
                   viewSide === 'sleeve'
-                    ? 'bg-amber-600 text-white shadow-sm'
-                    : 'bg-surface border border-border text-muted hover:text-text'
+                    ? 'bg-amber-600 text-white shadow-md scale-[1.01]'
+                    : 'bg-surface border border-border/80 text-muted hover:text-text'
                 }`}
               >
                 Sleeve View
@@ -422,19 +435,27 @@ export function TShirtBuilderClient({
         </div>
 
         {/* Step 3: Choose Ready-Made Graphic OR Upload Custom Photo */}
-        <div className="rounded-2xl border border-border p-4 sm:p-5 bg-surface/50 space-y-4">
-          <div className="flex items-center gap-2">
-            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-amber-600 text-white text-xs font-bold shrink-0">3</span>
-            <h2 className="text-sm sm:text-base font-semibold">Choose Graphic Art OR Upload</h2>
+        <div className="rounded-2xl border border-border/80 p-5 sm:p-6 bg-surface/80 backdrop-blur-sm shadow-sm space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2.5">
+              <span className="flex h-7 w-7 items-center justify-center rounded-xl bg-amber-600 text-white text-xs font-extrabold shadow-sm shrink-0">3</span>
+              <div>
+                <h2 className="text-base font-bold text-text">Choose Graphic Art OR Upload</h2>
+                <p className="text-xs text-muted">Select catalog artwork or upload custom design file.</p>
+              </div>
+            </div>
+            <span className="text-[11px] font-semibold text-amber-600 bg-amber-500/10 px-2.5 py-1 rounded-full border border-amber-500/20">
+              Step 3 of 4
+            </span>
           </div>
 
-          <div className="flex rounded-xl border border-border bg-bg p-1 text-xs gap-1">
+          <div className="flex rounded-xl border border-border/80 bg-bg/80 p-1 text-xs gap-1 shadow-inner">
             <button
               type="button"
               onClick={() => setDesignMode('catalog')}
-              className={`flex-1 py-2 px-2 rounded-lg font-semibold transition-colors text-center truncate ${
+              className={`flex-1 py-2.5 px-3 rounded-lg font-bold transition-all text-center truncate ${
                 designMode === 'catalog'
-                  ? 'bg-amber-600 text-white shadow-sm'
+                  ? 'bg-amber-600 text-white shadow-md scale-[1.01]'
                   : 'text-muted hover:text-text'
               }`}
             >
@@ -443,13 +464,13 @@ export function TShirtBuilderClient({
             <button
               type="button"
               onClick={() => setDesignMode('upload')}
-              className={`flex-1 py-2 px-2 rounded-lg font-semibold transition-colors text-center truncate ${
+              className={`flex-1 py-2.5 px-3 rounded-lg font-bold transition-all text-center truncate ${
                 designMode === 'upload'
-                  ? 'bg-amber-600 text-white shadow-sm'
+                  ? 'bg-amber-600 text-white shadow-md scale-[1.01]'
                   : 'text-muted hover:text-text'
               }`}
             >
-              📤 Upload Artwork
+              📤 Upload Artwork File
             </button>
           </div>
 
@@ -468,31 +489,39 @@ export function TShirtBuilderClient({
         </div>
 
         {/* Step 4: Custom Text Line Overlay (Optional) */}
-        <div className="rounded-2xl border border-border p-4 sm:p-5 bg-surface/50 space-y-4">
-          <div className="flex items-center gap-2">
-            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-amber-600 text-white text-xs font-bold shrink-0">4</span>
-            <h2 className="text-sm sm:text-base font-semibold">Custom Text Line (Optional)</h2>
+        <div className="rounded-2xl border border-border/80 p-5 sm:p-6 bg-surface/80 backdrop-blur-sm shadow-sm space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2.5">
+              <span className="flex h-7 w-7 items-center justify-center rounded-xl bg-amber-600 text-white text-xs font-extrabold shadow-sm shrink-0">4</span>
+              <div>
+                <h2 className="text-base font-bold text-text">Custom Text Line (Optional)</h2>
+                <p className="text-xs text-muted">Add custom typography lines, dates, or slogans.</p>
+              </div>
+            </div>
+            <span className="text-[11px] font-semibold text-amber-600 bg-amber-500/10 px-2.5 py-1 rounded-full border border-amber-500/20">
+              Step 4 of 4
+            </span>
           </div>
 
           <div>
-            <label className="text-xs font-semibold text-muted mb-1 block">Custom Text</label>
+            <label className="text-xs font-bold text-muted mb-1 block uppercase tracking-wider">Custom Text Overlay</label>
             <input
               type="text"
               value={customText}
               onChange={(e) => setCustomText(e.target.value)}
               placeholder="e.g. 'Kathmandu Originals' or 'EST 2026'"
-              className="w-full px-3 py-2 text-xs rounded-xl border border-border bg-bg text-text focus:outline-none focus:ring-2 focus:ring-amber-600"
+              className="w-full px-4 py-3 text-sm rounded-xl border border-border/80 bg-bg text-text focus:outline-none focus:ring-2 focus:ring-amber-600 font-medium"
             />
           </div>
 
           {customText && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 pt-1">
               <div>
-                <label className="text-xs text-muted mb-1 block">Font Style</label>
+                <label className="text-xs font-bold text-muted mb-1.5 block">Font Style</label>
                 <select
                   value={textFont}
                   onChange={(e) => setTextFont(e.target.value)}
-                  className="w-full px-3 py-2 rounded-xl border border-border bg-bg text-xs"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-border/80 bg-bg text-xs font-semibold"
                 >
                   {FONTS.map((f) => (
                     <option key={f} value={f}>
@@ -503,15 +532,15 @@ export function TShirtBuilderClient({
               </div>
 
               <div>
-                <label className="text-xs text-muted mb-1 block">Text Color</label>
-                <div className="flex items-center gap-2 pt-1 flex-wrap">
+                <label className="text-xs font-bold text-muted mb-1.5 block">Text Color</label>
+                <div className="flex items-center gap-2.5 pt-1 flex-wrap">
                   {TEXT_COLORS.map((tc) => (
                     <button
                       key={tc.name}
                       type="button"
                       onClick={() => setTextColor(tc.hex)}
-                      className={`h-6 w-6 rounded-full border border-border ${
-                        textColor === tc.hex ? 'ring-2 ring-amber-600' : ''
+                      className={`h-7 w-7 rounded-full border border-border ${
+                        textColor === tc.hex ? 'ring-2 ring-amber-600 scale-110 shadow-sm' : ''
                       }`}
                       style={{ backgroundColor: tc.hex }}
                       title={tc.name}
@@ -526,12 +555,12 @@ export function TShirtBuilderClient({
 
       {/* Right Column: Live Mockup Preview & Clean E-Commerce Order Summary */}
       <div className="space-y-5 sm:space-y-6 lg:sticky lg:top-24 lg:self-start w-full min-w-0">
-        <div className="rounded-2xl border border-border p-4 sm:p-5 bg-surface shadow-sm">
-          <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
-            <h2 className="text-sm sm:text-base font-bold text-text flex items-center gap-2">
+        <div className="rounded-2xl border border-border/80 p-5 sm:p-6 bg-surface shadow-md">
+          <div className="flex items-center justify-between mb-3.5 flex-wrap gap-2">
+            <h2 className="text-base font-bold text-text flex items-center gap-2">
               <span>👕</span> Live Mockup Preview
             </h2>
-            <span className="text-[10px] sm:text-xs font-bold text-amber-600 px-2.5 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/20 truncate">
+            <span className="text-xs font-bold text-amber-600 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 truncate">
               {useCustomBase ? 'Custom Base' : activeColorName} • {viewSide.toUpperCase()}
             </span>
           </div>
@@ -550,10 +579,10 @@ export function TShirtBuilderClient({
         </div>
 
         {/* Clean E-Commerce Summary */}
-        <div className="rounded-2xl border border-border p-4 sm:p-5 bg-surface shadow-md space-y-4">
-          <div className="flex items-center justify-between border-b border-border pb-3 flex-wrap gap-2">
-            <h3 className="text-sm sm:text-base font-bold text-text">Order Summary</h3>
-            <span className="text-xl sm:text-2xl font-extrabold text-amber-600">{formatPaisa(totalPricePaisa)}</span>
+        <div className="rounded-2xl border border-border/80 p-5 sm:p-6 bg-surface shadow-lg space-y-4">
+          <div className="flex items-center justify-between border-b border-border/80 pb-4 flex-wrap gap-2">
+            <h3 className="text-base font-bold text-text">Order Summary</h3>
+            <span className="text-3xl font-extrabold text-amber-600 dark:text-amber-400 tracking-tight">{formatPaisa(totalPricePaisa)}</span>
           </div>
 
           <div className="space-y-2 text-xs text-muted">
@@ -581,21 +610,21 @@ export function TShirtBuilderClient({
             </div>
           </div>
 
-          <div className="flex items-center justify-between border-t border-border pt-3">
-            <label className="text-xs font-bold text-text">Quantity:</label>
+          <div className="flex items-center justify-between border-t border-border/80 pt-4">
+            <label className="text-xs font-bold text-text uppercase tracking-wider">Quantity:</label>
             <div className="flex items-center gap-2">
               <button
                 type="button"
                 onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-                className="h-8 w-8 rounded-lg border border-border bg-bg font-bold hover:border-amber-600 active:scale-95"
+                className="h-9 w-9 rounded-xl border border-border/80 bg-bg font-bold hover:border-amber-600 active:scale-95 text-sm"
               >
                 -
               </button>
-              <span className="w-8 text-center font-bold text-sm">{quantity}</span>
+              <span className="w-8 text-center font-extrabold text-base">{quantity}</span>
               <button
                 type="button"
                 onClick={() => setQuantity((q) => q + 1)}
-                className="h-8 w-8 rounded-lg border border-border bg-bg font-bold hover:border-amber-600 active:scale-95"
+                className="h-9 w-9 rounded-xl border border-border/80 bg-bg font-bold hover:border-amber-600 active:scale-95 text-sm"
               >
                 +
               </button>
@@ -603,7 +632,7 @@ export function TShirtBuilderClient({
           </div>
 
           {feedback && (
-            <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-700 dark:text-emerald-300 text-xs font-bold">
+            <div className="p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-700 dark:text-emerald-300 text-xs font-bold">
               {feedback}
             </div>
           )}
@@ -612,7 +641,7 @@ export function TShirtBuilderClient({
             type="button"
             disabled={submitting}
             onClick={handleAddToCart}
-            className="w-full py-3.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-sm transition-all shadow-md active:scale-95 disabled:opacity-50"
+            className="w-full py-4 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-sm transition-all shadow-md active:scale-95 disabled:opacity-50"
           >
             {submitting ? 'Adding to Cart…' : 'Add Custom T-Shirt to Cart 🛒'}
           </button>
