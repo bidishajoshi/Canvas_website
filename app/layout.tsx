@@ -4,6 +4,7 @@ import { ThemeProvider, themeInitScript } from '@/components/layout/ThemeProvide
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
 import { ChatWidget } from '@/components/chat/ChatWidget';
+import { ScrollToTopButton } from '@/components/common/ScrollToTopButton';
 import { GoogleAnalytics } from '@/components/analytics/GoogleAnalytics';
 import { getSettings } from '@/lib/content';
 
@@ -121,6 +122,7 @@ export default async function RootLayout({
           <main className="min-h-[60vh] overflow-x-hidden w-full max-w-full">{children}</main>
           <Footer />
           <ChatWidget />
+          <ScrollToTopButton />
         </ThemeProvider>
       </body>
     </html>
