@@ -1,10 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { checkRateLimit, getClientIp } from '@/lib/rateLimit';
 
 export async function GET(req: NextRequest) {
+  const ip = getClientIp(req);
+  const { allowed } = checkRateLimit(`order_track:${ip}`, 30, 60 * 1000);
+  if (!allowed) {
+    return NextResponse.json(
+      { error: 'Too many tracking requests. Please wait a minute.' },
+      { status: 429 }
+    );
+  }
+
   const { searchParams } = new URL(req.url);
   const orderNumber = searchParams.get('orderNumber')?.trim();
-  const phone = searchParams.get('phone')?.trim();
+  const phone = searchParams.get('phone')?.trim().replace(/[^\d]/g, '');
 
   if (!orderNumber) {
     return NextResponse.json(
@@ -15,7 +25,7 @@ export async function GET(req: NextRequest) {
 
   const supabase = createClient();
 
-  let query = supabase
+  const { data: order, error } = await supabase
     .from('orders')
     .select(
       `
@@ -37,13 +47,8 @@ export async function GET(req: NextRequest) {
       )
     `
     )
-    .eq('order_number', orderNumber);
-
-  if (phone) {
-    query = query.eq('guest_phone', phone);
-  }
-
-  const { data: order, error } = await query.single();
+    .eq('order_number', orderNumber)
+    .single();
 
   if (error || !order) {
     return NextResponse.json(
@@ -52,5 +57,35 @@ export async function GET(req: NextRequest) {
     );
   }
 
-  return NextResponse.json(order);
+  const storedPhone = String(order.guest_phone || '').replace(/[^\d]/g, '');
+  const isPhoneVerified = phone && storedPhone && (phone === storedPhone || storedPhone.endsWith(phone));
+
+  if (isPhoneVerified) {
+    return NextResponse.json(order);
+  }
+
+  // If phone is not verified, mask customer PII to prevent unauthorized data exposure
+  const maskedName = order.guest_name
+    ? order.guest_name.split(' ').map((n: string) => n[0] + '***').join(' ')
+    : 'Verified Customer';
+
+  const maskedPhone = storedPhone
+    ? storedPhone.slice(0, 3) + '*****' + storedPhone.slice(-2)
+    : 'Protected Phone';
+
+  const rawAddress = order.shipping_address || {};
+  const maskedAddress = {
+    district: rawAddress.district || 'Nepal',
+    municipality: rawAddress.municipality ? '***' : undefined,
+    tole_area: rawAddress.tole_area ? '***' : undefined,
+    address_line: 'Protected Shipping Address (Verify phone to view)',
+  };
+
+  return NextResponse.json({
+    ...order,
+    guest_name: maskedName,
+    guest_phone: maskedPhone,
+    shipping_address: maskedAddress,
+    is_masked: true,
+  });
 }
