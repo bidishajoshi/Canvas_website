@@ -1,8 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { checkRateLimit, getClientIp } from '@/lib/rateLimit';
 
 export async function POST(req: NextRequest) {
-  const body = await req.json();
+  const ip = getClientIp(req);
+  const { allowed } = checkRateLimit(`contact:${ip}`, 5, 60 * 60 * 1000); // 5 messages per hour per IP
+  if (!allowed) {
+    return NextResponse.json(
+      { error: 'You have submitted too many messages. Please try again later.' },
+      { status: 429 }
+    );
+  }
+
+  const body = await req.json().catch(() => ({}));
 
   if (!body.name || !body.message) {
     return NextResponse.json({ error: 'Name and message are required.' }, { status: 400 });

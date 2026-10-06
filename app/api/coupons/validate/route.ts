@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import type { CouponCode } from '@/lib/types';
+import { checkRateLimit, getClientIp } from '@/lib/rateLimit';
 
 const FALLBACK_COUPONS: CouponCode[] = [
   {
@@ -34,6 +35,15 @@ const FALLBACK_COUPONS: CouponCode[] = [
 
 export async function POST(req: Request) {
   try {
+    const ip = getClientIp(req);
+    const { allowed } = checkRateLimit(`coupon_validate:${ip}`, 20, 60 * 1000); // 20 code checks per min
+    if (!allowed) {
+      return NextResponse.json(
+        { valid: false, error: 'Too many promo code checks. Please wait a minute.' },
+        { status: 429 }
+      );
+    }
+
     const body = await req.json();
     const inputCode = (body.code || '').trim().toUpperCase();
     const subtotalPaisa = Number(body.subtotalPaisa || 0);
