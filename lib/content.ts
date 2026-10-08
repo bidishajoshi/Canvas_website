@@ -14,7 +14,7 @@ const FALLBACK_SETTINGS: Settings = {
   logo_url: '/images/logo.png',
   logo_dark_url: '/images/logo.png',
   favicon_url: null,
-  email: 'support@affordabledecoration.com.np',
+  email: 'nepalaffordable@gmail.com',
   phone: '+977 9864029898',
   whatsapp_number: '9779864029898',
   address: 'Kathmandu, Nepal',
