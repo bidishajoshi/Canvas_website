@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { getSettings } from '@/lib/content';
+import { ContactForm } from '@/components/shop/ContactForm';
 
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await getSettings();
@@ -11,6 +12,8 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function ContactPage() {
   const settings = await getSettings();
+  const storeEmail = settings.email || 'nepalaffordable@gmail.com';
+  const storePhone = settings.phone || '+977 9864029898';
 
   return (
     <div className="container-page py-12 space-y-12">
@@ -41,7 +44,7 @@ export default async function ContactPage() {
                 </div>
                 <div>
                   <span className="font-bold text-text block">Store Location</span>
-                  <span className="text-muted text-xs">{settings.address}</span>
+                  <span className="text-muted text-xs">{settings.address || 'Kathmandu, Nepal'}</span>
                 </div>
               </div>
 
@@ -51,7 +54,12 @@ export default async function ContactPage() {
                 </div>
                 <div>
                   <span className="font-bold text-text block">Customer Support Phone</span>
-                  <span className="text-muted text-xs">{settings.phone}</span>
+                  <a
+                    href={`tel:${storePhone.replace(/[^\d+]/g, '')}`}
+                    className="text-muted text-xs hover:text-amber-600 hover:underline transition-colors"
+                  >
+                    {storePhone}
+                  </a>
                 </div>
               </div>
 
@@ -61,7 +69,12 @@ export default async function ContactPage() {
                 </div>
                 <div>
                   <span className="font-bold text-text block">Email Support</span>
-                  <span className="text-muted text-xs">{settings.email}</span>
+                  <a
+                    href={`mailto:${storeEmail}`}
+                    className="text-muted text-xs hover:text-amber-600 hover:underline transition-colors"
+                  >
+                    {storeEmail}
+                  </a>
                 </div>
               </div>
 
@@ -71,7 +84,7 @@ export default async function ContactPage() {
                 </div>
                 <div>
                   <span className="font-bold text-text block">Working Hours</span>
-                  <span className="text-muted text-xs">{settings.opening_hours}</span>
+                  <span className="text-muted text-xs">{settings.opening_hours || 'Sun - Fri: 9:00 AM - 7:00 PM'}</span>
                 </div>
               </div>
             </div>
@@ -97,66 +110,7 @@ export default async function ContactPage() {
           <h2 className="font-display font-bold text-xl text-text border-b border-border pb-3">
             Send an Instant Message
           </h2>
-
-          <form className="space-y-4">
-            <div>
-              <label className="text-xs font-semibold text-muted block mb-1">Your Full Name *</label>
-              <input
-                type="text"
-                required
-                placeholder="e.g. Bipin Sharma"
-                className="w-full rounded-lg border border-border bg-bg px-3 py-2 text-sm text-text outline-none focus:border-amber-600"
-              />
-            </div>
-
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="text-xs font-semibold text-muted block mb-1">Phone Number *</label>
-                <input
-                  type="tel"
-                  required
-                  placeholder="98XXXXXXXX"
-                  className="w-full rounded-lg border border-border bg-bg px-3 py-2 text-sm text-text outline-none focus:border-amber-600"
-                />
-              </div>
-              <div>
-                <label className="text-xs font-semibold text-muted block mb-1">Email Address</label>
-                <input
-                  type="email"
-                  placeholder="name@example.com"
-                  className="w-full rounded-lg border border-border bg-bg px-3 py-2 text-sm text-text outline-none focus:border-amber-600"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className="text-xs font-semibold text-muted block mb-1">Subject</label>
-              <select className="w-full rounded-lg border border-border bg-bg px-3 py-2 text-xs text-text outline-none focus:border-amber-600">
-                <option>General Inquiry</option>
-                <option>Custom Canvas Order Help</option>
-                <option>Custom T-Shirt Order Help</option>
-                <option>Track My Order Status</option>
-                <option>Corporate or Wholesale Bulk Order</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="text-xs font-semibold text-muted block mb-1">Your Message *</label>
-              <textarea
-                rows={4}
-                required
-                placeholder="Tell us what size, panel split, or t-shirt design you need..."
-                className="w-full rounded-lg border border-border bg-bg px-3 py-2 text-sm text-text outline-none focus:border-amber-600 resize-none"
-              />
-            </div>
-
-            <button
-              type="submit"
-              className="w-full py-3 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs shadow-sm transition-colors"
-            >
-              Send Message →
-            </button>
-          </form>
+          <ContactForm />
         </div>
       </div>
     </div>

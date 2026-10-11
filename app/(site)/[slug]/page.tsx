@@ -31,7 +31,7 @@ const DEFAULT_PAGES: Record<string, DefaultPageContent> = {
       },
       {
         heading: 'Contact Us Regarding Privacy',
-        body: 'If you have questions about your personal data or wish to request deletion of your order records, please contact our support team at support@affordabledecoration.com or via WhatsApp.',
+        body: 'If you have questions about your personal data or wish to request deletion of your order records, please contact our support team at nepalaffordable@gmail.com or via WhatsApp.',
       },
     ],
   },
