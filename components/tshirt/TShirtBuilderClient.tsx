@@ -55,7 +55,13 @@ const TEXT_COLORS = [
   { name: 'Crimson', hex: '#e11d48' },
   { name: 'Navy', hex: '#1e3a8a' },
 ];
-
+const TEXT_COLORS = [
+  { name: 'White', hex: '#ffffff' },
+  { name: 'Black', hex: '#18181b' },
+  { name: 'Gold', hex: '#d97706' },
+  { name: 'Crimson', hex: '#e11d48' },
+  { name: 'Navy', hex: '#1e3a8a' },
+];
 export function TShirtBuilderClient({
   tshirtTypes,
   colors,
