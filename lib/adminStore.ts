@@ -190,7 +190,6 @@ const INITIAL_HERO_SLIDES = [
     id: 'slide-1',
     title: 'Custom Canvas Wall Art',
     subtitle: 'Turn your favorite photos into high-definition 1 to 7 panel canvas wall compositions delivered across Nepal.',
-    badge: '🇳🇵 Nepal’s Premier Custom Store • Rs. 700 Onwards',
     image_url: 'https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?auto=format&fit=crop&w=1600&q=80',
     cta_text: 'Customize Canvas Now 🖼️',
     cta_href: '/custom-canvas',

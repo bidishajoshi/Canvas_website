@@ -48,7 +48,6 @@ export default async function HomePage() {
       id: 'slide-1',
       title: 'Custom Canvas Wall Art',
       subtitle: 'Turn your favorite photos into high-definition 1 to 7 panel canvas wall compositions delivered across Nepal.',
-      badge: '🇳🇵 Nepal’s Premier Custom Store • Rs. 700 Onwards',
       imageUrl: 'https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?auto=format&fit=crop&w=1600&q=80',
       ctaText: 'Customize Canvas Now 🖼️',
       ctaHref: '/custom-canvas',
@@ -93,7 +92,13 @@ export default async function HomePage() {
     id: slide.id,
     title: slide.title,
     subtitle: slide.subtitle || '',
-    badge: slide.badge && !slide.badge.includes('Aesthetic Room Decor') ? slide.badge : undefined,
+    badge:
+      slide.badge &&
+      !slide.badge.includes('Aesthetic Room Decor') &&
+      !slide.badge.includes('Premier Custom Store') &&
+      !slide.badge.includes('700 Onwards')
+        ? slide.badge
+        : undefined,
     imageUrl: slide.image_url,
     ctaText: slide.cta_text || 'Customize Now 🖼️',
     ctaHref: slide.cta_href || '/custom-canvas',
