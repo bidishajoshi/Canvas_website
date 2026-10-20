@@ -12,6 +12,16 @@ export const DEFAULT_CATEGORIES: Category[] = [
     sort_order: 1,
   },
   {
+    id: 'cat-3d-realistic',
+    name: '3D Realistic & Illusion Canvas',
+    slug: '3d-realistic-illusion-canvas',
+    description: 'Mind-bending 3D optical illusions, embossed relief sculptures, and depth-window canvases that pop off your wall with realistic lighting.',
+    image_url: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800&q=80',
+    parent_id: null,
+    status: 'published',
+    sort_order: 2,
+  },
+  {
     id: 'cat-multi',
     name: 'Multi-Panel & Splits',
     slug: 'multi-panel-splits',
@@ -19,7 +29,7 @@ export const DEFAULT_CATEGORIES: Category[] = [
     image_url: '/images/shiva-parvati-5panel.png',
     parent_id: null,
     status: 'published',
-    sort_order: 2,
+    sort_order: 3,
   },
   {
     id: 'cat-aesthetic',
@@ -29,7 +39,7 @@ export const DEFAULT_CATEGORIES: Category[] = [
     image_url: 'https://images.unsplash.com/photo-1582562124811-c09040d0a901?auto=format&fit=crop&w=800&q=80',
     parent_id: null,
     status: 'published',
-    sort_order: 3,
+    sort_order: 4,
   },
   {
     id: 'cat-tshirts',
