@@ -25,6 +25,8 @@ const CanvasEditor = dynamic(
   { ssr: false, loading: () => <PreviewPlaceholder /> }
 );
 
+import { RealisticCanvas3D } from './RealisticCanvas3D';
+
 export interface CanvasCategoryProp {
   id: string;
   name: string;
@@ -190,6 +192,7 @@ export function CanvasBuilderClient({
   const [frameId, setFrameId] = useState<string | null>(null);
   const [finishId, setFinishId] = useState<string | null>(null);
   const [selectedMockupId, setSelectedMockupId] = useState('none');
+  const [previewMode, setPreviewMode] = useState<'2d' | '3d'>('2d');
 
   const [customText, setCustomText] = useState('');
   const [quantity, setQuantity] = useState(1);
@@ -832,36 +835,77 @@ export function CanvasBuilderClient({
               )}
             </div>
 
-            {/* Room Mockup Selector Bar */}
-            <div className="flex items-center gap-2 mb-3.5 overflow-x-auto pb-1 text-xs">
-              <span className="text-muted font-semibold shrink-0">Room Context:</span>
-              {ROOM_MOCKUPS.map((m) => (
+            {/* Mode Selector & Room Context Bar */}
+            <div className="flex flex-wrap items-center justify-between gap-2 mb-3.5 pb-1 text-xs">
+              {/* 2D / 3D Mode Toggle */}
+              <div className="flex items-center p-1 rounded-xl bg-bg border border-border shadow-xs">
                 <button
-                  key={m.id}
                   type="button"
-                  onClick={() => setSelectedMockupId(m.id)}
-                  className={`px-3 py-1.5 rounded-xl border text-xs font-semibold transition-all shrink-0 ${
-                    selectedMockupId === m.id
-                      ? 'border-amber-600 bg-amber-500/10 text-amber-600 font-bold shadow-xs'
-                      : 'border-border/80 bg-bg hover:border-text/30'
+                  onClick={() => setPreviewMode('2d')}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                    previewMode === '2d'
+                      ? 'bg-amber-600 text-white shadow-xs'
+                      : 'text-muted hover:text-text'
                   }`}
                 >
-                  {m.name}
+                  🖼️ 2D Canvas Editor
                 </button>
-              ))}
+                <button
+                  type="button"
+                  onClick={() => setPreviewMode('3d')}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
+                    previewMode === '3d'
+                      ? 'bg-amber-600 text-white shadow-xs'
+                      : 'text-muted hover:text-text'
+                  }`}
+                >
+                  <span>🧊 Realistic 3D</span>
+                  <span className="text-[10px] bg-amber-500/20 text-amber-500 px-1 rounded font-mono font-extrabold">NEW</span>
+                </button>
+              </div>
+
+              {/* Room Mockup Selector Bar (only shown in 2D mode since 3D has built-in environments) */}
+              {previewMode === '2d' && (
+                <div className="flex items-center gap-1.5 overflow-x-auto">
+                  <span className="text-muted font-semibold shrink-0">Room:</span>
+                  {ROOM_MOCKUPS.map((m) => (
+                    <button
+                      key={m.id}
+                      type="button"
+                      onClick={() => setSelectedMockupId(m.id)}
+                      className={`px-2.5 py-1 rounded-lg border text-xs font-semibold transition-all shrink-0 ${
+                        selectedMockupId === m.id
+                          ? 'border-amber-600 bg-amber-500/10 text-amber-600 font-bold shadow-xs'
+                          : 'border-border/80 bg-bg hover:border-text/30 text-muted'
+                      }`}
+                    >
+                      {m.name}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
 
-            {/* Konva Stage Editor Component */}
+            {/* Stage Component: 2D Konva Editor vs Realistic 3D Interactive Canvas */}
             {currentPhotoUrl ? (
-              <CanvasEditor
-                imageUrl={currentPhotoUrl}
-                panelCount={selectedPanelType?.panel_count ?? 1}
-                aspectRatio={aspectRatio}
-                panelGapMm={panelGapMm}
-                frameName={selectedFrame?.name}
-                mockupUrl={selectedMockup}
-                onChange={setCropData}
-              />
+              previewMode === '3d' ? (
+                <RealisticCanvas3D
+                  imageUrl={currentPhotoUrl}
+                  panelCount={selectedPanelType?.panel_count ?? 1}
+                  aspectRatio={aspectRatio}
+                  frameName={selectedFrame?.name}
+                />
+              ) : (
+                <CanvasEditor
+                  imageUrl={currentPhotoUrl}
+                  panelCount={selectedPanelType?.panel_count ?? 1}
+                  aspectRatio={aspectRatio}
+                  panelGapMm={panelGapMm}
+                  frameName={selectedFrame?.name}
+                  mockupUrl={selectedMockup}
+                  onChange={setCropData}
+                />
+              )
             ) : (
               <PreviewPlaceholder />
             )}

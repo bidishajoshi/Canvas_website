@@ -7,6 +7,7 @@ import { addToCart } from '@/lib/cart';
 import { formatPaisa } from '@/lib/utils';
 import type { HomepageSection } from '@/lib/types';
 import { optimizeImage } from '@/lib/imageOptimizer';
+import { RealisticCanvas3D } from '@/components/custom-canvas/RealisticCanvas3D';
 
 const SAMPLE_ARTWORKS = [
   {
