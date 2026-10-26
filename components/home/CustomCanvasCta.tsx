@@ -280,44 +280,77 @@ export function CustomCanvasCta({ section }: { section: HomepageSection }) {
               </div>
             </div>
 
-            {/* Live Panel Visualizer Right Column */}
-            <div className="lg:col-span-7 relative min-h-[340px] sm:min-h-[420px] w-full rounded-2xl overflow-hidden border border-border/80 bg-zinc-950 shadow-2xl p-6 flex flex-col justify-between">
+            {/* Live Panel Visualizer Right Column (3D Interactive Canvas or Wall Mockup) */}
+            <div className="lg:col-span-7 relative min-h-[400px] sm:min-h-[480px] w-full rounded-2xl overflow-hidden border border-border/80 bg-zinc-950 shadow-2xl p-4 sm:p-6 flex flex-col justify-between">
               <div className="absolute inset-0 bg-cover bg-center opacity-25" style={{ backgroundImage: "url('https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&w=1200&q=80')" }} />
 
-              <div className="relative z-10 flex items-center justify-between">
+              <div className="relative z-10 flex flex-wrap items-center justify-between gap-2 mb-3">
                 <span className="text-[11px] font-bold uppercase tracking-widest text-amber-400 bg-black/70 backdrop-blur-md px-3 py-1 rounded-full border border-white/10 shadow-md">
-                  Live Preview • {currentPreset.label}
+                  {canvasViewMode === '3d' ? 'Interactive 3D Canvas Box' : `Wall Mockup • ${currentPreset.label}`}
                 </span>
-                <span className="text-[10px] font-bold text-white/80 bg-black/60 backdrop-blur-sm px-2.5 py-1 rounded-lg border border-white/10">
-                  Wall Background Mockup
-                </span>
+
+                <div className="flex items-center gap-1 bg-black/60 backdrop-blur-md p-1 rounded-xl border border-white/10 text-xs">
+                  <button
+                    type="button"
+                    onClick={() => setCanvasViewMode('3d')}
+                    className={`px-2.5 py-1 rounded-lg font-bold transition-all ${
+                      canvasViewMode === '3d'
+                        ? 'bg-amber-600 text-white shadow-sm'
+                        : 'text-white/70 hover:text-white'
+                    }`}
+                  >
+                    🧊 Realistic 3D
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setCanvasViewMode('wall')}
+                    className={`px-2.5 py-1 rounded-lg font-bold transition-all ${
+                      canvasViewMode === 'wall'
+                        ? 'bg-amber-600 text-white shadow-sm'
+                        : 'text-white/70 hover:text-white'
+                    }`}
+                  >
+                    🖼️ Wall View
+                  </button>
+                </div>
               </div>
 
-              {/* Panels Split Display */}
-              <div className="relative z-10 my-auto flex items-center justify-center gap-1.5 sm:gap-2 w-full h-[68%] px-2">
-                {Array.from({ length: selectedPanelCount }).map((_, i) => {
-                  const widthPct = (100 / selectedPanelCount).toFixed(2);
-                  return (
-                    <div
-                      key={i}
-                      className="relative h-full overflow-hidden rounded-lg shadow-2xl border border-white/20 transition-all duration-300 transform hover:scale-[1.02]"
-                      style={{ width: `${widthPct}%` }}
-                    >
-                      <Image
-                        src={activeImageSrc}
-                        alt="Canvas Panel Split Preview"
-                        fill
-                        className="object-cover"
-                        style={{
-                          objectPosition: `${(i / Math.max(1, selectedPanelCount - 1)) * 100}% center`,
-                        }}
-                      />
-                    </div>
-                  );
-                })}
-              </div>
+              {canvasViewMode === '3d' ? (
+                <div className="relative z-10 my-auto w-full">
+                  <Realistic3DCanvasViewer
+                    imageUrl={activeImageSrc}
+                    panelCount={selectedPanelCount}
+                    aspectRatio={1.5}
+                    frameName="Archival Pine Wood Frame"
+                  />
+                </div>
+              ) : (
+                /* 2D Panels Split Display */
+                <div className="relative z-10 my-auto flex items-center justify-center gap-1.5 sm:gap-2 w-full h-[68%] px-2">
+                  {Array.from({ length: selectedPanelCount }).map((_, i) => {
+                    const widthPct = (100 / selectedPanelCount).toFixed(2);
+                    return (
+                      <div
+                        key={i}
+                        className="relative h-full overflow-hidden rounded-lg shadow-2xl border border-white/20 transition-all duration-300 transform hover:scale-[1.02]"
+                        style={{ width: `${widthPct}%` }}
+                      >
+                        <Image
+                          src={activeImageSrc}
+                          alt="Canvas Panel Split Preview"
+                          fill
+                          className="object-cover"
+                          style={{
+                            objectPosition: `${(i / Math.max(1, selectedPanelCount - 1)) * 100}% center`,
+                          }}
+                        />
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
 
-              <div className="relative z-10 text-center bg-black/60 backdrop-blur-md p-2.5 rounded-xl border border-white/10">
+              <div className="relative z-10 text-center bg-black/60 backdrop-blur-md p-2.5 rounded-xl border border-white/10 mt-3">
                 <p className="text-[11px] text-white/80 font-medium">
                   Continuous high-definition photo split across {selectedPanelCount} handcrafted pine wood wrapped canvas panels.
                 </p>
