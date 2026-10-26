@@ -365,13 +365,15 @@ export function CanvasBuilderClient({
         setFeedback('Select a canvas size to continue.');
         return;
       }
+      const wrapLabel = edgeWrapStyle === 'image_wrap' ? 'Gallery Image Wrap' : edgeWrapStyle === 'mirror_wrap' ? 'Mirror Edge Wrap' : edgeWrapStyle === 'black' ? 'Black Edge' : edgeWrapStyle === 'white' ? 'White Edge' : 'Wood Edge';
+      const depthLabel = stretcherDepth === 'slim' ? '0.75" Slim' : stretcherDepth === 'deep' ? '1.75" Museum Chunky' : '1.25" Gallery Standard';
       addToCart({
         type: 'custom_canvas',
-        name: `Custom Canvas — ${selectedSize.name}`,
+        name: `Custom ${selectedPanelType?.name || 'Canvas'} — ${selectedSize.name}`,
         imageUrl: currentPhotoUrl,
-        sizeLabel: selectedSize.name,
-        frameLabel: selectedFrame?.name || 'Unframed',
-        finishLabel: selectedFinish?.name || 'Standard Finish',
+        sizeLabel: `${selectedSize.name} (${depthLabel})`,
+        frameLabel: selectedFrame?.name || `${wrapLabel} (${depthLabel})`,
+        finishLabel: selectedFinish?.name || 'Archival Cotton Texture',
         quantity,
         unitPricePaisa: Math.round(price / quantity),
         canvasConfigurationId: configurationId,
