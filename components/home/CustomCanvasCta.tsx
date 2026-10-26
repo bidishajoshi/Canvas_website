@@ -3,10 +3,16 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import dynamic from 'next/dynamic';
 import { addToCart } from '@/lib/cart';
 import { formatPaisa } from '@/lib/utils';
 import type { HomepageSection } from '@/lib/types';
 import { optimizeImage } from '@/lib/imageOptimizer';
+
+const Realistic3DCanvasViewer = dynamic(
+  () => import('@/components/custom-canvas/Realistic3DCanvasViewer').then((m) => m.Realistic3DCanvasViewer),
+  { ssr: false }
+);
 
 const SAMPLE_ARTWORKS = [
   {
@@ -56,6 +62,7 @@ export function CustomCanvasCta({ section }: { section: HomepageSection }) {
   const [selectedPanelCount, setSelectedPanelCount] = useState<number>(3);
   const [selectedArtUrl, setSelectedArtUrl] = useState<string>(SAMPLE_ARTWORKS[0].url);
   const [uploadedArtUrl, setUploadedArtUrl] = useState<string | null>(null);
+  const [canvasViewMode, setCanvasViewMode] = useState<'3d' | 'wall'>('3d');
   const [addedMessage, setAddedMessage] = useState<string | null>(null);
 
   // T-Shirt state
