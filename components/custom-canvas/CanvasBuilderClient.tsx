@@ -840,6 +840,42 @@ export function CanvasBuilderClient({
               )}
             </div>
 
+            {/* View Mode Switcher: Realistic 3D Canvas Box vs 2D Crop Editor */}
+            <div className="flex items-center justify-between gap-2 p-1.5 rounded-2xl bg-surface-hover/80 border border-border/80 mb-3.5">
+              <div className="flex items-center gap-1.5">
+                <button
+                  type="button"
+                  onClick={() => setPreviewMode('3d')}
+                  className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all active:scale-95 flex items-center gap-1.5 ${
+                    previewMode === '3d'
+                      ? 'bg-amber-600 text-white shadow-md'
+                      : 'text-amber-600 dark:text-amber-400 hover:text-amber-700 bg-amber-500/10 border border-amber-500/20'
+                  }`}
+                >
+                  <span className="animate-pulse">🧊</span>
+                  <span>Realistic 3D Canvas</span>
+                  <span className="text-[10px] px-1.5 py-0.2 bg-white/20 rounded-full font-extrabold uppercase">3D</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setPreviewMode('2d')}
+                  className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all active:scale-95 flex items-center gap-1.5 ${
+                    previewMode === '2d'
+                      ? 'bg-surface text-amber-600 shadow-sm border border-border'
+                      : 'text-muted hover:text-text'
+                  }`}
+                >
+                  <span>🎨</span>
+                  <span>2D Crop &amp; Adjust</span>
+                </button>
+              </div>
+
+              <span className="text-[11px] font-semibold text-muted hidden sm:inline pr-2">
+                {previewMode === '3d' ? '360° Orbit & Stretcher Depth' : 'Crop, Zoom & Colors'}
+              </span>
+            </div>
+
             {/* Room Mockup Selector Bar */}
             <div className="flex items-center gap-2 mb-3.5 overflow-x-auto pb-1 text-xs">
               <span className="text-muted font-semibold shrink-0">Room Context:</span>
@@ -859,17 +895,30 @@ export function CanvasBuilderClient({
               ))}
             </div>
 
-            {/* Konva Stage Editor Component */}
+            {/* Stage Component: Realistic 3D Canvas Box OR 2D Konva Editor */}
             {currentPhotoUrl ? (
-              <CanvasEditor
-                imageUrl={currentPhotoUrl}
-                panelCount={selectedPanelType?.panel_count ?? 1}
-                aspectRatio={aspectRatio}
-                panelGapMm={panelGapMm}
-                frameName={selectedFrame?.name}
-                mockupUrl={selectedMockup}
-                onChange={setCropData}
-              />
+              previewMode === '3d' ? (
+                <Realistic3DCanvasViewer
+                  imageUrl={currentPhotoUrl}
+                  panelCount={selectedPanelType?.panel_count ?? 1}
+                  aspectRatio={aspectRatio}
+                  frameName={selectedFrame?.name}
+                  wallBackground={selectedMockup}
+                  customText={customText}
+                  onWrapStyleChange={setEdgeWrapStyle}
+                  onDepthChange={setStretcherDepth}
+                />
+              ) : (
+                <CanvasEditor
+                  imageUrl={currentPhotoUrl}
+                  panelCount={selectedPanelType?.panel_count ?? 1}
+                  aspectRatio={aspectRatio}
+                  panelGapMm={panelGapMm}
+                  frameName={selectedFrame?.name}
+                  mockupUrl={selectedMockup}
+                  onChange={setCropData}
+                />
+              )
             ) : (
               <PreviewPlaceholder />
             )}
