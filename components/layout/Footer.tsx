@@ -14,6 +14,8 @@ export async function Footer() {
     { id: 'q1', label: 'Shop Canvas & Decor', href: '/shop' },
     { id: 'q2', label: 'Custom Photo Canvas', href: '/custom-canvas' },
     { id: 'q2b', label: 'Customize T-Shirt', href: '/custom-t-shirt' },
+    { id: 'q2c', label: 'Personalized Gift Guide', href: '/gift-guide' },
+    { id: 'q2d', label: 'Bulk & Corporate Orders', href: '/bulk-orders' },
     { id: 'q3', label: 'Track Order Progress', href: '/track-order' },
     { id: 'q4', label: 'How It Works', href: '/how-it-works' },
     { id: 'q5', label: 'Contact Us', href: '/contact' },
@@ -21,6 +23,7 @@ export async function Footer() {
 
   const defaultLegalLinks = [
     { id: 'l1', label: 'About Us', href: '/about' },
+    { id: 'l1b', label: 'Frequently Asked Questions', href: '/faq' },
     { id: 'l2', label: 'Privacy Policy', href: '/privacy' },
     { id: 'l3', label: 'Terms & Conditions', href: '/terms' },
     { id: 'l4', label: 'Shipping & Delivery', href: '/shipping' },

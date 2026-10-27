@@ -23,6 +23,9 @@ export function NavLinks({ menuItems }: { menuItems: MenuItem[] }) {
 
   // Secondary links in More dropdown
   const secondaryLinks = [
+    { label: 'Gift Guide 🎁', href: '/gift-guide' },
+    { label: 'Bulk & Corporate 🏢', href: '/bulk-orders' },
+    { label: 'FAQs & Help ❓', href: '/faq' },
     { label: 'How It Works', href: '/how-it-works' },
     { label: 'About Us', href: '/about' },
     { label: 'Track Order', href: '/track-order' },
