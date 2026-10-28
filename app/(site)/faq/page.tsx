@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+﻿import type { Metadata } from 'next';
 import { FaqPageClient } from './FaqPageClient';
 import { getSettings } from '@/lib/content';
 

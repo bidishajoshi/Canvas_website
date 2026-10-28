@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import Image from 'next/image';
@@ -32,11 +32,11 @@ const STRETCHER_LABELS: Record<StretcherDepth, string> = {
 };
 
 const CAMERA_PRESETS = [
-  { label: 'Front', rotX: 0, rotY: 0, icon: '🖼️' },
-  { label: '3D Angle', rotX: -14, rotY: 26, icon: '📐' },
-  { label: 'Left Edge', rotX: -4, rotY: -38, icon: '👈' },
-  { label: 'Right Edge', rotX: -4, rotY: 38, icon: '👉' },
-  { label: 'Top-Down', rotX: 28, rotY: 12, icon: '🔝' },
+  { label: 'Front', rotX: 0, rotY: 0, icon: '­ƒû╝´©Å' },
+  { label: '3D Angle', rotX: -14, rotY: 26, icon: '­ƒôÉ' },
+  { label: 'Left Edge', rotX: -4, rotY: -38, icon: '­ƒæê' },
+  { label: 'Right Edge', rotX: -4, rotY: 38, icon: '­ƒæë' },
+  { label: 'Top-Down', rotX: 28, rotY: 12, icon: '­ƒöØ' },
 ];
 
 const WALL_BACKGROUNDS = [
@@ -437,7 +437,7 @@ export function Realistic3DCanvasViewer({
             <span>Interactive 3D Canvas Box</span>
           </span>
           <span className="hidden sm:inline-block px-2.5 py-1 rounded-full text-[10px] font-mono text-white/80 bg-black/50 backdrop-blur">
-            Tilt: {rotX}° • Rotate: {rotY}°
+            Tilt: {rotX}┬░ ÔÇó Rotate: {rotY}┬░
           </span>
         </div>
 
@@ -453,8 +453,8 @@ export function Realistic3DCanvasViewer({
             }`}
             title="Auto-Rotate 3D Turntable"
           >
-            <span>{isAutoSpin ? '⏸' : '▶'}</span>
-            <span className="hidden sm:inline">360° Auto Spin</span>
+            <span>{isAutoSpin ? 'ÔÅ©' : 'ÔûÂ'}</span>
+            <span className="hidden sm:inline">360┬░ Auto Spin</span>
           </button>
 
           <button
@@ -467,14 +467,14 @@ export function Realistic3DCanvasViewer({
             className="p-1.5 sm:px-2.5 sm:py-1.5 rounded-xl bg-black/70 hover:bg-black text-white backdrop-blur text-xs font-bold shadow-md active:scale-95"
             title="Reset to 2D Flat View"
           >
-            ↺ Reset
+            Ôå║ Reset
           </button>
         </div>
 
         {/* Bottom Interactive Drag Hint */}
         <div className="absolute bottom-3 inset-x-0 flex items-center justify-center pointer-events-none z-10">
           <span className="px-3 py-1 rounded-full text-[11px] font-semibold text-white/90 bg-black/60 backdrop-blur shadow-sm">
-            👆 Drag with mouse or finger to rotate 3D canvas
+            ­ƒæå Drag with mouse or finger to rotate 3D canvas
           </span>
         </div>
       </div>
@@ -483,7 +483,7 @@ export function Realistic3DCanvasViewer({
       <div className="rounded-2xl border border-border bg-surface p-4 space-y-4 shadow-sm text-xs">
         <div className="flex items-center justify-between border-b border-border pb-3">
           <div className="flex items-center gap-2">
-            <span className="text-base">🧊</span>
+            <span className="text-base">­ƒºè</span>
             <h4 className="font-bold text-sm text-text">3D Stretcher Frame &amp; Edge Specifications</h4>
           </div>
           <span className="text-[11px] font-bold text-amber-600 bg-amber-500/10 px-2.5 py-0.5 rounded-full border border-amber-500/20">
@@ -616,9 +616,9 @@ export function Realistic3DCanvasViewer({
             </span>
             <div className="flex gap-2">
               {[
-                { id: 'daylight' as LightingMode, label: '☀️ Daylight' },
-                { id: 'warm' as LightingMode, label: '🌅 Golden Hour' },
-                { id: 'spotlight' as LightingMode, label: '💡 Spotlight' },
+                { id: 'daylight' as LightingMode, label: 'ÔÿÇ´©Å Daylight' },
+                { id: 'warm' as LightingMode, label: '­ƒîà Golden Hour' },
+                { id: 'spotlight' as LightingMode, label: '­ƒÆí Spotlight' },
               ].map((l) => (
                 <button
                   key={l.id}

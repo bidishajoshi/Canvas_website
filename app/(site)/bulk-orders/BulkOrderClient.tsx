@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, type FormEvent } from 'react';
 import Link from 'next/link';
@@ -9,35 +9,35 @@ interface BulkOrderClientProps {
 }
 
 const DISCOUNT_TIERS = [
-  { range: '5 – 10 Pieces', discount: '10% OFF', idealFor: 'Small Teams, Birthday Squads, Home Remodels', icon: '📦' },
-  { range: '11 – 25 Pieces', discount: '20% OFF', idealFor: 'Offices, Restaurant Wall Art, Club Tees', icon: '🏢' },
-  { range: '26 – 50 Pieces', discount: '30% OFF', idealFor: 'Hotels, Corporate Gifts, College Events', icon: '🏨' },
-  { range: '50+ Pieces', discount: 'Custom VIP Pricing', idealFor: 'Nationwide Brand Merchandising & Resorts', icon: '💎' },
+  { range: '5 ÔÇô 10 Pieces', discount: '10% OFF', idealFor: 'Small Teams, Birthday Squads, Home Remodels', icon: '­ƒôª' },
+  { range: '11 ÔÇô 25 Pieces', discount: '20% OFF', idealFor: 'Offices, Restaurant Wall Art, Club Tees', icon: '­ƒÅó' },
+  { range: '26 ÔÇô 50 Pieces', discount: '30% OFF', idealFor: 'Hotels, Corporate Gifts, College Events', icon: '­ƒÅ¿' },
+  { range: '50+ Pieces', discount: 'Custom VIP Pricing', idealFor: 'Nationwide Brand Merchandising & Resorts', icon: '­ƒÆÄ' },
 ];
 
 const INDUSTRIES = [
   {
     title: 'Offices & Corporate Workspaces',
     description: 'Transform blank meeting rooms and executive cabins with branded core-value canvases, motivational quotes, and employee milestone recognition prints.',
-    icon: '💼',
+    icon: '­ƒÆ╝',
     badge: 'Workplace Branding',
   },
   {
     title: 'Cafes, Restaurants & Lounges',
     description: 'Create Instagrammable dining ambiances with warm acoustic coffee art, retro multi-panel canvases, and customized waiter uniforms.',
-    icon: '☕',
+    icon: 'Ôÿò',
     badge: 'Hospitality Decor',
   },
   {
     title: 'Hotels, Resorts & Airbnbs',
     description: 'Premium Himalayan landscape panoramas, Buddha peaceful themes, and durable pine wood frames that delight guests and elevate review ratings.',
-    icon: '🏔️',
+    icon: '­ƒÅö´©Å',
     badge: 'Resort Staging',
   },
   {
     title: 'Colleges, Clubs & Fest Merch',
     description: 'High-density DTF printed custom t-shirts in 180 GSM and 240 GSM heavyweight cotton for annual gatherings, sports meets, and student cohorts.',
-    icon: '👕',
+    icon: '­ƒæò',
     badge: 'Custom Apparel',
   },
 ];
@@ -173,7 +173,7 @@ export function BulkOrderClient({ settings }: { settings: Settings }) {
 
               <div className="pt-3 border-t border-border/50 flex items-center justify-between text-xs font-semibold text-amber-600">
                 <span>Free Sample Proofing Available</span>
-                <span>✓</span>
+                <span>Ô£ô</span>
               </div>
             </div>
           ))}
@@ -195,7 +195,7 @@ export function BulkOrderClient({ settings }: { settings: Settings }) {
 
           {status === 'success' ? (
             <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-6 text-center space-y-3">
-              <span className="text-3xl block">🎉</span>
+              <span className="text-3xl block">­ƒÄë</span>
               <h4 className="font-bold text-emerald-700 dark:text-emerald-300 text-base">
                 Quotation Request Received!
               </h4>
@@ -283,9 +283,9 @@ export function BulkOrderClient({ settings }: { settings: Settings }) {
                     onChange={(e) => setFormData({ ...formData, quantity: e.target.value })}
                     className="w-full px-3.5 py-2.5 rounded-xl border border-border bg-bg text-text text-xs outline-none focus:border-amber-600"
                   >
-                    <option>5 – 10 Pieces (10% Off)</option>
-                    <option>11 – 25 Pieces (20% Off)</option>
-                    <option>26 – 50 Pieces (30% Off)</option>
+                    <option>5 ÔÇô 10 Pieces (10% Off)</option>
+                    <option>11 ÔÇô 25 Pieces (20% Off)</option>
+                    <option>26 ÔÇô 50 Pieces (30% Off)</option>
                     <option>50+ Pieces (VIP Negotiated)</option>
                   </select>
                 </div>
@@ -313,7 +313,7 @@ export function BulkOrderClient({ settings }: { settings: Settings }) {
                 disabled={status === 'submitting'}
                 className="w-full py-3.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs shadow-md transition-all active:scale-95 disabled:opacity-50"
               >
-                {status === 'submitting' ? 'Submitting Quotation Request...' : 'Submit Bulk Quotation Request →'}
+                {status === 'submitting' ? 'Submitting Quotation Request...' : 'Submit Bulk Quotation Request ÔåÆ'}
               </button>
             </form>
           )}
@@ -336,7 +336,7 @@ export function BulkOrderClient({ settings }: { settings: Settings }) {
                 rel="noreferrer"
                 className="w-full py-3.5 px-4 rounded-xl bg-[#25D366] hover:bg-[#20bd5a] text-white font-bold text-xs flex items-center justify-center gap-2 shadow-sm transition-colors"
               >
-                <span>💬</span>
+                <span>­ƒÆ¼</span>
                 <span>Direct WhatsApp Corporate Line</span>
               </a>
 
@@ -344,22 +344,22 @@ export function BulkOrderClient({ settings }: { settings: Settings }) {
                 href={`tel:${storePhone.replace(/[^\d+]/g, '')}`}
                 className="w-full py-3 px-4 rounded-xl border border-border bg-surface-hover hover:border-amber-600 text-text font-bold text-xs flex items-center justify-center gap-2 transition-colors"
               >
-                <span>📞</span>
+                <span>­ƒô×</span>
                 <span>Call Commercial Sales: {storePhone}</span>
               </a>
             </div>
 
             <div className="pt-4 border-t border-border space-y-2 text-xs text-muted">
               <div className="flex items-center gap-2">
-                <span className="text-emerald-600">✓</span>
+                <span className="text-emerald-600">Ô£ô</span>
                 <span>Official VAT / PAN Tax Invoice provided</span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="text-emerald-600">✓</span>
+                <span className="text-emerald-600">Ô£ô</span>
                 <span>Bulk sample approval before mass production</span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="text-emerald-600">✓</span>
+                <span className="text-emerald-600">Ô£ô</span>
                 <span>Express courier shipping to all 77 districts in Nepal</span>
               </div>
             </div>

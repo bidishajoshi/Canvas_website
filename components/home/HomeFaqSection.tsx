@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState } from 'react';
 import Link from 'next/link';
@@ -94,7 +94,7 @@ export function HomeFaqSection() {
                       isOpen ? 'rotate-180 text-amber-600 border-amber-600/40 bg-amber-500/10 font-bold' : ''
                     }`}
                   >
-                    {isOpen ? '−' : '+'}
+                    {isOpen ? 'ÔêÆ' : '+'}
                   </span>
                 </button>
                 {isOpen && (
@@ -113,16 +113,16 @@ export function HomeFaqSection() {
             href="/faq"
             className="text-xs font-bold text-amber-600 hover:text-amber-700 underline hover:no-underline px-4 py-2"
           >
-            Browse Full FAQ Knowledge Base →
+            Browse Full FAQ Knowledge Base ÔåÆ
           </Link>
-          <span className="hidden sm:inline text-border">•</span>
+          <span className="hidden sm:inline text-border">ÔÇó</span>
           <a
             href="https://wa.me/9779864029898"
             target="_blank"
             rel="noreferrer"
             className="text-xs font-bold text-emerald-600 hover:text-emerald-700 bg-emerald-500/10 border border-emerald-500/20 px-3.5 py-1.5 rounded-full flex items-center gap-1.5"
           >
-            <span>💬</span> Still have questions? Chat on WhatsApp
+            <span>­ƒÆ¼</span> Still have questions? Chat on WhatsApp
           </a>
         </div>
       </div>

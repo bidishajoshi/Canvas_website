@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState } from 'react';
 import Link from 'next/link';
@@ -25,8 +25,8 @@ const GIFT_IDEAS: GiftIdea[] = [
     title: 'Wedding & Engagement Memory Triptych',
     subtitle: 'Relive the most magical day of your life',
     description: 'Split your iconic wedding photoshoot portrait into an elegant 3-piece staggered canvas wall set. Crafted with archival UV inks to last generations without fading.',
-    recommendedLayout: '3-Piece Triptych (36" × 24" or 48" × 32")',
-    priceRange: 'Rs. 1,800 – Rs. 3,500',
+    recommendedLayout: '3-Piece Triptych (36" ├ù 24" or 48" ├ù 32")',
+    priceRange: 'Rs. 1,800 ÔÇô Rs. 3,500',
     imageUrl: 'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=800&q=80',
     ctaText: 'Build Wedding Canvas',
     ctaHref: '/custom-canvas',
@@ -37,8 +37,8 @@ const GIFT_IDEAS: GiftIdea[] = [
     title: '7 Running Horses Vastu Prosperity Canvas',
     subtitle: 'The #1 Housewarming gift in Nepal',
     description: 'Believed in Vastu Shastra to bring rapid progress, financial abundance, and vitality to new homes. Hand-stretched onto solid kiln-dried pine wood.',
-    recommendedLayout: '5-Piece Pentaptych (60" × 32" Total)',
-    priceRange: 'Rs. 2,400 – Rs. 5,520',
+    recommendedLayout: '5-Piece Pentaptych (60" ├ù 32" Total)',
+    priceRange: 'Rs. 2,400 ÔÇô Rs. 5,520',
     imageUrl: 'https://images.unsplash.com/photo-1553284965-83fd3e82fa5a?auto=format&fit=crop&w=800&q=80',
     ctaText: 'Order 7 Horses Vastu Art',
     ctaHref: '/custom-canvas',
@@ -49,8 +49,8 @@ const GIFT_IDEAS: GiftIdea[] = [
     title: 'Serene Temple Lotus Buddha Wall Art',
     subtitle: 'Peace, tranquility & zen for living rooms',
     description: 'Golden lotus accents and serene meditative Lord Buddha focal art. Ideal for entryways, prayer spaces, and tranquil living walls.',
-    recommendedLayout: 'Single Grand Focal Panel (24" × 36")',
-    priceRange: 'Rs. 1,500 – Rs. 3,825',
+    recommendedLayout: 'Single Grand Focal Panel (24" ├ù 36")',
+    priceRange: 'Rs. 1,500 ÔÇô Rs. 3,825',
     imageUrl: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80',
     ctaText: 'Explore Buddha Collection',
     ctaHref: '/shop',
@@ -61,8 +61,8 @@ const GIFT_IDEAS: GiftIdea[] = [
     title: 'Birthday Milestone Photo Collage Canvas',
     subtitle: 'A gift filled with genuine nostalgia',
     description: 'Gather childhood snapshots, trips with best friends, and cherished candid smiles into a vibrant photo collage canvas print.',
-    recommendedLayout: '12" × 18" or 16" × 24" Single Canvas',
-    priceRange: 'Rs. 950 – Rs. 1,750',
+    recommendedLayout: '12" ├ù 18" or 16" ├ù 24" Single Canvas',
+    priceRange: 'Rs. 950 ÔÇô Rs. 1,750',
     imageUrl: 'https://images.unsplash.com/photo-1513519245088-0e12902e5a38?auto=format&fit=crop&w=800&q=80',
     ctaText: 'Create Birthday Canvas',
     ctaHref: '/custom-canvas',
@@ -74,7 +74,7 @@ const GIFT_IDEAS: GiftIdea[] = [
     subtitle: 'Wear your memories and inside jokes together',
     description: '180 GSM combed cotton couple t-shirts printed with anniversary dates, matching heart illustrations, or custom typography.',
     recommendedLayout: 'Set of 2 Bio-Washed Cotton T-Shirts',
-    priceRange: 'Rs. 1,300 – Rs. 1,598 Pair',
+    priceRange: 'Rs. 1,300 ÔÇô Rs. 1,598 Pair',
     imageUrl: 'https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2?auto=format&fit=crop&w=800&q=80',
     ctaText: 'Customize Couple Tees',
     ctaHref: '/custom-t-shirt',
@@ -85,8 +85,8 @@ const GIFT_IDEAS: GiftIdea[] = [
     title: 'Multigenerational Family Wall Portrait',
     subtitle: 'Cherish grandparents, parents, and kids together',
     description: 'Preserve family heritage portraits with museum-grade gallery stretching. Guaranteed to become the central talking point of your living room.',
-    recommendedLayout: 'Grand 3-Piece or Single 30" × 40" Canvas',
-    priceRange: 'Rs. 2,200 – Rs. 4,200',
+    recommendedLayout: 'Grand 3-Piece or Single 30" ├ù 40" Canvas',
+    priceRange: 'Rs. 2,200 ÔÇô Rs. 4,200',
     imageUrl: 'https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?auto=format&fit=crop&w=800&q=80',
     ctaText: 'Design Family Canvas',
     ctaHref: '/custom-canvas',
@@ -95,11 +95,11 @@ const GIFT_IDEAS: GiftIdea[] = [
 
 const CATEGORIES = [
   { key: 'all', label: 'All Gifts' },
-  { key: 'weddings', label: '💍 Weddings & Anniversaries' },
-  { key: 'housewarming', label: '🏡 Housewarming & Vastu' },
-  { key: 'birthdays', label: '🎁 Birthday Surprises' },
-  { key: 'family', label: '👨‍👩‍👧‍👦 Family & Newborns' },
-  { key: 'couples', label: '❤️ Couples & Romance' },
+  { key: 'weddings', label: '­ƒÆì Weddings & Anniversaries' },
+  { key: 'housewarming', label: '­ƒÅí Housewarming & Vastu' },
+  { key: 'birthdays', label: '­ƒÄü Birthday Surprises' },
+  { key: 'family', label: '­ƒæ¿ÔÇì­ƒæ®ÔÇì­ƒæºÔÇì­ƒæª Family & Newborns' },
+  { key: 'couples', label: 'ÔØñ´©Å Couples & Romance' },
 ];
 
 export function GiftGuideClient({ settings }: { settings: Settings }) {
@@ -191,7 +191,7 @@ export function GiftGuideClient({ settings }: { settings: Settings }) {
                 href={gift.ctaHref}
                 className="w-full text-center py-3 px-4 rounded-xl bg-amber-600 hover:bg-amber-700 active:scale-95 text-white font-bold text-xs shadow-md transition-all block"
               >
-                {gift.ctaText} →
+                {gift.ctaText} ÔåÆ
               </Link>
             </div>
           </div>
@@ -202,7 +202,7 @@ export function GiftGuideClient({ settings }: { settings: Settings }) {
       <div className="rounded-3xl border border-amber-500/20 bg-amber-500/5 p-8 flex flex-col sm:flex-row items-center justify-between gap-6">
         <div className="space-y-2 text-center sm:text-left">
           <span className="text-xs font-bold uppercase tracking-wider text-amber-600 bg-amber-500/10 px-3 py-0.5 rounded-full border border-amber-500/20">
-            🎁 Complimentary Gift Packaging
+            ­ƒÄü Complimentary Gift Packaging
           </span>
           <h3 className="font-display font-bold text-xl text-text">
             Sending Directly to the Recipient?
@@ -216,7 +216,7 @@ export function GiftGuideClient({ settings }: { settings: Settings }) {
           href="/custom-canvas"
           className="shrink-0 px-7 py-3.5 rounded-2xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs shadow-md transition-all active:scale-95 whitespace-nowrap"
         >
-          Customize a Gift Now →
+          Customize a Gift Now ÔåÆ
         </Link>
       </div>
     </div>

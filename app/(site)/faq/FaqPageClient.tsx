@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useMemo } from 'react';
 import Link from 'next/link';
@@ -23,7 +23,7 @@ const FAQS_DATABASE: DetailedFaq[] = [
     id: 'c2',
     category: 'Canvas',
     question: 'How do I know if my photo quality is good enough?',
-    answer: 'Our live Canvas Customizer automatically calculates your image resolution and gives a real-time DPI badge (Excellent, Good, or Low). Photos captured on modern mobile phones (iPhone, Samsung, Xiaomi, OnePlus, etc.) are generally more than sharp enough for up to 36×24 inch prints. If you have an older photo, our design team uses AI-assisted super-resolution to sharpen and upscale it for free before printing.',
+    answer: 'Our live Canvas Customizer automatically calculates your image resolution and gives a real-time DPI badge (Excellent, Good, or Low). Photos captured on modern mobile phones (iPhone, Samsung, Xiaomi, OnePlus, etc.) are generally more than sharp enough for up to 36├ù24 inch prints. If you have an older photo, our design team uses AI-assisted super-resolution to sharpen and upscale it for free before printing.',
   },
   {
     id: 'c3',
@@ -89,7 +89,7 @@ const FAQS_DATABASE: DetailedFaq[] = [
     id: 's3',
     category: 'Shipping',
     question: 'How can I track my order?',
-    answer: 'You can track live order progress at any time by visiting our "Track Order" page and entering your Order Reference ID (e.g. AD-2026-00001). You will see real-time stages: Received → Digital Proofing → Printing → Framing → Courier Shipped → Delivered.',
+    answer: 'You can track live order progress at any time by visiting our "Track Order" page and entering your Order Reference ID (e.g. AD-2026-00001). You will see real-time stages: Received ÔåÆ Digital Proofing ÔåÆ Printing ÔåÆ Framing ÔåÆ Courier Shipped ÔåÆ Delivered.',
   },
 
   // Payments
@@ -123,12 +123,12 @@ const FAQS_DATABASE: DetailedFaq[] = [
 
 const CATEGORIES = [
   { key: 'All', label: 'All Questions' },
-  { key: 'Canvas', label: '🖼️ Canvas & Quality' },
-  { key: 'Panels', label: '📐 Sizes & Split Panels' },
-  { key: 'T-Shirts', label: '👕 Custom T-Shirts' },
-  { key: 'Shipping', label: '🚚 Shipping & Nepal Delivery' },
-  { key: 'Payments', label: '💳 Payments & COD' },
-  { key: 'Care', label: '🧼 Care & Installation' },
+  { key: 'Canvas', label: '­ƒû╝´©Å Canvas & Quality' },
+  { key: 'Panels', label: '­ƒôÉ Sizes & Split Panels' },
+  { key: 'T-Shirts', label: '­ƒæò Custom T-Shirts' },
+  { key: 'Shipping', label: '­ƒÜÜ Shipping & Nepal Delivery' },
+  { key: 'Payments', label: '­ƒÆ│ Payments & COD' },
+  { key: 'Care', label: '­ƒº╝ Care & Installation' },
 ];
 
 export function FaqPageClient({ settings }: { settings: Settings }) {
@@ -171,7 +171,7 @@ export function FaqPageClient({ settings }: { settings: Settings }) {
         {/* Live Search Input */}
         <div className="pt-4 max-w-md mx-auto">
           <div className="relative">
-            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-muted">🔍</span>
+            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-muted">­ƒöì</span>
             <input
               type="text"
               value={searchQuery}
@@ -226,7 +226,7 @@ export function FaqPageClient({ settings }: { settings: Settings }) {
               rel="noreferrer"
               className="inline-block mt-2 px-5 py-2.5 rounded-xl bg-amber-600 text-white font-bold text-xs"
             >
-              Ask Support on WhatsApp →
+              Ask Support on WhatsApp ÔåÆ
             </a>
           </div>
         ) : (
@@ -257,7 +257,7 @@ export function FaqPageClient({ settings }: { settings: Settings }) {
                       isOpen ? 'rotate-180 text-amber-600 border-amber-600/40 bg-amber-500/10 font-bold' : ''
                     }`}
                   >
-                    {isOpen ? '−' : '+'}
+                    {isOpen ? 'ÔêÆ' : '+'}
                   </span>
                 </button>
                 {isOpen && (
@@ -289,7 +289,7 @@ export function FaqPageClient({ settings }: { settings: Settings }) {
             rel="noreferrer"
             className="p-4 rounded-2xl bg-[#25D366]/10 border border-[#25D366]/30 text-center hover:bg-[#25D366]/20 transition-colors flex flex-col items-center justify-center group"
           >
-            <span className="text-2xl mb-1">💬</span>
+            <span className="text-2xl mb-1">­ƒÆ¼</span>
             <span className="font-bold text-xs text-text group-hover:text-[#25D366]">Chat on WhatsApp</span>
             <span className="text-[11px] text-muted">Instant Replies</span>
           </a>
@@ -298,7 +298,7 @@ export function FaqPageClient({ settings }: { settings: Settings }) {
             href={`tel:${storePhone.replace(/[^\d+]/g, '')}`}
             className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-center hover:bg-amber-500/20 transition-colors flex flex-col items-center justify-center group"
           >
-            <span className="text-2xl mb-1">📞</span>
+            <span className="text-2xl mb-1">­ƒô×</span>
             <span className="font-bold text-xs text-text group-hover:text-amber-600">Call Support</span>
             <span className="text-[11px] text-muted">{storePhone}</span>
           </a>
@@ -307,7 +307,7 @@ export function FaqPageClient({ settings }: { settings: Settings }) {
             href="/contact"
             className="p-4 rounded-2xl bg-surface-hover border border-border text-center hover:border-amber-600 transition-colors flex flex-col items-center justify-center group"
           >
-            <span className="text-2xl mb-1">✉️</span>
+            <span className="text-2xl mb-1">Ô£ë´©Å</span>
             <span className="font-bold text-xs text-text group-hover:text-amber-600">Send an Inquiry</span>
             <span className="text-[11px] text-muted">Web Contact Form</span>
           </Link>

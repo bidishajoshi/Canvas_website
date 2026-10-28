@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+﻿import type { Metadata } from 'next';
 import { getSettings } from '@/lib/content';
 import { GiftGuideClient } from './GiftGuideClient';
 

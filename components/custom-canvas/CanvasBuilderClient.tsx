@@ -25,11 +25,6 @@ const CanvasEditor = dynamic(
   { ssr: false, loading: () => <PreviewPlaceholder /> }
 );
 
-const Realistic3DCanvasViewer = dynamic(
-  () => import('./Realistic3DCanvasViewer').then((m) => m.Realistic3DCanvasViewer),
-  { ssr: false, loading: () => <PreviewPlaceholder /> }
-);
-
 export interface CanvasCategoryProp {
   id: string;
   name: string;
@@ -199,9 +194,6 @@ export function CanvasBuilderClient({
   const [customText, setCustomText] = useState('');
   const [quantity, setQuantity] = useState(1);
   const [cropData, setCropData] = useState<PanelCropData[]>([]);
-  const [previewMode, setPreviewMode] = useState<'3d' | '2d'>('3d');
-  const [edgeWrapStyle, setEdgeWrapStyle] = useState<'image_wrap' | 'mirror_wrap' | 'black' | 'white' | 'wood'>('image_wrap');
-  const [stretcherDepth, setStretcherDepth] = useState<'slim' | 'standard' | 'deep'>('standard');
   const [isSizeChartOpen, setIsSizeChartOpen] = useState(false);
   const [showInquiryForm, setShowInquiryForm] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -365,15 +357,13 @@ export function CanvasBuilderClient({
         setFeedback('Select a canvas size to continue.');
         return;
       }
-      const wrapLabel = edgeWrapStyle === 'image_wrap' ? 'Gallery Image Wrap' : edgeWrapStyle === 'mirror_wrap' ? 'Mirror Edge Wrap' : edgeWrapStyle === 'black' ? 'Black Edge' : edgeWrapStyle === 'white' ? 'White Edge' : 'Wood Edge';
-      const depthLabel = stretcherDepth === 'slim' ? '0.75" Slim' : stretcherDepth === 'deep' ? '1.75" Museum Chunky' : '1.25" Gallery Standard';
       addToCart({
         type: 'custom_canvas',
-        name: `Custom ${selectedPanelType?.name || 'Canvas'} — ${selectedSize.name}`,
+        name: `Custom Canvas — ${selectedSize.name}`,
         imageUrl: currentPhotoUrl,
-        sizeLabel: `${selectedSize.name} (${depthLabel})`,
-        frameLabel: selectedFrame?.name || `${wrapLabel} (${depthLabel})`,
-        finishLabel: selectedFinish?.name || 'Archival Cotton Texture',
+        sizeLabel: selectedSize.name,
+        frameLabel: selectedFrame?.name || 'Unframed',
+        finishLabel: selectedFinish?.name || 'Standard Finish',
         quantity,
         unitPricePaisa: Math.round(price / quantity),
         canvasConfigurationId: configurationId,
@@ -842,42 +832,6 @@ export function CanvasBuilderClient({
               )}
             </div>
 
-            {/* View Mode Switcher: Realistic 3D Canvas Box vs 2D Crop Editor */}
-            <div className="flex items-center justify-between gap-2 p-1.5 rounded-2xl bg-surface-hover/80 border border-border/80 mb-3.5">
-              <div className="flex items-center gap-1.5">
-                <button
-                  type="button"
-                  onClick={() => setPreviewMode('3d')}
-                  className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all active:scale-95 flex items-center gap-1.5 ${
-                    previewMode === '3d'
-                      ? 'bg-amber-600 text-white shadow-md'
-                      : 'text-amber-600 dark:text-amber-400 hover:text-amber-700 bg-amber-500/10 border border-amber-500/20'
-                  }`}
-                >
-                  <span className="animate-pulse">🧊</span>
-                  <span>Realistic 3D Canvas</span>
-                  <span className="text-[10px] px-1.5 py-0.2 bg-white/20 rounded-full font-extrabold uppercase">3D</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setPreviewMode('2d')}
-                  className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all active:scale-95 flex items-center gap-1.5 ${
-                    previewMode === '2d'
-                      ? 'bg-surface text-amber-600 shadow-sm border border-border'
-                      : 'text-muted hover:text-text'
-                  }`}
-                >
-                  <span>🎨</span>
-                  <span>2D Crop &amp; Adjust</span>
-                </button>
-              </div>
-
-              <span className="text-[11px] font-semibold text-muted hidden sm:inline pr-2">
-                {previewMode === '3d' ? '360° Orbit & Stretcher Depth' : 'Crop, Zoom & Colors'}
-              </span>
-            </div>
-
             {/* Room Mockup Selector Bar */}
             <div className="flex items-center gap-2 mb-3.5 overflow-x-auto pb-1 text-xs">
               <span className="text-muted font-semibold shrink-0">Room Context:</span>
@@ -897,30 +851,17 @@ export function CanvasBuilderClient({
               ))}
             </div>
 
-            {/* Stage Component: Realistic 3D Canvas Box OR 2D Konva Editor */}
+            {/* Konva Stage Editor Component */}
             {currentPhotoUrl ? (
-              previewMode === '3d' ? (
-                <Realistic3DCanvasViewer
-                  imageUrl={currentPhotoUrl}
-                  panelCount={selectedPanelType?.panel_count ?? 1}
-                  aspectRatio={aspectRatio}
-                  frameName={selectedFrame?.name}
-                  wallBackground={selectedMockup}
-                  customText={customText}
-                  onWrapStyleChange={setEdgeWrapStyle}
-                  onDepthChange={setStretcherDepth}
-                />
-              ) : (
-                <CanvasEditor
-                  imageUrl={currentPhotoUrl}
-                  panelCount={selectedPanelType?.panel_count ?? 1}
-                  aspectRatio={aspectRatio}
-                  panelGapMm={panelGapMm}
-                  frameName={selectedFrame?.name}
-                  mockupUrl={selectedMockup}
-                  onChange={setCropData}
-                />
-              )
+              <CanvasEditor
+                imageUrl={currentPhotoUrl}
+                panelCount={selectedPanelType?.panel_count ?? 1}
+                aspectRatio={aspectRatio}
+                panelGapMm={panelGapMm}
+                frameName={selectedFrame?.name}
+                mockupUrl={selectedMockup}
+                onChange={setCropData}
+              />
             ) : (
               <PreviewPlaceholder />
             )}

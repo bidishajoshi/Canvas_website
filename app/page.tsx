@@ -7,6 +7,9 @@ import { BestSellers } from '@/components/home/BestSellers';
 import { CozyCanvasCollection } from '@/components/home/CozyCanvasCollection';
 import { CustomCanvasCta } from '@/components/home/CustomCanvasCta';
 import { CustomTShirtCta } from '@/components/home/CustomTShirtCta';
+import { GiftOccasionsShowcase } from '@/components/home/GiftOccasionsShowcase';
+import { CraftsmanshipShowcase } from '@/components/home/CraftsmanshipShowcase';
+import { HomeFaqSection } from '@/components/home/HomeFaqSection';
 import { SalesInquiryForm } from '@/components/home/SalesInquiryForm';
 import { Testimonials } from '@/components/home/Testimonials';
 import { WhyChooseUs } from '@/components/home/WhyChooseUs';
@@ -135,6 +138,15 @@ export default async function HomePage() {
       {/* Live Interactive Customization Studio */}
       <CustomCanvasCta section={{ id: 'sec-customizer', section_key: 'custom_studio_cta', title: 'Live Product Customization Studio', subtitle: 'Test photo panel splits or design custom apparel right here.', body: null, cta_label: null, cta_href: null, secondary_cta_label: null, secondary_cta_href: null, media: {}, settings: {}, enabled: true, sort_order: 6 }} />
 
+      {/* Custom T-Shirt Studio Showcase */}
+      <CustomTShirtCta section={{ id: 'sec-tshirt-cta', section_key: 'custom_tshirt_cta', title: 'Design Your Own Custom T-Shirt', subtitle: 'Pick premium 100% cotton t-shirts, select vibrant colors, add graphic artwork, or upload your own photo with live preview.', body: null, cta_label: 'Customize T-Shirt Now', cta_href: '/custom-t-shirt', secondary_cta_label: null, secondary_cta_href: null, media: {}, settings: {}, enabled: true, sort_order: 7 }} />
+
+      {/* Personalized Gift Guide & Occasions */}
+      <GiftOccasionsShowcase />
+
+      {/* Craftsmanship & Quality Standards */}
+      <CraftsmanshipShowcase />
+
       {/* Sales & Wholesale Bulk Order Form */}
       <SalesInquiryForm />
 
@@ -146,6 +158,9 @@ export default async function HomePage() {
 
       {/* How Easy It Works */}
       <HowItWorks section={{ id: 'sec-how', section_key: 'how_it_works', title: 'Three Simple Steps to Receive Your Canvas', subtitle: 'Select size, upload photo, and receive at your doorstep.', body: null, cta_label: null, cta_href: null, secondary_cta_label: null, secondary_cta_href: null, media: {}, settings: {}, enabled: true, sort_order: 9 }} />
+
+      {/* Frequently Asked Questions */}
+      <HomeFaqSection />
 
       {/* WhatsApp Quick Chat */}
       <WhatsAppCtaSection section={{ id: 'sec-wa', section_key: 'whatsapp_cta', title: 'Need Custom Help or Instant Order?', subtitle: 'Our design team is live on WhatsApp to assist with frame and panel sizing.', body: null, cta_label: null, cta_href: null, secondary_cta_label: null, secondary_cta_href: null, media: {}, settings: {}, enabled: true, sort_order: 10 }} />

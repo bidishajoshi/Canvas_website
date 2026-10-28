@@ -1,4 +1,4 @@
-import Link from 'next/link';
+﻿import Link from 'next/link';
 
 interface OccasionCard {
   id: string;
@@ -20,7 +20,7 @@ const OCCASIONS: OccasionCard[] = [
     description: 'Transform wedding photos, engagement sessions, and couple snapshots into romantic 3-panel split wall art.',
     ctaText: 'Build Couple Canvas',
     ctaHref: '/custom-canvas',
-    emoji: '💍',
+    emoji: '­ƒÆì',
   },
   {
     id: 'housewarming',
@@ -30,7 +30,7 @@ const OCCASIONS: OccasionCard[] = [
     description: 'Breathtaking 7-piece running horse landscapes and serene Buddha prints believed to attract prosperity and positive vibes.',
     ctaText: 'Explore Vastu Decor',
     ctaHref: '/categories',
-    emoji: '🏡',
+    emoji: '­ƒÅí',
   },
   {
     id: 'birthday',
@@ -40,7 +40,7 @@ const OCCASIONS: OccasionCard[] = [
     description: 'Personalized memory photo grids and custom-printed graphic tees featuring inside jokes, memories, and custom names.',
     ctaText: 'Design Birthday Gift',
     ctaHref: '/custom-canvas',
-    emoji: '🎁',
+    emoji: '­ƒÄü',
   },
   {
     id: 'family',
@@ -50,7 +50,7 @@ const OCCASIONS: OccasionCard[] = [
     description: 'High-definition portraits of newborns, kids, and grandparents stretched on museum cotton for living room centerpieces.',
     ctaText: 'Order Family Canvas',
     ctaHref: '/custom-canvas',
-    emoji: '👶',
+    emoji: '­ƒæÂ',
   },
   {
     id: 'corporate',
@@ -60,7 +60,7 @@ const OCCASIONS: OccasionCard[] = [
     description: 'Branded company logo canvas panels, employee recognition plaques, and custom corporate event t-shirts with volume discounts.',
     ctaText: 'Request Bulk Quote',
     ctaHref: '/bulk-orders',
-    emoji: '🏢',
+    emoji: '­ƒÅó',
   },
 ];
 
@@ -86,7 +86,7 @@ export function GiftOccasionsShowcase() {
           className="shrink-0 px-6 py-3 rounded-2xl bg-surface-hover hover:bg-surface border border-border hover:border-amber-600 text-text font-bold text-xs shadow-sm transition-all active:scale-95 flex items-center gap-2"
         >
           <span>View All Occasion Ideas</span>
-          <span>→</span>
+          <span>ÔåÆ</span>
         </Link>
       </div>
 
@@ -123,7 +123,7 @@ export function GiftOccasionsShowcase() {
                 href={occ.ctaHref}
                 className="w-full text-center py-2 px-3 rounded-xl bg-amber-600/10 group-hover:bg-amber-600 text-amber-600 group-hover:text-white font-bold text-xs transition-colors block shadow-xs"
               >
-                {occ.ctaText} →
+                {occ.ctaText} ÔåÆ
               </Link>
             </div>
           </div>
