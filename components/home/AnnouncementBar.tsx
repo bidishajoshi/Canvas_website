@@ -28,12 +28,12 @@ export function AnnouncementBar({
     const isExternal = targetHref.startsWith('http://') || targetHref.startsWith('https://');
 
     const itemInner = (
-      <span className="inline-flex items-center gap-2.5 px-3 text-xs sm:text-sm font-semibold tracking-wide text-amber-950 dark:text-amber-100 hover:text-amber-900 transition-colors">
+      <span className="inline-flex items-center gap-2.5 px-3 text-xs sm:text-sm font-semibold tracking-wide text-stone-800 dark:text-stone-200 hover:text-stone-950 dark:hover:text-white transition-colors">
         <span>{text}</span>
-        <span className="inline-flex items-center gap-1 rounded-full bg-slate-900/10 dark:bg-white/20 px-2 py-0.5 text-[10px] sm:text-xs font-bold uppercase tracking-wider text-slate-950 dark:text-white group-hover:bg-slate-900 group-hover:text-white transition-all shadow-xs">
+        <span className="inline-flex items-center gap-1 rounded-full bg-stone-900/8 dark:bg-stone-100/10 border border-stone-900/10 dark:border-stone-100/15 px-2.5 py-0.5 text-[10px] sm:text-xs font-bold uppercase tracking-wider text-stone-800 dark:text-stone-200 group-hover:bg-amber-600 group-hover:text-white group-hover:border-amber-600 dark:group-hover:bg-amber-500 dark:group-hover:text-stone-950 transition-all shadow-xs">
           Order Now →
         </span>
-        <span className="ml-2 font-bold text-amber-800/40 dark:text-amber-200/40">✦</span>
+        <span className="ml-2 font-bold text-amber-600/70 dark:text-amber-400/70">✦</span>
       </span>
     );
 
@@ -63,12 +63,12 @@ export function AnnouncementBar({
 
   return (
     <div
-      className="group relative w-full overflow-hidden bg-gradient-to-r from-amber-400 via-amber-300 to-amber-400 dark:from-amber-600 dark:via-amber-500 dark:to-amber-600 py-2 border-b border-amber-500/30 shadow-xs select-none"
+      className="group relative w-full overflow-hidden bg-gradient-to-r from-[#f5efe6] via-[#fbf8f3] to-[#f5efe6] dark:from-[#1c1917] dark:via-[#26221f] dark:to-[#1c1917] py-2 border-b border-[#e6ded3] dark:border-[#2e2926] shadow-xs select-none"
       aria-label="Announcement marquee carousel"
     >
       {/* Subtle fade edges for seamless entrance/exit */}
-      <div className="pointer-events-none absolute left-0 top-0 bottom-0 z-10 w-6 bg-gradient-to-r from-amber-400 dark:from-amber-600 to-transparent" />
-      <div className="pointer-events-none absolute right-0 top-0 bottom-0 z-10 w-6 bg-gradient-to-l from-amber-400 dark:from-amber-600 to-transparent" />
+      <div className="pointer-events-none absolute left-0 top-0 bottom-0 z-10 w-8 bg-gradient-to-r from-[#f5efe6] dark:from-[#1c1917] to-transparent" />
+      <div className="pointer-events-none absolute right-0 top-0 bottom-0 z-10 w-8 bg-gradient-to-l from-[#f5efe6] dark:from-[#1c1917] to-transparent" />
 
       <div className="flex w-max animate-marquee">
         {/* Track 1 */}
