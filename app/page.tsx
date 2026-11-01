@@ -5,11 +5,13 @@ import { AnnouncementBar } from '@/components/home/AnnouncementBar';
 import { CategoryGrid } from '@/components/home/CategoryGrid';
 import { BestSellers } from '@/components/home/BestSellers';
 import { CozyCanvasCollection } from '@/components/home/CozyCanvasCollection';
+import { PanelShowcase } from '@/components/home/PanelShowcase';
 import { CustomCanvasCta } from '@/components/home/CustomCanvasCta';
 import { CustomTShirtCta } from '@/components/home/CustomTShirtCta';
 import { GiftOccasionsShowcase } from '@/components/home/GiftOccasionsShowcase';
 import { CraftsmanshipShowcase } from '@/components/home/CraftsmanshipShowcase';
 import { HomeFaqSection } from '@/components/home/HomeFaqSection';
+import { PinterestCozyGallery } from '@/components/home/PinterestCozyGallery';
 import { SalesInquiryForm } from '@/components/home/SalesInquiryForm';
 import { Testimonials } from '@/components/home/Testimonials';
 import { WhyChooseUs } from '@/components/home/WhyChooseUs';
@@ -135,6 +137,9 @@ export default async function HomePage() {
       {/* Cozy Ready Made Canvas Gallery */}
       <CozyCanvasCollection products={canvasProductsToUse} />
 
+      {/* Multi-Panel Canvas Split Layouts */}
+      <PanelShowcase section={{ id: 'sec-panel', section_key: 'panel_showcase', title: 'Choose Your Custom Canvas Panel Split', subtitle: 'Transform your single favorite photo across 1 to 7 handcrafted pine wood canvas panels. Hand-stretched and delivered ready to hang.', body: null, cta_label: null, cta_href: null, secondary_cta_label: null, secondary_cta_href: null, media: {}, settings: {}, enabled: true, sort_order: 3 }} />
+
       {/* Live Interactive Customization Studio */}
       <CustomCanvasCta section={{ id: 'sec-customizer', section_key: 'custom_studio_cta', title: 'Live Product Customization Studio', subtitle: 'Test photo panel splits or design custom apparel right here.', body: null, cta_label: null, cta_href: null, secondary_cta_label: null, secondary_cta_href: null, media: {}, settings: {}, enabled: true, sort_order: 6 }} />
 
@@ -143,6 +148,9 @@ export default async function HomePage() {
 
       {/* Personalized Gift Guide & Occasions */}
       <GiftOccasionsShowcase />
+
+      {/* Real Customer Inspiration Wall Art Gallery */}
+      <PinterestCozyGallery />
 
       {/* Craftsmanship & Quality Standards */}
       <CraftsmanshipShowcase />

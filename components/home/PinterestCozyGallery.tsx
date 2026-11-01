@@ -22,13 +22,13 @@ export async function PinterestCozyGallery() {
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-10">
         <div>
           <span className="text-xs font-bold uppercase tracking-widest text-amber-600 bg-amber-500/10 px-3 py-1 rounded-full border border-amber-500/20">
-            ✨ Aesthetic Room Inspiration
+            🖼️ Real Customer Wall Inspiration
           </span>
           <h2 className="font-display text-2xl sm:text-4xl font-bold tracking-tight text-text mt-2">
-            Pinterest-Inspired Cozy Decor Collections
+            Real Customer Homes &amp; Wall Decor Gallery
           </h2>
           <p className="mt-2 text-muted text-sm sm:text-base max-w-xl">
-            From soft pink girl room galleries to warm couple memory walls, discover aesthetic layout ideas for your living space.
+            From cozy bedroom memory walls to grand living room split landscapes, explore real photo canvases delivered across Nepal.
           </p>
         </div>
 
