@@ -16,6 +16,8 @@ export async function Footer() {
     { id: 'q2b', label: 'Customize T-Shirt', href: '/custom-t-shirt' },
     { id: 'q2c', label: 'Personalized Gift Guide', href: '/gift-guide' },
     { id: 'q2d', label: 'Bulk & Corporate Orders', href: '/bulk-orders' },
+    { id: 'q2e', label: 'Size & Framing Guide', href: '/size-guide' },
+    { id: 'q2f', label: 'Customer Reviews', href: '/reviews' },
     { id: 'q3', label: 'Track Order Progress', href: '/track-order' },
     { id: 'q4', label: 'How It Works', href: '/how-it-works' },
     { id: 'q5', label: 'Contact Us', href: '/contact' },
