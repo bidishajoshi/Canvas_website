@@ -191,6 +191,21 @@ export function CanvasBuilderClient({
   const [finishId, setFinishId] = useState<string | null>(null);
   const [selectedMockupId, setSelectedMockupId] = useState('none');
 
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const requestedPanel = params.get('panel');
+      if (requestedPanel) {
+        const found = activePanels.find(
+          (p) => p.id === requestedPanel || String(p.panel_count) === requestedPanel
+        );
+        if (found) {
+          setPanelTypeId(found.id);
+        }
+      }
+    }
+  }, [activePanels]);
+
   const [customText, setCustomText] = useState('');
   const [quantity, setQuantity] = useState(1);
   const [cropData, setCropData] = useState<PanelCropData[]>([]);
